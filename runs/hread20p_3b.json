@@ -1,0 +1,84 @@
+{
+ "chart": {
+  "mode": "proto",
+  "split": {
+   "n_unseen": 23,
+   "h_unseen": 0.08695652173913043,
+   "b_unseen": 0.0,
+   "h_seen": 0.72,
+   "b_seen": 0.98
+  },
+  "n_train": 20,
+  "n_test": 73,
+  "classes": 17,
+  "L": 2,
+  "r": 64,
+  "cal": 0.6271186470985413,
+  "hread": 0.5205479264259338,
+  "bread": 0.6712328767123288,
+  "init": 0.2876712381839752
+ },
+ "counting": {
+  "mode": "proto",
+  "split": {
+   "n_unseen": 0,
+   "h_unseen": NaN,
+   "b_unseen": NaN,
+   "h_seen": 0.6133333333333333,
+   "b_seen": 0.64
+  },
+  "n_train": 20,
+  "n_test": 75,
+  "classes": 9,
+  "L": 2,
+  "r": 32,
+  "cal": 0.6499999761581421,
+  "hread": 0.6133333444595337,
+  "bread": 0.64,
+  "init": 0.6133333444595337
+ },
+ "spatial": {
+  "mode": "proto",
+  "split": {
+   "n_unseen": 0,
+   "h_unseen": NaN,
+   "b_unseen": NaN,
+   "h_seen": 0.8666666666666667,
+   "b_seen": 0.88
+  },
+  "n_train": 20,
+  "n_test": 75,
+  "classes": 4,
+  "L": 1,
+  "r": 16,
+  "cal": 0.9833333492279053,
+  "hread": 0.8666666746139526,
+  "bread": 0.88,
+  "init": 0.7599999904632568
+ },
+ "tracking": {
+  "mode": "proto",
+  "split": {
+   "n_unseen": 0,
+   "h_unseen": NaN,
+   "b_unseen": NaN,
+   "h_seen": 0.24,
+   "b_seen": 0.32
+  },
+  "n_train": 20,
+  "n_test": 75,
+  "classes": 4,
+  "L": 1,
+  "r": 8,
+  "cal": 0.4333333373069763,
+  "hread": 0.23999999463558197,
+  "bread": 0.32,
+  "init": 0.3866666555404663
+ },
+ "ALL": {
+  "hread": 0.5604026834136687,
+  "bread": 0.62751677852349,
+  "init": 0.5134228176918606,
+  "n": 298
+ }
+}

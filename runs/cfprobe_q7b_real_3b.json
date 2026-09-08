@@ -1,0 +1,2252 @@
+[
+ {
+  "id": "spatial_000000",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "left",
+  "probe1": "left",
+  "model0": "right",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000005",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "left",
+  "probe1": "left",
+  "model0": "left",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000006",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "right",
+  "probe1": "right",
+  "model0": "right",
+  "model1": "left"
+ },
+ {
+  "id": "spatial_000007",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "right",
+  "probe1": "right",
+  "model0": "right",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000009",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "left",
+  "probe1": "right",
+  "model0": "right",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000011",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "right",
+  "probe1": "right",
+  "model0": "right",
+  "model1": "left"
+ },
+ {
+  "id": "spatial_000024",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "left",
+  "probe1": "left",
+  "model0": "right",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000025",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "right",
+  "probe1": "right",
+  "model0": "left",
+  "model1": "left"
+ },
+ {
+  "id": "spatial_000028",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "right",
+  "probe1": "right",
+  "model0": "right",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000030",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "left",
+  "probe1": "right",
+  "model0": "left",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000031",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "left",
+  "probe1": "left",
+  "model0": "left",
+  "model1": "left"
+ },
+ {
+  "id": "spatial_000040",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "right",
+  "probe1": "left",
+  "model0": "right",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000042",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "right",
+  "probe1": "right",
+  "model0": "right",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000045",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "right",
+  "probe1": "left",
+  "model0": "right",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000052",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "left",
+  "probe1": "left",
+  "model0": "right",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000058",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "right",
+  "probe1": "right",
+  "model0": "right",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000059",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "left",
+  "probe1": "right",
+  "model0": "left",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000060",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "left",
+  "probe1": "left",
+  "model0": "right",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000061",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "right",
+  "probe1": "right",
+  "model0": "right",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000066",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "right",
+  "probe1": "left",
+  "model0": "right",
+  "model1": "left"
+ },
+ {
+  "id": "spatial_000074",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "left",
+  "probe1": "right",
+  "model0": "left",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000085",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "left",
+  "probe1": "left",
+  "model0": "right",
+  "model1": "left"
+ },
+ {
+  "id": "spatial_000088",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "left",
+  "probe1": "right",
+  "model0": "right",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000097",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "left",
+  "probe1": "left",
+  "model0": "right",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000108",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "right",
+  "probe1": "right",
+  "model0": "right",
+  "model1": "left"
+ },
+ {
+  "id": "spatial_000109",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "right",
+  "probe1": "right",
+  "model0": "left",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000119",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "right",
+  "probe1": "left",
+  "model0": "right",
+  "model1": "left"
+ },
+ {
+  "id": "spatial_000121",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "right",
+  "probe1": "right",
+  "model0": "right",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000128",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "left",
+  "probe1": "left",
+  "model0": "left",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000133",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "left",
+  "probe1": "left",
+  "model0": "left",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000141",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "right",
+  "probe1": "right",
+  "model0": "right",
+  "model1": "left"
+ },
+ {
+  "id": "spatial_000142",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "left",
+  "probe1": "right",
+  "model0": "left",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000143",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "left",
+  "probe1": "left",
+  "model0": "right",
+  "model1": "left"
+ },
+ {
+  "id": "spatial_000144",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "left",
+  "probe1": "left",
+  "model0": "right",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000145",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "left",
+  "probe1": "right",
+  "model0": "left",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000149",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "right",
+  "probe1": "right",
+  "model0": "left",
+  "model1": "left"
+ },
+ {
+  "id": "spatial_000152",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "left",
+  "probe1": "right",
+  "model0": "left",
+  "model1": "left"
+ },
+ {
+  "id": "spatial_000154",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "right",
+  "probe1": "left",
+  "model0": "right",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000157",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "right",
+  "probe1": "right",
+  "model0": "left",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000160",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "right",
+  "probe1": "right",
+  "model0": "right",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000161",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "left",
+  "probe1": "left",
+  "model0": "right",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000162",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "right",
+  "probe1": "left",
+  "model0": "right",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000168",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "right",
+  "probe1": "left",
+  "model0": "right",
+  "model1": "left"
+ },
+ {
+  "id": "spatial_000169",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "left",
+  "probe1": "left",
+  "model0": "right",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000171",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "right",
+  "probe1": "right",
+  "model0": "right",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000175",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "left",
+  "probe1": "left",
+  "model0": "left",
+  "model1": null
+ },
+ {
+  "id": "spatial_000180",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "left",
+  "probe1": "left",
+  "model0": "left",
+  "model1": "left"
+ },
+ {
+  "id": "spatial_000182",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "left",
+  "probe1": "left",
+  "model0": "right",
+  "model1": "left"
+ },
+ {
+  "id": "spatial_000186",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "right",
+  "probe1": "left",
+  "model0": "right",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000203",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "left",
+  "probe1": "left",
+  "model0": "right",
+  "model1": "left"
+ },
+ {
+  "id": "spatial_000208",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "right",
+  "probe1": "right",
+  "model0": "left",
+  "model1": "left"
+ },
+ {
+  "id": "spatial_000209",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "left",
+  "probe1": "right",
+  "model0": "left",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000215",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "right",
+  "probe1": "right",
+  "model0": "right",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000216",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "left",
+  "probe1": "left",
+  "model0": "right",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000225",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "right",
+  "probe1": "right",
+  "model0": "right",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000229",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "left",
+  "probe1": "right",
+  "model0": "left",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000231",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "left",
+  "probe1": "left",
+  "model0": "left",
+  "model1": "left"
+ },
+ {
+  "id": "spatial_000232",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "right",
+  "probe1": "right",
+  "model0": "right",
+  "model1": "left"
+ },
+ {
+  "id": "spatial_000233",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "left",
+  "probe1": "right",
+  "model0": "left",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000234",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "right",
+  "probe1": "right",
+  "model0": "right",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000236",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "right",
+  "probe1": "left",
+  "model0": "right",
+  "model1": "left"
+ },
+ {
+  "id": "spatial_000243",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "left",
+  "probe1": "right",
+  "model0": "right",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000247",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "left",
+  "probe1": "right",
+  "model0": "left",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000249",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "left",
+  "probe1": "right",
+  "model0": "left",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000252",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "right",
+  "probe1": "left",
+  "model0": "right",
+  "model1": "left"
+ },
+ {
+  "id": "spatial_000255",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "left",
+  "probe1": "left",
+  "model0": "right",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000262",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "left",
+  "probe1": "right",
+  "model0": "left",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000276",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "left",
+  "probe1": "left",
+  "model0": "left",
+  "model1": "left"
+ },
+ {
+  "id": "spatial_000277",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "left",
+  "probe1": "left",
+  "model0": "right",
+  "model1": "left"
+ },
+ {
+  "id": "spatial_000278",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "right",
+  "probe1": "right",
+  "model0": "right",
+  "model1": "left"
+ },
+ {
+  "id": "spatial_000279",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "right",
+  "probe1": "right",
+  "model0": "right",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000283",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "right",
+  "probe1": "right",
+  "model0": "right",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000289",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "left",
+  "probe1": "right",
+  "model0": "left",
+  "model1": "right"
+ },
+ {
+  "id": "spatial_000294",
+  "family": "spatial",
+  "a0": "right",
+  "a1": "left",
+  "probe0": "right",
+  "probe1": "left",
+  "model0": "right",
+  "model1": "left"
+ },
+ {
+  "id": "spatial_000298",
+  "family": "spatial",
+  "a0": "left",
+  "a1": "right",
+  "probe0": "left",
+  "probe1": "right",
+  "model0": "left",
+  "model1": "right"
+ },
+ {
+  "id": "counting_000000",
+  "family": "counting",
+  "a0": "2",
+  "a1": "3",
+  "probe0": "2",
+  "probe1": "2",
+  "model0": "2",
+  "model1": "2"
+ },
+ {
+  "id": "counting_000013",
+  "family": "counting",
+  "a0": "3",
+  "a1": "4",
+  "probe0": "5",
+  "probe1": "5",
+  "model0": "4",
+  "model1": "4"
+ },
+ {
+  "id": "counting_000017",
+  "family": "counting",
+  "a0": "4",
+  "a1": "5",
+  "probe0": "4",
+  "probe1": "4",
+  "model0": "3",
+  "model1": "4"
+ },
+ {
+  "id": "counting_000018",
+  "family": "counting",
+  "a0": "5",
+  "a1": "6",
+  "probe0": "3",
+  "probe1": "4",
+  "model0": "6",
+  "model1": null
+ },
+ {
+  "id": "counting_000020",
+  "family": "counting",
+  "a0": "3",
+  "a1": "4",
+  "probe0": "3",
+  "probe1": "3",
+  "model0": "2",
+  "model1": "4"
+ },
+ {
+  "id": "counting_000024",
+  "family": "counting",
+  "a0": "3",
+  "a1": "4",
+  "probe0": "2",
+  "probe1": "2",
+  "model0": "2",
+  "model1": "2"
+ },
+ {
+  "id": "counting_000031",
+  "family": "counting",
+  "a0": "2",
+  "a1": "3",
+  "probe0": "3",
+  "probe1": "3",
+  "model0": "5",
+  "model1": "5"
+ },
+ {
+  "id": "counting_000045",
+  "family": "counting",
+  "a0": "4",
+  "a1": "5",
+  "probe0": "5",
+  "probe1": "5",
+  "model0": "5",
+  "model1": "6"
+ },
+ {
+  "id": "counting_000046",
+  "family": "counting",
+  "a0": "5",
+  "a1": "6",
+  "probe0": "3",
+  "probe1": "3",
+  "model0": null,
+  "model1": null
+ },
+ {
+  "id": "counting_000048",
+  "family": "counting",
+  "a0": "3",
+  "a1": "4",
+  "probe0": "3",
+  "probe1": "3",
+  "model0": "3",
+  "model1": "3"
+ },
+ {
+  "id": "counting_000052",
+  "family": "counting",
+  "a0": "3",
+  "a1": "4",
+  "probe0": "3",
+  "probe1": "3",
+  "model0": "3",
+  "model1": "4"
+ },
+ {
+  "id": "counting_000057",
+  "family": "counting",
+  "a0": "4",
+  "a1": "5",
+  "probe0": "3",
+  "probe1": "4",
+  "model0": null,
+  "model1": null
+ },
+ {
+  "id": "counting_000065",
+  "family": "counting",
+  "a0": "4",
+  "a1": "5",
+  "probe0": "3",
+  "probe1": "3",
+  "model0": "3",
+  "model1": "3"
+ },
+ {
+  "id": "counting_000077",
+  "family": "counting",
+  "a0": "4",
+  "a1": "5",
+  "probe0": "5",
+  "probe1": "5",
+  "model0": null,
+  "model1": null
+ },
+ {
+  "id": "counting_000079",
+  "family": "counting",
+  "a0": "2",
+  "a1": "3",
+  "probe0": "2",
+  "probe1": "3",
+  "model0": "2",
+  "model1": "2"
+ },
+ {
+  "id": "counting_000086",
+  "family": "counting",
+  "a0": "5",
+  "a1": "6",
+  "probe0": "5",
+  "probe1": "5",
+  "model0": null,
+  "model1": null
+ },
+ {
+  "id": "counting_000090",
+  "family": "counting",
+  "a0": "2",
+  "a1": "3",
+  "probe0": "2",
+  "probe1": "3",
+  "model0": null,
+  "model1": "2"
+ },
+ {
+  "id": "counting_000094",
+  "family": "counting",
+  "a0": "2",
+  "a1": "3",
+  "probe0": "2",
+  "probe1": "2",
+  "model0": null,
+  "model1": null
+ },
+ {
+  "id": "counting_000097",
+  "family": "counting",
+  "a0": "2",
+  "a1": "3",
+  "probe0": "3",
+  "probe1": "2",
+  "model0": "4",
+  "model1": null
+ },
+ {
+  "id": "counting_000103",
+  "family": "counting",
+  "a0": "4",
+  "a1": "5",
+  "probe0": "3",
+  "probe1": "3",
+  "model0": "4",
+  "model1": "4"
+ },
+ {
+  "id": "counting_000104",
+  "family": "counting",
+  "a0": "5",
+  "a1": "6",
+  "probe0": "4",
+  "probe1": "4",
+  "model0": "6",
+  "model1": null
+ },
+ {
+  "id": "counting_000107",
+  "family": "counting",
+  "a0": "4",
+  "a1": "5",
+  "probe0": "4",
+  "probe1": "5",
+  "model0": "4",
+  "model1": "5"
+ },
+ {
+  "id": "counting_000113",
+  "family": "counting",
+  "a0": "2",
+  "a1": "3",
+  "probe0": "5",
+  "probe1": "5",
+  "model0": null,
+  "model1": "5"
+ },
+ {
+  "id": "counting_000114",
+  "family": "counting",
+  "a0": "3",
+  "a1": "4",
+  "probe0": "5",
+  "probe1": "3",
+  "model0": "5",
+  "model1": "4"
+ },
+ {
+  "id": "counting_000131",
+  "family": "counting",
+  "a0": "4",
+  "a1": "5",
+  "probe0": "3",
+  "probe1": "3",
+  "model0": "4",
+  "model1": "4"
+ },
+ {
+  "id": "counting_000132",
+  "family": "counting",
+  "a0": "5",
+  "a1": "6",
+  "probe0": "5",
+  "probe1": "5",
+  "model0": null,
+  "model1": null
+ },
+ {
+  "id": "counting_000134",
+  "family": "counting",
+  "a0": "3",
+  "a1": "4",
+  "probe0": "3",
+  "probe1": "3",
+  "model0": "5",
+  "model1": "5"
+ },
+ {
+  "id": "counting_000135",
+  "family": "counting",
+  "a0": "4",
+  "a1": "5",
+  "probe0": "3",
+  "probe1": "4",
+  "model0": "3",
+  "model1": "4"
+ },
+ {
+  "id": "counting_000136",
+  "family": "counting",
+  "a0": "2",
+  "a1": "3",
+  "probe0": "3",
+  "probe1": "3",
+  "model0": "2",
+  "model1": "3"
+ },
+ {
+  "id": "counting_000137",
+  "family": "counting",
+  "a0": "3",
+  "a1": "4",
+  "probe0": "3",
+  "probe1": "3",
+  "model0": "3",
+  "model1": "3"
+ },
+ {
+  "id": "counting_000140",
+  "family": "counting",
+  "a0": "2",
+  "a1": "3",
+  "probe0": "2",
+  "probe1": "3",
+  "model0": "2",
+  "model1": "3"
+ },
+ {
+  "id": "counting_000141",
+  "family": "counting",
+  "a0": "3",
+  "a1": "4",
+  "probe0": "3",
+  "probe1": "3",
+  "model0": "3",
+  "model1": "4"
+ },
+ {
+  "id": "counting_000144",
+  "family": "counting",
+  "a0": "2",
+  "a1": "3",
+  "probe0": "2",
+  "probe1": "3",
+  "model0": "2",
+  "model1": "3"
+ },
+ {
+  "id": "counting_000146",
+  "family": "counting",
+  "a0": "4",
+  "a1": "5",
+  "probe0": "4",
+  "probe1": "4",
+  "model0": "4",
+  "model1": "4"
+ },
+ {
+  "id": "counting_000151",
+  "family": "counting",
+  "a0": "5",
+  "a1": "6",
+  "probe0": "5",
+  "probe1": "3",
+  "model0": null,
+  "model1": null
+ },
+ {
+  "id": "counting_000152",
+  "family": "counting",
+  "a0": "2",
+  "a1": "3",
+  "probe0": "4",
+  "probe1": "4",
+  "model0": "2",
+  "model1": "4"
+ },
+ {
+  "id": "counting_000160",
+  "family": "counting",
+  "a0": "3",
+  "a1": "4",
+  "probe0": "4",
+  "probe1": "4",
+  "model0": "4",
+  "model1": "4"
+ },
+ {
+  "id": "counting_000166",
+  "family": "counting",
+  "a0": "5",
+  "a1": "6",
+  "probe0": "4",
+  "probe1": "4",
+  "model0": "6",
+  "model1": null
+ },
+ {
+  "id": "counting_000174",
+  "family": "counting",
+  "a0": "5",
+  "a1": "6",
+  "probe0": "3",
+  "probe1": "4",
+  "model0": null,
+  "model1": null
+ },
+ {
+  "id": "counting_000182",
+  "family": "counting",
+  "a0": "2",
+  "a1": "3",
+  "probe0": "3",
+  "probe1": "3",
+  "model0": "3",
+  "model1": "2"
+ },
+ {
+  "id": "counting_000183",
+  "family": "counting",
+  "a0": "3",
+  "a1": "4",
+  "probe0": "3",
+  "probe1": "3",
+  "model0": "4",
+  "model1": "5"
+ },
+ {
+  "id": "counting_000185",
+  "family": "counting",
+  "a0": "5",
+  "a1": "6",
+  "probe0": "3",
+  "probe1": "3",
+  "model0": "4",
+  "model1": "5"
+ },
+ {
+  "id": "counting_000187",
+  "family": "counting",
+  "a0": "3",
+  "a1": "4",
+  "probe0": "3",
+  "probe1": "3",
+  "model0": "3",
+  "model1": "4"
+ },
+ {
+  "id": "counting_000188",
+  "family": "counting",
+  "a0": "4",
+  "a1": "5",
+  "probe0": "3",
+  "probe1": "4",
+  "model0": "6",
+  "model1": null
+ },
+ {
+  "id": "counting_000189",
+  "family": "counting",
+  "a0": "5",
+  "a1": "6",
+  "probe0": "5",
+  "probe1": "4",
+  "model0": "6",
+  "model1": "6"
+ },
+ {
+  "id": "counting_000195",
+  "family": "counting",
+  "a0": "3",
+  "a1": "4",
+  "probe0": "3",
+  "probe1": "3",
+  "model0": "3",
+  "model1": "3"
+ },
+ {
+  "id": "counting_000201",
+  "family": "counting",
+  "a0": "2",
+  "a1": "3",
+  "probe0": "2",
+  "probe1": "3",
+  "model0": "2",
+  "model1": "2"
+ },
+ {
+  "id": "counting_000206",
+  "family": "counting",
+  "a0": "3",
+  "a1": "4",
+  "probe0": "3",
+  "probe1": "3",
+  "model0": "3",
+  "model1": "4"
+ },
+ {
+  "id": "counting_000208",
+  "family": "counting",
+  "a0": "5",
+  "a1": "6",
+  "probe0": "5",
+  "probe1": "5",
+  "model0": null,
+  "model1": null
+ },
+ {
+  "id": "counting_000209",
+  "family": "counting",
+  "a0": "2",
+  "a1": "3",
+  "probe0": "3",
+  "probe1": "3",
+  "model0": null,
+  "model1": null
+ },
+ {
+  "id": "counting_000211",
+  "family": "counting",
+  "a0": "4",
+  "a1": "5",
+  "probe0": "5",
+  "probe1": "5",
+  "model0": null,
+  "model1": "6"
+ },
+ {
+  "id": "counting_000215",
+  "family": "counting",
+  "a0": "4",
+  "a1": "5",
+  "probe0": "3",
+  "probe1": "3",
+  "model0": null,
+  "model1": "6"
+ },
+ {
+  "id": "counting_000225",
+  "family": "counting",
+  "a0": "3",
+  "a1": "4",
+  "probe0": "3",
+  "probe1": "3",
+  "model0": "3",
+  "model1": "2"
+ },
+ {
+  "id": "counting_000232",
+  "family": "counting",
+  "a0": "2",
+  "a1": "3",
+  "probe0": "3",
+  "probe1": "3",
+  "model0": "2",
+  "model1": "2"
+ },
+ {
+  "id": "counting_000235",
+  "family": "counting",
+  "a0": "5",
+  "a1": "6",
+  "probe0": "5",
+  "probe1": "5",
+  "model0": "6",
+  "model1": "6"
+ },
+ {
+  "id": "counting_000243",
+  "family": "counting",
+  "a0": "5",
+  "a1": "6",
+  "probe0": "3",
+  "probe1": "3",
+  "model0": "6",
+  "model1": "5"
+ },
+ {
+  "id": "counting_000247",
+  "family": "counting",
+  "a0": "5",
+  "a1": "6",
+  "probe0": "5",
+  "probe1": "5",
+  "model0": "5",
+  "model1": "5"
+ },
+ {
+  "id": "counting_000250",
+  "family": "counting",
+  "a0": "4",
+  "a1": "5",
+  "probe0": "4",
+  "probe1": "4",
+  "model0": null,
+  "model1": null
+ },
+ {
+  "id": "counting_000259",
+  "family": "counting",
+  "a0": "2",
+  "a1": "3",
+  "probe0": "2",
+  "probe1": "3",
+  "model0": "2",
+  "model1": "2"
+ },
+ {
+  "id": "counting_000262",
+  "family": "counting",
+  "a0": "5",
+  "a1": "6",
+  "probe0": "4",
+  "probe1": "5",
+  "model0": "5",
+  "model1": "5"
+ },
+ {
+  "id": "counting_000264",
+  "family": "counting",
+  "a0": "3",
+  "a1": "4",
+  "probe0": "3",
+  "probe1": "3",
+  "model0": "3",
+  "model1": "4"
+ },
+ {
+  "id": "counting_000266",
+  "family": "counting",
+  "a0": "5",
+  "a1": "6",
+  "probe0": "5",
+  "probe1": "5",
+  "model0": "5",
+  "model1": "6"
+ },
+ {
+  "id": "counting_000267",
+  "family": "counting",
+  "a0": "2",
+  "a1": "3",
+  "probe0": "2",
+  "probe1": "2",
+  "model0": "2",
+  "model1": "2"
+ },
+ {
+  "id": "counting_000272",
+  "family": "counting",
+  "a0": "3",
+  "a1": "4",
+  "probe0": "3",
+  "probe1": "3",
+  "model0": "2",
+  "model1": "2"
+ },
+ {
+  "id": "counting_000278",
+  "family": "counting",
+  "a0": "5",
+  "a1": "6",
+  "probe0": "4",
+  "probe1": "5",
+  "model0": "4",
+  "model1": "5"
+ },
+ {
+  "id": "counting_000279",
+  "family": "counting",
+  "a0": "2",
+  "a1": "3",
+  "probe0": "3",
+  "probe1": "3",
+  "model0": "2",
+  "model1": "3"
+ },
+ {
+  "id": "counting_000281",
+  "family": "counting",
+  "a0": "4",
+  "a1": "5",
+  "probe0": "3",
+  "probe1": "3",
+  "model0": "4",
+  "model1": "4"
+ },
+ {
+  "id": "counting_000287",
+  "family": "counting",
+  "a0": "2",
+  "a1": "3",
+  "probe0": "2",
+  "probe1": "2",
+  "model0": null,
+  "model1": null
+ },
+ {
+  "id": "counting_000288",
+  "family": "counting",
+  "a0": "3",
+  "a1": "4",
+  "probe0": "3",
+  "probe1": "4",
+  "model0": "3",
+  "model1": "4"
+ },
+ {
+  "id": "counting_000289",
+  "family": "counting",
+  "a0": "4",
+  "a1": "5",
+  "probe0": "5",
+  "probe1": "5",
+  "model0": null,
+  "model1": null
+ },
+ {
+  "id": "counting_000291",
+  "family": "counting",
+  "a0": "3",
+  "a1": "4",
+  "probe0": "3",
+  "probe1": "3",
+  "model0": "3",
+  "model1": "3"
+ },
+ {
+  "id": "counting_000292",
+  "family": "counting",
+  "a0": "4",
+  "a1": "5",
+  "probe0": "3",
+  "probe1": "4",
+  "model0": "3",
+  "model1": "4"
+ },
+ {
+  "id": "counting_000296",
+  "family": "counting",
+  "a0": "4",
+  "a1": "5",
+  "probe0": "5",
+  "probe1": "5",
+  "model0": "5",
+  "model1": "6"
+ },
+ {
+  "id": "counting_000297",
+  "family": "counting",
+  "a0": "5",
+  "a1": "6",
+  "probe0": "3",
+  "probe1": "3",
+  "model0": null,
+  "model1": null
+ },
+ {
+  "id": "counting_000299",
+  "family": "counting",
+  "a0": "3",
+  "a1": "4",
+  "probe0": "3",
+  "probe1": "3",
+  "model0": "3",
+  "model1": "4"
+ },
+ {
+  "id": "glyph_000000",
+  "family": "glyph",
+  "a0": "60",
+  "a1": "30",
+  "probe0": "95",
+  "probe1": "95",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000001",
+  "family": "glyph",
+  "a0": "25",
+  "a1": "70",
+  "probe0": "25",
+  "probe1": "25",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000002",
+  "family": "glyph",
+  "a0": "65",
+  "a1": "75",
+  "probe0": "85",
+  "probe1": "85",
+  "model0": "20",
+  "model1": "20"
+ },
+ {
+  "id": "glyph_000003",
+  "family": "glyph",
+  "a0": "30",
+  "a1": "75",
+  "probe0": "85",
+  "probe1": "85",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000005",
+  "family": "glyph",
+  "a0": "15",
+  "a1": "30",
+  "probe0": "85",
+  "probe1": "85",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000006",
+  "family": "glyph",
+  "a0": "20",
+  "a1": "65",
+  "probe0": "25",
+  "probe1": "25",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000008",
+  "family": "glyph",
+  "a0": "40",
+  "a1": "95",
+  "probe0": "25",
+  "probe1": "25",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000013",
+  "family": "glyph",
+  "a0": "90",
+  "a1": "70",
+  "probe0": "30",
+  "probe1": "30",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000014",
+  "family": "glyph",
+  "a0": "60",
+  "a1": "30",
+  "probe0": "85",
+  "probe1": "85",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000016",
+  "family": "glyph",
+  "a0": "25",
+  "a1": "70",
+  "probe0": "25",
+  "probe1": "25",
+  "model0": "50",
+  "model1": "50"
+ },
+ {
+  "id": "glyph_000024",
+  "family": "glyph",
+  "a0": "90",
+  "a1": "35",
+  "probe0": "25",
+  "probe1": "25",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000032",
+  "family": "glyph",
+  "a0": "95",
+  "a1": "50",
+  "probe0": "85",
+  "probe1": "85",
+  "model0": "50",
+  "model1": "50"
+ },
+ {
+  "id": "glyph_000041",
+  "family": "glyph",
+  "a0": "85",
+  "a1": "90",
+  "probe0": "85",
+  "probe1": "85",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000042",
+  "family": "glyph",
+  "a0": "35",
+  "a1": "50",
+  "probe0": "85",
+  "probe1": "85",
+  "model0": "20",
+  "model1": "20"
+ },
+ {
+  "id": "glyph_000049",
+  "family": "glyph",
+  "a0": "90",
+  "a1": "60",
+  "probe0": "85",
+  "probe1": "85",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000051",
+  "family": "glyph",
+  "a0": "30",
+  "a1": "15",
+  "probe0": "25",
+  "probe1": "25",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000052",
+  "family": "glyph",
+  "a0": "95",
+  "a1": "60",
+  "probe0": "60",
+  "probe1": "85",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000053",
+  "family": "glyph",
+  "a0": "50",
+  "a1": "30",
+  "probe0": "85",
+  "probe1": "85",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000055",
+  "family": "glyph",
+  "a0": "60",
+  "a1": "80",
+  "probe0": "85",
+  "probe1": "85",
+  "model0": "25",
+  "model1": "50"
+ },
+ {
+  "id": "glyph_000063",
+  "family": "glyph",
+  "a0": "80",
+  "a1": "55",
+  "probe0": "85",
+  "probe1": "85",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000066",
+  "family": "glyph",
+  "a0": "80",
+  "a1": "75",
+  "probe0": "95",
+  "probe1": "95",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000069",
+  "family": "glyph",
+  "a0": "55",
+  "a1": "35",
+  "probe0": "25",
+  "probe1": "25",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000083",
+  "family": "glyph",
+  "a0": "85",
+  "a1": "55",
+  "probe0": "85",
+  "probe1": "85",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000084",
+  "family": "glyph",
+  "a0": "75",
+  "a1": "55",
+  "probe0": "25",
+  "probe1": "25",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000087",
+  "family": "glyph",
+  "a0": "80",
+  "a1": "30",
+  "probe0": "25",
+  "probe1": "25",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000089",
+  "family": "glyph",
+  "a0": "50",
+  "a1": "25",
+  "probe0": "95",
+  "probe1": "95",
+  "model0": "50",
+  "model1": "50"
+ },
+ {
+  "id": "glyph_000091",
+  "family": "glyph",
+  "a0": "95",
+  "a1": "35",
+  "probe0": "35",
+  "probe1": "25",
+  "model0": "50",
+  "model1": "50"
+ },
+ {
+  "id": "glyph_000092",
+  "family": "glyph",
+  "a0": "40",
+  "a1": "55",
+  "probe0": "25",
+  "probe1": "25",
+  "model0": "50",
+  "model1": "50"
+ },
+ {
+  "id": "glyph_000109",
+  "family": "glyph",
+  "a0": "50",
+  "a1": "95",
+  "probe0": "25",
+  "probe1": "25",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000110",
+  "family": "glyph",
+  "a0": "25",
+  "a1": "10",
+  "probe0": "90",
+  "probe1": "90",
+  "model0": "50",
+  "model1": "50"
+ },
+ {
+  "id": "glyph_000111",
+  "family": "glyph",
+  "a0": "65",
+  "a1": "55",
+  "probe0": "65",
+  "probe1": "65",
+  "model0": "50",
+  "model1": "50"
+ },
+ {
+  "id": "glyph_000112",
+  "family": "glyph",
+  "a0": "15",
+  "a1": "70",
+  "probe0": "95",
+  "probe1": "95",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000116",
+  "family": "glyph",
+  "a0": "25",
+  "a1": "65",
+  "probe0": "25",
+  "probe1": "25",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000122",
+  "family": "glyph",
+  "a0": "45",
+  "a1": "70",
+  "probe0": "85",
+  "probe1": "85",
+  "model0": "50",
+  "model1": "50"
+ },
+ {
+  "id": "glyph_000127",
+  "family": "glyph",
+  "a0": "15",
+  "a1": "90",
+  "probe0": "25",
+  "probe1": "25",
+  "model0": "20",
+  "model1": "20"
+ },
+ {
+  "id": "glyph_000133",
+  "family": "glyph",
+  "a0": "10",
+  "a1": "85",
+  "probe0": "25",
+  "probe1": "25",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000136",
+  "family": "glyph",
+  "a0": "70",
+  "a1": "35",
+  "probe0": "85",
+  "probe1": "85",
+  "model0": null,
+  "model1": "50"
+ },
+ {
+  "id": "glyph_000140",
+  "family": "glyph",
+  "a0": "65",
+  "a1": "10",
+  "probe0": "35",
+  "probe1": "35",
+  "model0": "50",
+  "model1": "50"
+ },
+ {
+  "id": "glyph_000143",
+  "family": "glyph",
+  "a0": "90",
+  "a1": "45",
+  "probe0": "25",
+  "probe1": "25",
+  "model0": "50",
+  "model1": "50"
+ },
+ {
+  "id": "glyph_000144",
+  "family": "glyph",
+  "a0": "45",
+  "a1": "50",
+  "probe0": "85",
+  "probe1": "85",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000163",
+  "family": "glyph",
+  "a0": "60",
+  "a1": "55",
+  "probe0": "85",
+  "probe1": "95",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000165",
+  "family": "glyph",
+  "a0": "85",
+  "a1": "90",
+  "probe0": "85",
+  "probe1": "85",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000168",
+  "family": "glyph",
+  "a0": "55",
+  "a1": "50",
+  "probe0": "85",
+  "probe1": "85",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000169",
+  "family": "glyph",
+  "a0": "50",
+  "a1": "45",
+  "probe0": "25",
+  "probe1": "25",
+  "model0": "50",
+  "model1": "50"
+ },
+ {
+  "id": "glyph_000172",
+  "family": "glyph",
+  "a0": "85",
+  "a1": "25",
+  "probe0": "85",
+  "probe1": "85",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000174",
+  "family": "glyph",
+  "a0": "15",
+  "a1": "80",
+  "probe0": "25",
+  "probe1": "25",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000187",
+  "family": "glyph",
+  "a0": "70",
+  "a1": "15",
+  "probe0": "25",
+  "probe1": "25",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000191",
+  "family": "glyph",
+  "a0": "80",
+  "a1": "10",
+  "probe0": "95",
+  "probe1": "95",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000196",
+  "family": "glyph",
+  "a0": "35",
+  "a1": "60",
+  "probe0": "85",
+  "probe1": "85",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000199",
+  "family": "glyph",
+  "a0": "70",
+  "a1": "60",
+  "probe0": "25",
+  "probe1": "25",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000200",
+  "family": "glyph",
+  "a0": "10",
+  "a1": "70",
+  "probe0": "95",
+  "probe1": "95",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000202",
+  "family": "glyph",
+  "a0": "50",
+  "a1": "40",
+  "probe0": "25",
+  "probe1": "25",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000211",
+  "family": "glyph",
+  "a0": "10",
+  "a1": "15",
+  "probe0": "25",
+  "probe1": "25",
+  "model0": "20",
+  "model1": "20"
+ },
+ {
+  "id": "glyph_000213",
+  "family": "glyph",
+  "a0": "15",
+  "a1": "45",
+  "probe0": "25",
+  "probe1": "25",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000220",
+  "family": "glyph",
+  "a0": "85",
+  "a1": "90",
+  "probe0": "95",
+  "probe1": "95",
+  "model0": "50",
+  "model1": "50"
+ },
+ {
+  "id": "glyph_000221",
+  "family": "glyph",
+  "a0": "65",
+  "a1": "90",
+  "probe0": "90",
+  "probe1": "90",
+  "model0": "25",
+  "model1": "50"
+ },
+ {
+  "id": "glyph_000227",
+  "family": "glyph",
+  "a0": "60",
+  "a1": "90",
+  "probe0": "85",
+  "probe1": "85",
+  "model0": "50",
+  "model1": "50"
+ },
+ {
+  "id": "glyph_000236",
+  "family": "glyph",
+  "a0": "35",
+  "a1": "65",
+  "probe0": "25",
+  "probe1": "25",
+  "model0": "70",
+  "model1": "75"
+ },
+ {
+  "id": "glyph_000238",
+  "family": "glyph",
+  "a0": "45",
+  "a1": "35",
+  "probe0": "85",
+  "probe1": "85",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000245",
+  "family": "glyph",
+  "a0": "75",
+  "a1": "15",
+  "probe0": "60",
+  "probe1": "60",
+  "model0": "50",
+  "model1": "50"
+ },
+ {
+  "id": "glyph_000250",
+  "family": "glyph",
+  "a0": "40",
+  "a1": "35",
+  "probe0": "25",
+  "probe1": "25",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000251",
+  "family": "glyph",
+  "a0": "35",
+  "a1": "10",
+  "probe0": "60",
+  "probe1": "60",
+  "model0": "50",
+  "model1": "50"
+ },
+ {
+  "id": "glyph_000253",
+  "family": "glyph",
+  "a0": "20",
+  "a1": "90",
+  "probe0": "25",
+  "probe1": "25",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000255",
+  "family": "glyph",
+  "a0": "25",
+  "a1": "55",
+  "probe0": "85",
+  "probe1": "85",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000256",
+  "family": "glyph",
+  "a0": "70",
+  "a1": "40",
+  "probe0": "25",
+  "probe1": "25",
+  "model0": "50",
+  "model1": "50"
+ },
+ {
+  "id": "glyph_000259",
+  "family": "glyph",
+  "a0": "90",
+  "a1": "45",
+  "probe0": "60",
+  "probe1": "60",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000267",
+  "family": "glyph",
+  "a0": "55",
+  "a1": "80",
+  "probe0": "85",
+  "probe1": "85",
+  "model0": "50",
+  "model1": "50"
+ },
+ {
+  "id": "glyph_000271",
+  "family": "glyph",
+  "a0": "10",
+  "a1": "75",
+  "probe0": "85",
+  "probe1": "85",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000272",
+  "family": "glyph",
+  "a0": "30",
+  "a1": "90",
+  "probe0": "25",
+  "probe1": "25",
+  "model0": "50",
+  "model1": "50"
+ },
+ {
+  "id": "glyph_000273",
+  "family": "glyph",
+  "a0": "20",
+  "a1": "15",
+  "probe0": "85",
+  "probe1": "85",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000278",
+  "family": "glyph",
+  "a0": "75",
+  "a1": "70",
+  "probe0": "25",
+  "probe1": "85",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000282",
+  "family": "glyph",
+  "a0": "95",
+  "a1": "15",
+  "probe0": "85",
+  "probe1": "85",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000288",
+  "family": "glyph",
+  "a0": "45",
+  "a1": "60",
+  "probe0": "25",
+  "probe1": "25",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000289",
+  "family": "glyph",
+  "a0": "35",
+  "a1": "60",
+  "probe0": "25",
+  "probe1": "25",
+  "model0": "25",
+  "model1": "25"
+ },
+ {
+  "id": "glyph_000292",
+  "family": "glyph",
+  "a0": "45",
+  "a1": "70",
+  "probe0": "25",
+  "probe1": "25",
+  "model0": "25",
+  "model1": "25"
+ }
+]

@@ -1,0 +1,162 @@
+{
+ "q3b|real_3b|both|base": {
+  "counting": 44.0,
+  "glyph": 6.7,
+  "spatial": 69.3
+ },
+ "q3b|real_3b|both|ep0": {
+  "counting": 65.3,
+  "glyph": 9.3,
+  "spatial": 81.3
+ },
+ "q3b|real_3b|both|ep1": {
+  "counting": 72.0,
+  "glyph": 6.7,
+  "spatial": 88.0
+ },
+ "q3b|real_3b|both|ep2": {
+  "counting": 65.3,
+  "glyph": 2.7,
+  "spatial": 88.0
+ },
+ "q3b|real_chart|both|base": {
+  "chart": 81.3
+ },
+ "q3b|real_chart|both|ep0": {
+  "chart": 89.3
+ },
+ "q3b|real_chart|both|ep1": {
+  "chart": 93.3
+ },
+ "q3b|real_chart|both|ep2": {
+  "chart": 93.3
+ },
+ "smol|real_3b|both|base": {
+  "counting": 40.0,
+  "glyph": 8.0,
+  "spatial": 66.7
+ },
+ "smol|real_3b|both|ep0": {
+  "counting": 57.3,
+  "glyph": 8.0,
+  "spatial": 52.0
+ },
+ "smol|real_3b|both|ep1": {
+  "counting": 58.7,
+  "glyph": 2.7,
+  "spatial": 57.3
+ },
+ "smol|real_3b|both|ep2": {
+  "counting": 58.7,
+  "glyph": 4.0,
+  "spatial": 58.7
+ },
+ "smol|real_chart|both|base": {
+  "chart": 50.7
+ },
+ "smol|real_chart|both|ep0": {
+  "chart": 58.7
+ },
+ "smol|real_chart|both|ep1": {
+  "chart": 64.0
+ },
+ "smol|real_chart|both|ep2": {
+  "chart": 69.3
+ },
+ "ivl|real_3b|both|base": {
+  "counting": 50.7,
+  "glyph": 8.0,
+  "spatial": 54.7
+ },
+ "ivl|real_3b|both|ep0": {
+  "counting": 69.3,
+  "glyph": 2.7,
+  "spatial": 57.3
+ },
+ "ivl|real_3b|both|ep1": {
+  "counting": 72.0,
+  "glyph": 8.0,
+  "spatial": 61.3
+ },
+ "ivl|real_3b|both|ep2": {
+  "counting": 72.0,
+  "glyph": 2.7,
+  "spatial": 69.3
+ },
+ "ivl|real_chart|both|base": {
+  "chart": 60.0
+ },
+ "ivl|real_chart|both|ep0": {
+  "chart": 86.7
+ },
+ "ivl|real_chart|both|ep1": {
+  "chart": 94.7
+ },
+ "ivl|real_chart|both|ep2": {
+  "chart": 96.0
+ },
+ "q7b|real_3b|both|base": {
+  "counting": 46.7,
+  "glyph": 5.3,
+  "spatial": 60.0
+ },
+ "q7b|real_3b|both|ep0": {
+  "counting": 65.3,
+  "glyph": 6.7,
+  "spatial": 77.3
+ },
+ "q7b|real_3b|both|ep1": {
+  "counting": 68.0,
+  "glyph": 8.0,
+  "spatial": 85.3
+ },
+ "q7b|real_3b|both|ep2": {
+  "counting": 66.7,
+  "glyph": 8.0,
+  "spatial": 84.0
+ },
+ "q7b|real_chart|both|base": {
+  "chart": 0.0
+ },
+ "q7b|real_chart|both|ep0": {
+  "chart": 94.7
+ },
+ "q7b|real_chart|both|ep1": {
+  "chart": 96.0
+ },
+ "q7b|real_chart|both|ep2": {
+  "chart": 97.3
+ },
+ "q3b|real_3b|lang|base": {
+  "counting": 44.0,
+  "glyph": 6.7,
+  "spatial": 69.3
+ },
+ "q3b|real_3b|lang|ep0": {
+  "counting": 61.3,
+  "glyph": 6.7,
+  "spatial": 84.0
+ },
+ "q3b|real_3b|lang|ep1": {
+  "counting": 69.3,
+  "glyph": 4.0,
+  "spatial": 84.0
+ },
+ "q3b|real_3b|lang|ep2": {
+  "counting": 69.3,
+  "glyph": 4.0,
+  "spatial": 85.3
+ },
+ "q3b|real_chart|lang|base": {
+  "chart": 81.3
+ },
+ "q3b|real_chart|lang|ep0": {
+  "chart": 88.0
+ },
+ "q3b|real_chart|lang|ep1": {
+  "chart": 94.7
+ },
+ "q3b|real_chart|lang|ep2": {
+  "chart": 92.0
+ }
+}

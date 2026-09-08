@@ -1,0 +1,21 @@
+{
+ "A": 0.6241610738255033,
+ "B": 0.6442953020134228,
+ "C": 0.6677852348993288,
+ "oracle": 0.8053691275167785,
+ "best_fixed": 0.5268456375838926,
+ "fallbacks": {
+  "chart": "cot",
+  "counting": "look",
+  "spatial": "look",
+  "tracking": "cot"
+ },
+ "branches": [
+  "none",
+  "steer",
+  "prior",
+  "look",
+  "attn",
+  "cot"
+ ]
+}

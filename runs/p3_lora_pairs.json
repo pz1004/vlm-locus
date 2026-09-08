@@ -1,0 +1,162 @@
+[
+ {
+  "model": "ivl",
+  "data": "real_3b",
+  "family": "counting",
+  "n": 75,
+  "probe": 0.6266666666666667,
+  "lora": 0.72,
+  "epoch": 2,
+  "base": 0.44666666666666666
+ },
+ {
+  "model": "ivl",
+  "data": "real_3b",
+  "family": "glyph",
+  "n": 75,
+  "probe": 0.06666666666666667,
+  "lora": 0.02666666666666667,
+  "epoch": 2,
+  "base": 0.05
+ },
+ {
+  "model": "ivl",
+  "data": "real_3b",
+  "family": "spatial",
+  "n": 75,
+  "probe": 0.4666666666666667,
+  "lora": 0.6933333333333334,
+  "epoch": 2,
+  "base": 0.5133333333333333
+ },
+ {
+  "model": "ivl",
+  "data": "real_chart",
+  "family": "chart",
+  "n": 75,
+  "probe": 0.9733333333333334,
+  "lora": 0.96,
+  "epoch": 2,
+  "base": 0.6133333333333333
+ },
+ {
+  "model": "q3b",
+  "data": "real_3b",
+  "family": "counting",
+  "n": 75,
+  "probe": 0.5333333333333333,
+  "lora": 0.6933333333333334,
+  "epoch": 2,
+  "base": 0.46
+ },
+ {
+  "model": "q3b",
+  "data": "real_3b",
+  "family": "glyph",
+  "n": 75,
+  "probe": 0.09333333333333334,
+  "lora": 0.04,
+  "epoch": 2,
+  "base": 0.06
+ },
+ {
+  "model": "q3b",
+  "data": "real_3b",
+  "family": "spatial",
+  "n": 75,
+  "probe": 0.6533333333333333,
+  "lora": 0.8533333333333334,
+  "epoch": 2,
+  "base": 0.6533333333333333
+ },
+ {
+  "model": "q3b",
+  "data": "real_chart",
+  "family": "chart",
+  "n": 75,
+  "probe": 0.9466666666666667,
+  "lora": 0.9466666666666667,
+  "epoch": 1,
+  "base": 0.88
+ },
+ {
+  "model": "q7b",
+  "data": "real_3b",
+  "family": "counting",
+  "n": 75,
+  "probe": 0.6133333333333333,
+  "lora": 0.68,
+  "epoch": 1,
+  "base": 0.4533333333333333
+ },
+ {
+  "model": "q7b",
+  "data": "real_3b",
+  "family": "glyph",
+  "n": 75,
+  "probe": 0.13333333333333333,
+  "lora": 0.08,
+  "epoch": 1,
+  "base": 0.043333333333333335
+ },
+ {
+  "model": "q7b",
+  "data": "real_3b",
+  "family": "spatial",
+  "n": 75,
+  "probe": 0.5733333333333334,
+  "lora": 0.8533333333333334,
+  "epoch": 1,
+  "base": 0.6066666666666667
+ },
+ {
+  "model": "q7b",
+  "data": "real_chart",
+  "family": "chart",
+  "n": 75,
+  "probe": 0.9466666666666667,
+  "lora": 0.9733333333333334,
+  "epoch": 2,
+  "base": 0.78
+ },
+ {
+  "model": "smol",
+  "data": "real_3b",
+  "family": "counting",
+  "n": 75,
+  "probe": 0.38666666666666666,
+  "lora": 0.5866666666666667,
+  "epoch": 2,
+  "base": 0.36666666666666664
+ },
+ {
+  "model": "smol",
+  "data": "real_3b",
+  "family": "glyph",
+  "n": 75,
+  "probe": 0.05333333333333334,
+  "lora": 0.04,
+  "epoch": 2,
+  "base": 0.05
+ },
+ {
+  "model": "smol",
+  "data": "real_3b",
+  "family": "spatial",
+  "n": 75,
+  "probe": 0.48,
+  "lora": 0.5866666666666667,
+  "epoch": 2,
+  "base": 0.5333333333333333
+ },
+ {
+  "model": "smol",
+  "data": "real_chart",
+  "family": "chart",
+  "n": 75,
+  "probe": 0.29333333333333333,
+  "lora": 0.6933333333333334,
+  "epoch": 2,
+  "base": 0.53
+ }
+]

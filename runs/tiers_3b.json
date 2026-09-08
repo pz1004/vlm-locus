@@ -1,0 +1,13 @@
+{
+ "tier": {
+  "none": "free",
+  "prior": "free",
+  "cot": "free",
+  "look": "boxes",
+  "attn": "boxes",
+  "steer": "labels",
+  "read": "labels"
+ },
+ "read_acc": 0.889261744966443,
+ "base_acc": 0.5167785234899329
+}

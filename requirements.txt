@@ -1,0 +1,14 @@
+# Pinned to the versions every reported number was produced under (Python 3.12.12).
+# torch is CUDA 12.8; install it from the PyTorch index for your platform first:
+#   pip install torch==2.11.0 --index-url https://download.pytorch.org/whl/cu128
+torch==2.11.0
+transformers==5.16.1
+accelerate==1.14.0
+peft==0.20.0
+bitsandbytes==0.50.2
+qwen-vl-utils==0.0.14
+scikit-learn==1.9.0
+numpy==2.5.2
+scipy==1.18.1
+matplotlib==3.11.1
+pillow==12.3.0

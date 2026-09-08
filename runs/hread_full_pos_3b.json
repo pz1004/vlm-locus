@@ -1,0 +1,84 @@
+{
+ "chart": {
+  "mode": "pos",
+  "split": {
+   "n_unseen": 0,
+   "h_unseen": NaN,
+   "b_unseen": NaN,
+   "h_seen": 0.8904109589041096,
+   "b_seen": 0.9863013698630136
+  },
+  "n_train": 161,
+  "n_test": 73,
+  "classes": 17,
+  "L": 2,
+  "r": 8,
+  "cal": 0.9322034120559692,
+  "hread": 0.8904109597206116,
+  "bread": 0.9863013698630136,
+  "init": 0.2876712381839752
+ },
+ "counting": {
+  "mode": "pos",
+  "split": {
+   "n_unseen": 0,
+   "h_unseen": NaN,
+   "b_unseen": NaN,
+   "h_seen": 0.76,
+   "b_seen": 0.76
+  },
+  "n_train": 165,
+  "n_test": 75,
+  "classes": 9,
+  "L": 2,
+  "r": 64,
+  "cal": 0.800000011920929,
+  "hread": 0.7599999904632568,
+  "bread": 0.76,
+  "init": 0.09333333373069763
+ },
+ "spatial": {
+  "mode": "pos",
+  "split": {
+   "n_unseen": 0,
+   "h_unseen": NaN,
+   "b_unseen": NaN,
+   "h_seen": 0.9333333333333333,
+   "b_seen": 0.9466666666666667
+  },
+  "n_train": 165,
+  "n_test": 75,
+  "classes": 4,
+  "L": 1,
+  "r": 8,
+  "cal": 1.0,
+  "hread": 0.9333333373069763,
+  "bread": 0.9466666666666667,
+  "init": 0.7599999904632568
+ },
+ "tracking": {
+  "mode": "pos",
+  "split": {
+   "n_unseen": 0,
+   "h_unseen": NaN,
+   "b_unseen": NaN,
+   "h_seen": 0.36,
+   "b_seen": 0.36
+  },
+  "n_train": 165,
+  "n_test": 75,
+  "classes": 4,
+  "L": 1,
+  "r": 16,
+  "cal": 0.46666666865348816,
+  "hread": 0.36000001430511475,
+  "bread": 0.36,
+  "init": 0.3866666555404663
+ },
+ "ALL": {
+  "hread": 0.7348993312592474,
+  "bread": 0.761744966442953,
+  "init": 0.38255033177017367,
+  "n": 298
+ }
+}
