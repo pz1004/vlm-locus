@@ -14,13 +14,14 @@ chart cells were the maximum (q3b chart 94.7 at ep1 against 92.0 at ep2, q7b cha
 against 97.3 at ep2), so the correction moves two numbers. `oracle` reproduces the old rule for
 the robustness appendix.
 
-Adapted stack.  Every one of the 16 cells adapts the language stack only, which is *not* what the
-manuscript says. The Qwen rows come from the `--modules lang` runs. The SmolVLM and InternVL rows
-were launched as `--modules both` but their logs report `vision=0` with "no vision-tower modules
-matched", so no vision-tower parameter was ever trained for them. The intervention is therefore
-consistent across all 16 cells -- and every cell is a frozen-vision-tower adaptation, which is
-what §7's argument needs. Module counts below are the `adapted modules:` lines from
-runs/p3_lora.log, runs/p3_lora_lang.log and runs/p3_lora_lang7b.log.
+Adapted stack.  Every one of the 16 cells adapts the language stack only, and not because it was
+asked to. The Qwen rows come from the `--modules lang` runs; the SmolVLM and InternVL rows were
+launched as `--modules both` but their logs report `vision=0` with "no vision-tower modules
+matched", so no vision-tower parameter was ever trained for them either. The intervention is
+therefore consistent across all 16 cells, and every cell is a frozen-vision-tower adaptation --
+which is what the frozen-features argument needs, but it has to be read off the logs rather than
+off the flag. Module counts below are the `adapted modules:` lines from runs/p3_lora.log,
+runs/p3_lora_lang.log and runs/p3_lora_lang7b.log.
 """
 from __future__ import annotations
 import json, os, re, sys

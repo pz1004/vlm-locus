@@ -9,7 +9,7 @@
 #
 # The dataset is built and verified before this script runs (gen/build_real.py, gen/verify_real.py).
 set -e
-PY=.venv/bin/python
+PY=${PY:-.venv/bin/python}
 D=data/real_3b
 
 echo "=== 1. behaviour ==="

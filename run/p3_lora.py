@@ -1,6 +1,7 @@
 """Fine-tuning gain per (model, family), against what the probe read from the frozen states.
 
-The §7 claim was that probe accuracy lower-bounds the fine-tuned result and rank-orders families
+The claim under test is that probe accuracy lower-bounds the fine-tuned result and rank-orders
+families
 correctly, established on four pairs (p=1/24 under a random-ordering null). This assembles every
 pair so it can be checked properly -- and checked on the right quantity: raw-accuracy ordering is
 partly a ranking of chance levels (5.6% to 50% here), so gain and chance-normalised accuracy are

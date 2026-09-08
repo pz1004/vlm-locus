@@ -11,7 +11,7 @@
 # tracking at a low level has a small spec space and build() will say so rather than repeat
 # images.
 set -e
-PY=.venv/bin/python
+PY=${PY:-.venv/bin/python}
 M=HuggingFaceTB/SmolVLM-Instruct
 
 echo "=== 1. level-swept set (fixed generator) ==="

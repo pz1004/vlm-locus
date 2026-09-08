@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-PY=../vlm-locus/.venv/bin/python
+PY=${PY:-.venv/bin/python}
 echo "=== 4. G1 presence test ==="
 $PY run/probe.py runs/states_3b.npz 2>&1 | grep -viE 'warn|converg'
 echo "=== 5. freeze probes and steering directions ==="

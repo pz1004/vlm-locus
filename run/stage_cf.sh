@@ -2,10 +2,10 @@
 # Capture counterfactual states at every layer, for every configuration, so that the follow rate
 # can be computed at the final layer -- the same layer every other quantity in the locus verdict
 # uses. run/cfprobe.py kept only the selected layer and saved nothing, which is why the published
-# follow rates are the one mixed-estimator number in the paper.
+# follow rates were the one number read at a different layer from the probe beside them.
 set -e
 set -o pipefail
-PY=.venv/bin/python
+PY=${PY:-.venv/bin/python}
 Q3=Qwen/Qwen2.5-VL-3B-Instruct
 Q7=Qwen/Qwen2.5-VL-7B-Instruct
 IVL=OpenGVLab/InternVL3-2B-hf

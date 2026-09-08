@@ -4,7 +4,7 @@
 # tracking needs new label-free features; the probes are refit for all four families because
 # the capture moved from sdpa to eager.
 set -e
-PY=.venv/bin/python
+PY=${PY:-.venv/bin/python}
 mkdir -p runs/v1_contaminated
 for f in states_3b.npz states_3b_meta.json probe_g1.json probes_3b.npy calib_ids.json \
          branches6_calib.jsonl branches6_test.jsonl; do

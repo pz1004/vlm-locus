@@ -20,7 +20,7 @@ with a stray relative path would read contaminated data and still emit a plausib
 
 Two artefacts here have no live counterpart in the load path at all: no `probe_g1_*.json` file is
 read by any producer any more. `canon.py`'s G1 verdict comes from `runs/null_<tag>.json`, which
-recomputes all four gate conditions at the final layer where the paper reads the probe; the
+recomputes all four gate conditions at the final layer where the probe is read; the
 `probe_g1_*` files were computed at the layer selected on the selection split. `states_smol.npz`
 (sdpa) is likewise unread — `states_smolm.npz` is the canonical SmolVLM synthetic capture — and is
 left in place because no producer reads any `states_*.npz` directly; the nulls are precomputed

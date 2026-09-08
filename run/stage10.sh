@@ -5,7 +5,7 @@
 # showed no branch beats base -- so this measures only the claim that replicates or does not:
 # is the attribute decodable from the states above what the model emits.
 set -e
-PY=.venv/bin/python
+PY=${PY:-.venv/bin/python}
 M=HuggingFaceTB/SmolVLM-Instruct
 echo "=== SmolVLM behaviour on data/cal_3b ==="
 $PY run/score.py --model $M --data data/cal_3b --out runs/smol_v2_gen.jsonl --base-only --gen-only 2>&1 | tail -2

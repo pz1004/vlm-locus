@@ -3,7 +3,7 @@
 The published follow rates come from run/cfprobe.py, which reads the layer the serialised probe
 was frozen at -- chosen on the selection split. Every other quantity in the locus verdict is a
 final-layer quantity, so the gate mixed two estimators. Given run/cfcapture.py's counterfactual
-states this can be recomputed where the paper reads the probe.
+states this can be recomputed at the layer the probe is read from.
 
 Only the probe changes. The items, the true answers before and after the edit, and the model's
 own generations are taken verbatim from runs/cfprobe_<tag>.json, so the two files differ in

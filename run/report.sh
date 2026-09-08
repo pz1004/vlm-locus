@@ -2,7 +2,7 @@
 # Regenerate every table in analysis/results-readout-3b.md from the frozen run artefacts.
 # Analysis only -- no GPU, no model. Everything it reads was produced by stages 1-9.
 set -e
-PY=.venv/bin/python
+PY=${PY:-.venv/bin/python}
 Q='warn|explained_var|ConvergenceWarning'
 echo "##### 1. dataset integrity (duplicate-render check)"
 $PY gen/verify.py data/cal_3b 2>&1 | sed -n '/\[9\]/,/^$/p'

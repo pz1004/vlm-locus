@@ -1,15 +1,16 @@
 """Artefact-provenance checks for the two Stage 3 reproducibility items.
 
-Item 14: run/p0.py's base row must come from the canonical scored generations -- the same file
+Provenance: run/p0.py's base row must come from the canonical scored generations -- the same file
 run/canon.py reads for each cell's model_acc -- and no producer may read a path another producer
-overwrites. Item 15: run/manifest.py's invariants, plus the check that a re-run of canon.py
-reproduces what paper/tables/ currently holds.
+overwrites. Load path: run/manifest.py's invariants, plus the check that canon.py is idempotent
+and that the emitted tables match a fresh run.
 
-    .venv/bin/python run/verify_stage3.py
+    python3 run/verify_provenance.py
 """
 import json, os, re, subprocess, sys, glob
 os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-PY = ".venv/bin/python"
+PY = sys.executable          # not a hardcoded venv path: a fresh clone has no .venv,
+                             # and the analysis path needs no GPU dependency anyway
 ck = []
 def chk(name, ok, note=""):
     ck.append((name, ok, note)); print(f"{'PASS' if ok else 'FAIL'}  {name}" + (f"   {note}" if note else ""))
@@ -83,9 +84,11 @@ for d in (d1, d2):
 names = ("bands", "cells_real", "cells_synthetic", "facts", "pairs", "prediction")
 drift = [f for f in names if open(f"{d1}/{f}.tex").read() != open(f"{d2}/{f}.tex").read()]
 chk("canon.py is idempotent across two full regenerations", not drift, f"drift={drift}")
-live = [f for f in names if os.path.exists(f"../paper/tables/{f}.tex")
-        and open(f"{d1}/{f}.tex").read() != open(f"../paper/tables/{f}.tex").read()]
-chk("paper/tables matches a fresh canon.py run", not live, f"stale={live}")
+# and the committed tables, wherever the caller directs them, must match a fresh run
+TEX = os.environ.get("VLM_LOCUS_TEX", "out/tables")
+live = [f for f in names if os.path.exists(f"{TEX}/{f}.tex")
+        and open(f"{d1}/{f}.tex").read() != open(f"{TEX}/{f}.tex").read()]
+chk(f"{TEX} matches a fresh canon.py run", not live, f"stale={live}")
 shutil.rmtree(d1, ignore_errors=True); shutil.rmtree(d2, ignore_errors=True)
 
 print(f"\n{sum(1 for _,o,_ in ck if o)}/{len(ck)} checks pass")

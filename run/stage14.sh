@@ -10,7 +10,7 @@
 # single-series, and the printed data labels to be strippable -- otherwise the task is OCR of a
 # printed number rather than reading a bar against an axis.
 set -e
-PY=.venv/bin/python
+PY=${PY:-.venv/bin/python}
 D=data/real_chart
 
 echo "=== 1. hidden states (eager) ==="

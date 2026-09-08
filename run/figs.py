@@ -1,4 +1,4 @@
-"""The manuscript's figures, all from analysis/tables/canon.json plus the frozen run artefacts.
+"""Every figure, all from out/canon.json plus the frozen run artefacts in runs/.
 
 No number here is typed in: every value is read from the same canonical protocol the tables use,
 so a figure cannot drift from the text.
@@ -11,7 +11,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 
-# Defaults keep output inside the repository; the manuscript build overrides them.
+# Defaults keep output inside the repository; a caller may override them.
 JSON = os.environ.get("VLM_LOCUS_JSON", "out/canon.json")
 OUT  = os.environ.get("VLM_LOCUS_FIGS", "out/figs")
 C = json.load(open(JSON))

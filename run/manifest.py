@@ -1,6 +1,6 @@
 """Which artefact feeds which paper number -- measured by running the producers, not asserted.
 
-An IJCV reviewer asking "where does Table 5 come from?" needs an answer that cannot drift from
+Anyone asking "where does this number come from?" needs an answer that cannot drift from
 the code. A hand-written list drifts on the first refactor, so this records the artefacts each
 producer *actually opens*, by wrapping builtins.open and numpy.load for the duration of a run.
 
@@ -66,7 +66,7 @@ UPSTREAM = [
 # every canonical (tag, model, label) triple, mirrored from canon.py so a drift is visible
 CANONICAL_TAGS = None      # filled from canon.REAL + canon.SYNTH at run time
 
-# producer -> the paper outputs it is the sole source of
+# producer -> the outputs it is the sole source of
 PRODUCES = {
     "run/canon.py":   ["tables/cells_synthetic.tex", "tables/cells_real.tex",
                        "tables/prediction.tex", "tables/pairs.tex", "tables/bands.tex",

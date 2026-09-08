@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-PY=../vlm-locus/.venv/bin/python
+PY=${PY:-.venv/bin/python}
 M=HuggingFaceTB/SmolVLM-Instruct
 echo "=== SmolVLM: difficulty sweep on the shared level-swept set ==="
 $PY run/score.py --model $M --data data/sw4 --out runs/sw4_smol.jsonl --base-only --gen-only

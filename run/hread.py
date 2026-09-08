@@ -4,7 +4,7 @@ The five readouts in run/readout.py all learn `R^2048 -> R^|A|` from scratch and
 head away; `fuse` mixes probe and model logits at the output, which is not the same thing. That
 is the one structural advantage LoRA has and the probe never got: LoRA inherits a head that
 already knows what "45" is, so it only has to learn *where to look*, while the probe has to
-learn an 18-way output vocabulary from one or two examples per class. §6 of the results doc
+learn an 18-way output vocabulary from one or two examples per class. the readout comparison in docs/RESULTS.md
 shows exactly that signature -- the probe's deficit is largest at n=20 (-16.7) and shrinks to
 -8.0 at n=165.
 

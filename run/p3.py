@@ -1,6 +1,7 @@
 """Assemble every (model, family) pair measured anywhere in the study into one table.
 
-The §7 claim -- that probe accuracy lower-bounds and rank-orders what fine-tuning achieves --
+The claim under test -- that probe accuracy lower-bounds and rank-orders what fine-tuning
+achieves --
 rested on four pairs and p=1/24 under a random-ordering null. That is an anecdote. This collects
 all pairs across models and datasets so the claim can be tested as a regression instead.
 

@@ -9,7 +9,7 @@ they say which.
 Oracle epoch per config, matching how the 83.2% reference was selected.
 
 Base accuracy comes from the canonical scored generations -- the same file run/canon.py reads for
-each cell's `model_acc`, so the base column here is identical to the paper's by construction. It
+each cell's `model_acc`, so the base column here is identical to run/canon.py's by construction. It
 used to come from runs/lora_items_base.json, which run/lora.py rewrote on every --eval-base run;
 the surviving copy held 75 real-chart items, 21 of whose ids collide by name with synthetic ones,
 so the four-way intersection below silently fell from 298 items to 21 instead of raising. The

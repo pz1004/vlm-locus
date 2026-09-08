@@ -26,7 +26,7 @@ The estimator, split and rare-class filter mirror run/layers.py exactly, so the 
 calibrated for the same probe that produces the reported number. Reads the cached activations
 in runs/states_*.npz, so it needs no GPU.
 
-Also computed at the final layer, so that G1 can be evaluated where the paper reads the probe
+Also computed at the final layer, so that G1 can be evaluated where the probe is read
 rather than at a selected layer: a refitted blindfold probe and the per-item margin statistics
 that run/probe.py's gate requires and run/canon.py currently drops.
 """

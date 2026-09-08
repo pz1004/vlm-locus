@@ -3,7 +3,7 @@
 # bit-identically, so this is a tracking fix; the clean families are re-run only to prove
 # they reproduce.
 set -e
-PY=.venv/bin/python
+PY=${PY:-.venv/bin/python}
 echo "=== capture states on the de-duplicated dataset ==="
 $PY run/capture.py --data data/cal_3b_v2 --out runs/states_v2.npz 2>&1 | tail -2
 echo "=== G1 presence test ==="

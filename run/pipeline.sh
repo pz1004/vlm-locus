@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-PY=../vlm-locus/.venv/bin/python
+PY=${PY:-.venv/bin/python}
 LV=$(cat runs/levels_3b.json | tr -d '\n ')
 echo "=== 1. generate at locked levels $LV ==="
 rm -rf data/cal_3b

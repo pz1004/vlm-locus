@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-PY=../vlm-locus/.venv/bin/python
+PY=${PY:-.venv/bin/python}
 echo "=== 6-branch grid: calibration split ==="
 $PY run/branches.py --ids runs/calib_ids.json --gamma 1.0 --out runs/branches6_calib.jsonl 2>&1 | tail -1
 echo "=== 6-branch grid: test split ==="

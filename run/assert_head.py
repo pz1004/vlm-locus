@@ -1,6 +1,6 @@
 """Assert that the state the probe is fitted on is the vector the language-model head consumes.
 
-The paper's framing rests on this: run/capture.py keeps every entry of `out.hidden_states` at the
+The whole protocol rests on this: run/capture.py keeps every entry of `out.hidden_states` at the
 final prompt token, and run/layers.py reads index -1. The claim is that index -1 is the
 *post-final-norm* vector, so applying the frozen unembedding to it reproduces the model's own
 logits -- as opposed to the pre-norm residual stream, which it would not.

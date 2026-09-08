@@ -5,7 +5,7 @@
 # Every epoch that is evaluated is a chance for LoRA to look better -- the best epoch is
 # reported, which is oracle model selection and generous to the competitor.
 set -e
-PY=.venv/bin/python
+PY=${PY:-.venv/bin/python}
 echo "=== LoRA, 20 labels/family (80 items), 12 epochs ==="
 $PY run/lora.py --n-per-family 20 --epochs 12 --eval-every 4 \
     --tag lora20 --out runs/lora20_3b.json 2>&1 | grep -viE 'warn|it/s|Loading|use_cache|detach'

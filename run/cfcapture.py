@@ -4,7 +4,7 @@ run/cfprobe.py computes follow rates by running the edited images through the mo
 one layer -- `out.hidden_states[0][pf["layer"]]`, the layer the serialised probe was frozen at,
 chosen on the selection split. Nothing is kept, so a follow rate at any other layer needs the
 GPU again. That is why the published follow rates use a different estimator from every other
-number in the paper, including the probe accuracy printed beside them.
+number run/canon.py emits, including the probe accuracy printed beside them.
 
 This fixes it once. One plain forward pass per counterfactual image, all layers kept, so
 run/cffollow.py can compute the follow rate at the final layer -- or any layer -- for free

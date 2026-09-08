@@ -1,6 +1,6 @@
 """Per-item predictions of the CANONICAL probe (layers.py, final layer, fixed hyperparameters).
 
-layers.py reports accuracies only. Several analyses in the manuscript need the individual
+layers.py reports accuracies only. Several analyses need the individual
 predictions of that same estimator -- the value-band split, McNemar between probe and model, and
 any per-item agreement between models -- and refitting them here, with the identical split seed
 and pipeline, keeps them from silently coming from the other estimator.

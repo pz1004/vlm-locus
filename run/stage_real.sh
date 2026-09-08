@@ -6,7 +6,7 @@ set -e
 # every stage pipes through tail/grep for readability; without pipefail a failing python
 # exits 0 and the whole run reports DONE having produced nothing
 set -o pipefail
-PY=.venv/bin/python
+PY=${PY:-.venv/bin/python}
 M=$1; T=$2; shift 2
 for D in real_3b real_chart; do
   S=runs/states_${T}_${D}.npz
