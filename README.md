@@ -98,8 +98,19 @@ bash    run/pipeline.sh        # capture -> probe -> counterfactual -> score
 ```
 
 The real families are built on [COCO](https://cocodataset.org) *val2017* and
-[ChartQA](https://github.com/vis-nlp/ChartQA); both are public downloads and neither is
-redistributed here.
+[ChartQA](https://github.com/vis-nlp/ChartQA), both public downloads. No image from either is
+redistributed here, and no COCO annotation content is committed --- `gen/` reads COCO's
+annotation files from the user's own download at build time.
+
+Two committed files are *derived from* ChartQA annotations, and it is worth being exact about
+them rather than filed under "not redistributed". `runs/chart_index.json` (742 charts) and
+`runs/chart_index_nolabel.json` (27) each record, per source chart, its ChartQA identifier, its
+category labels, its underlying values, and the bar geometry recovered from the rendered image.
+They are committed because the counterfactual renderer and the per-family pixel-identity guards
+need them, and because the reproduction path would not work without them. ChartQA is distributed
+under **GPL-3.0**; anyone redistributing this repository or building on those two files should
+consult ChartQA's own terms rather than relying on the MIT grant below, which the author cannot
+extend over someone else's data.
 
 ## Layout
 
@@ -142,7 +153,9 @@ details will be added on acceptance.
 [MIT](LICENSE) © 2026 Sooyoung Jang. This covers the contents of this repository — the code, the
 generators and the run artefacts committed here.
 
-It does not extend to the third-party datasets the real-image families are built on. COCO
-*val2017* and ChartQA are downloaded by the user under their own terms and are not redistributed
-here; the model weights (Qwen2.5-VL, InternVL3, SmolVLM) likewise carry their own licenses and are
-fetched from their upstream repositories.
+It does not extend to third-party material. COCO *val2017* and ChartQA are downloaded by the
+user under their own terms; no image from either is redistributed here. The exception to
+"not redistributed" is the pair of ChartQA-derived index files described under
+[Re-running the experiments](#re-running-the-experiments) — ChartQA is **GPL-3.0**, and the MIT
+grant above does not and cannot cover that content. The model weights (Qwen2.5-VL, InternVL3,
+SmolVLM) likewise carry their own licenses and are fetched from their upstream repositories.

@@ -139,6 +139,15 @@ readme = {
         (sum(r["readout"] for r in gl) == 0) == ("never fires" in R),
     "only scripts that exist": all(os.path.exists(f) for f in
                                    re.findall(r"run/[a-z_0-9]+\.(?:py|sh)", R)),
+    # the third-party-data statement names exact counts; a regenerated index would silently
+    # falsify them, and a licence statement is the wrong thing to let drift
+    "the ChartQA-derived entry counts it discloses": all(
+        f"({len(json.load(open(f)))}" in R.replace(" charts)", ")")
+        for f in ("runs/chart_index.json", "runs/chart_index_nolabel.json")),
+    "that no COCO annotation content is committed": not any(
+        re.search(r'"(bbox|segmentation)"', open(f, errors="ignore").read())
+        for f in subprocess.run(["git", "ls-files", "runs/"], capture_output=True,
+                                text=True).stdout.split()),
 }
 for what, good in readme.items():
     chk(f"README: {what} matches the artefacts", good)
