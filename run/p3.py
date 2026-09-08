@@ -17,8 +17,35 @@ import numpy as np
 # final layer, so a final-layer gap must not be judged against a peak-derived threshold.
 #   peak  : Qwen +8.6, SmolVLM +8.3          -> ~8.5
 #   final : Qwen +2.0, q7b +2.3, InternVL -1.0, q3b4 -2.0, SmolVLM +7.0  -> ~2, SmolVLM an outlier
+#
+# That last line is the whole problem with a single constant: it was set to ~2.5 by treating
+# SmolVLM as an outlier rather than as data. The threshold is now per cell, from
+# run/nullcal.py's label-permutation null, and SmolVLM's glyph cell is exactly the one that
+# clears it (12.0% against a 10.7% null 95th percentile, p=0.030) -- a false positive on the
+# family whose attribute is absent by construction, which is what the null exists to catch.
+# ARTEFACT_PEAK is kept: it prices layer selection, which is a different quantity.
 ARTEFACT_PEAK = 8.5
-ARTEFACT_FINAL = 2.5
+NULL_ALPHA = 0.05
+FOLLOW_MIN = 0.50
+
+
+def wilson_lo(k, m, z=1.96):
+    """Lower Wilson bound. The follow denominator is conditional -- items the reader answered
+    correctly *before* the edit -- and falls to 3-9 of 75 on the designed-absence family, so the
+    gate is applied to the bound rather than to the point estimate. run/canon.py does the same;
+    the two verdict paths must not disagree, which is how the retired 2.5 pp constant went wrong."""
+    if not m: return float("nan")
+    ph, d = k / m, 1 + z * z / m
+    return max(0.0, (ph + z * z / (2 * m)) / d
+               - z * np.sqrt(ph * (1 - ph) / m + z * z / (4 * m * m)) / d)
+
+
+def null_ok(tag, fam):
+    """Does this cell's final-layer probe clear its own permutation null?"""
+    f = f"runs/null_{tag}.json"
+    if not os.path.exists(f): return None
+    d = json.load(open(f)).get(fam)
+    return None if d is None else bool(d["p_null"] < NULL_ALPHA)
 
 
 def rows():
@@ -41,6 +68,9 @@ def rows():
                 model=v.get("model"), final=vis[-1], peak=max(vis),
                 peak_layer=int(np.argmax(vis)),
                 follow=(np.mean([r["probe1"] == r["a1"] for r in hit]) if hit else None),
+                follow_num=int(sum(r["probe1"] == r["a1"] for r in hit)), follow_den=len(hit),
+                follow_lo=(wilson_lo(sum(r["probe1"] == r["a1"] for r in hit), len(hit))
+                           if hit else None),
                 mfollow=(np.mean([r["model1"] == r["a1"] for r in mhit]) if mhit else None),
                 n_cf=len(c)))
     return out
@@ -55,10 +85,14 @@ def main():
         if r["model"] is None: continue
         gap = 100 * (r["final"] - r["model"])
         fol = r["follow"]
-        # a pair counts as a readout gap only if the final-layer gap clears the final-layer
-        # artefact AND the probe tracks the counterfactual edit. The glyph control supplies the
-        # first threshold; without the second, a correlate reader passes.
-        v = ("READOUT" if gap > ARTEFACT_FINAL and fol is not None and fol > 0.5
+        # a pair counts as a readout gap only if the probe clears its own permutation null,
+        # reads above what the model emits, AND tracks the counterfactual edit -- the last judged
+        # by the follow rate's lower confidence bound. Without the last condition a correlate
+        # reader passes; without the first, an artefact does; on the point estimate alone, a
+        # denominator of five clears the gate on one item.
+        nk = null_ok(r["tag"], r["family"])
+        lo = r.get("follow_lo")
+        v = ("READOUT" if nk and gap > 0 and lo is not None and lo > FOLLOW_MIN
              else "-" if fol is None else "no gap")
         print(f"{r['tag']:<22}{r['family']:<10}{r['n'] or 0:4d}{100*(r['chance'] or 0):7.1f}%"
               f"{100*r['model']:7.1f}%{100*r['final']:7.1f}%{gap:+8.1f}"

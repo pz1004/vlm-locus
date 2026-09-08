@@ -51,50 +51,71 @@ def fig1():
 
 
 def fig2():
-    """The locus map: probe gain alone does not decide; the causal control does."""
-    fig, a = plt.subplots(figsize=(3.5, 3.0))
-    rows = [(r, "o", "synthetic") for r in C["synthetic"]] + \
-           [(r, "s", "real") for r in C["real"]]
-    a.axvspan(-25, 2.5, color="#dddddd", alpha=.55, lw=0)
-    a.axhspan(-3, 50, color="#dddddd", alpha=.55, lw=0)
-    a.axvline(2.5, color=INK, lw=.7, ls="--"); a.axhline(50, color=INK, lw=.7, ls="--")
-    for r, mk, _ in rows:
-        if np.isnan(r["follow"]): continue
+    """The locus map, on the axes the verdict actually uses.
+
+    This figure used to plot the probe-minus-model gap against the follow-rate point estimate,
+    with a dashed vertical line at the 2.5 pp artefact floor. Both axes were wrong once the
+    protocol was calibrated: the floor is retired, and the follow gate is applied to the lower
+    confidence bound, so a cell could sit above the drawn line and still not be a locus. The axes
+    below are the two calibrated quantities, which is also what the caption always claimed.
+    """
+    fig, a = plt.subplots(figsize=(3.6, 3.05))
+    rows = [(r, "o") for r in C["synthetic"]] + [(r, "s") for r in C["real"]]
+    a.axvspan(-70, 0, color="#dddddd", alpha=.55, lw=0)
+    a.axhspan(-8, 50, color="#dddddd", alpha=.55, lw=0)
+    a.axvline(0, color=INK, lw=.7, ls="--"); a.axhline(50, color=INK, lw=.7, ls="--")
+    for r, mk in rows:
+        nc = r.get("nullcal")
+        if nc is None or not r["probe_follow_den"]: continue
+        x = 100 * (r["probe"] - nc["null_q95"])
+        lo = 100 * r["probe_follow_ci"][0]
         good = r["readout"]
-        a.scatter(r["gap"], 100 * r["follow"], marker=mk, s=26 if good else 20,
-                  facecolor=PROBE if good else "white", edgecolor=PROBE if good else "#777777",
+        paired_ok = r.get("paired") and r["paired"]["p"] < 0.05 and r["gap"] > 0
+        a.scatter(x, lo, marker=mk, s=27 if good else 20,
+                  facecolor=PROBE if good else "white",
+                  edgecolor=PROBE if good else ("#555555" if paired_ok else "#aaaaaa"),
                   lw=.9, zorder=3)
-    # the four real-chart loci sit almost on top of one another, so they get one group label
     rc = [r for r in C["real"] if r["family"] == "chart" and r["readout"]]
     if rc:
-        x0, x1 = min(r["gap"] for r in rc), max(r["gap"] for r in rc)
-        y0, y1 = min(100 * r["follow"] for r in rc), max(100 * r["follow"] for r in rc)
-        a.add_patch(plt.Rectangle((x0 - 3, y0 - 4), (x1 - x0) + 6, (y1 - y0) + 8,
-                                  fill=False, ec=PROBE, lw=.7, ls=":",
-                                  transform=a.transData, zorder=2))
-        a.annotate("real charts\n(4 models)", (x1 + 3, y0 - 4), xytext=(9, -16),
-                   textcoords="offset points", fontsize=6.2, color=PROBE,
+        xs = [100 * (r["probe"] - r["nullcal"]["null_q95"]) for r in rc]
+        ys = [100 * r["probe_follow_ci"][0] for r in rc]
+        a.add_patch(plt.Rectangle((min(xs) - 4, min(ys) - 4),
+                                  max(xs) - min(xs) + 8, max(ys) - min(ys) + 8,
+                                  fill=False, ec=PROBE, lw=.7, ls=":", zorder=2))
+        a.annotate("real charts\n(4 configs)", (max(xs) + 4, (min(ys) + max(ys)) / 2),
+                   xytext=(7, -14), textcoords="offset points", fontsize=6.2, color=PROBE,
                    arrowprops=dict(arrowstyle="-", color=PROBE, lw=.6))
-    LAB = {("q3b", "chart"): ("Qwen-3B chart", -6, -12),
-           ("q3b", "spatial"): ("Qwen-3B spatial", -4, 6),
-           ("q3b", "counting"): ("Qwen-3B counting", 6, -2),
-           ("smol", "spatial"): ("SmolVLM spatial", -20, 8)}
+    # right-anchored, so the offset is the gap to the marker rather than to the text's left edge
+    # the synthetic chart point (86, 85) sits above the real-chart cluster and beside the
+    # spatial point (59, 95), so the two synthetic labels are put on separate rows
+    LAB = {("3b", "chart"): ("Qwen-3B chart", -6, 16),
+           ("3b", "spatial"): ("Qwen-3B spatial", -9, -9),
+           ("smolm", "spatial"): ("SmolVLM spatial", -9, 0)}
     for r in C["synthetic"]:
-        k = (r["model"], r["family"])
+        k = (r["tag"], r["family"])
         if r["readout"] and k in LAB:
             t, dx, dy = LAB[k]
-            a.annotate(t, (r["gap"], 100 * r["follow"]), textcoords="offset points",
-                       xytext=(dx, dy), fontsize=6.2, color=INK)
-    a.text(3.4, 16, "layer-selection artefact floor", fontsize=5.8, color="#555555",
-           rotation=90, va="bottom")
-    a.text(-24, 42, "causal-control threshold", fontsize=5.8, color="#555555")
-    a.set_xlabel("final-layer probe gain over model (pp)")
-    a.set_ylabel("counterfactual follow rate (%)")
-    a.set_xlim(-25, 78); a.set_ylim(-6, 108)
+            a.annotate(t, (100 * (r["probe"] - r["nullcal"]["null_q95"]),
+                           100 * r["probe_follow_ci"][0]),
+                       textcoords="offset points", xytext=(dx, dy), fontsize=6.2, color=INK,
+                       ha="right", va="center")
+    # the near-miss is the informative negative: decodes well, does not track the edit
+    nm = [r for r in C["synthetic"] if r["tag"] == "3b" and r["family"] == "counting"]
+    if nm:
+        r = nm[0]
+        a.annotate("Qwen-3B counting\n(30/57 = 53%, bound 40%)",
+                   (100 * (r["probe"] - r["nullcal"]["null_q95"]), 100 * r["probe_follow_ci"][0]),
+                   xytext=(-40, -22), textcoords="offset points", fontsize=6.0, color="#8a4500",
+                   arrowprops=dict(arrowstyle="-", color="#8a4500", lw=.6))
+    # no in-plot region labels: the axis labels already name both calibrated quantities, and the
+    # dashed lines plus shading carry the quadrant rule that the caption states
+    a.set_xlabel("probe accuracy $-$ its own null 95th pct. (pp)")
+    a.set_ylabel("follow rate, lower 95% bound (%)")
+    a.set_xlim(-70, 100); a.set_ylim(-8, 108)
     a.legend(handles=[Line2D([], [], marker="o", ls="", mfc="white", mec="#777777", label="synthetic"),
                       Line2D([], [], marker="s", ls="", mfc="white", mec="#777777", label="real"),
                       Line2D([], [], marker="o", ls="", mfc=PROBE, mec=PROBE, label="readout locus")],
-             loc="lower right", frameon=False, borderaxespad=.3, handletextpad=.3)
+             loc="lower right", frameon=False, borderaxespad=.3, handletextpad=.3, fontsize=6.4)
     fig.savefig(f"{OUT}/fig2_locusmap.pdf"); fig.savefig(f"{OUT}/fig2_locusmap.png"); plt.close(fig)
 
 
@@ -179,7 +200,72 @@ def fig4():
     fig.savefig(f"{OUT}/fig4_controls.pdf"); fig.savefig(f"{OUT}/fig4_controls.png"); plt.close(fig)
 
 
+def fig5():
+    """The interventions the causal argument rests on, and the null it is judged against.
+
+    Each row is one paired item: the original, the counterfactual, and the pixels that differ
+    between them -- computed here rather than read from a stored mask, so the panel doubles as a
+    visual check on the guard. Crops are to the changed region, since a 3 px numeral is invisible
+    at page scale and the point of the figure is that the reader can inspect the edit.
+
+    The right column is that cell's label-permutation null against its observed final-layer
+    probe: the threshold, rather than a percentage point taken on trust.
+    """
+    from PIL import Image
+    spec = [("chart", "data/real_chart", "chart_000000", "realchart", "real chart, bar raised"),
+            ("glyph", "data/real_3b", "glyph_000000", "real", "designed absence, 3 px numeral")]
+    fig, ax = plt.subplots(2, 4, figsize=(6.9, 3.6),
+                           gridspec_kw=dict(wspace=.22, hspace=.55,
+                                            width_ratios=[1, 1, 1, 1.45]))
+    for r, (fam, root, iid, tag, label) in enumerate(spec):
+        man = {x["id"]: x for x in (json.loads(l) for l in
+                                   open(os.path.join(root, "manifest.jsonl")))}
+        o, c = man[iid], man[f"{iid}_cf"]
+        A = np.asarray(Image.open(os.path.join(root, o["image"])).convert("RGB"), int)
+        B = np.asarray(Image.open(os.path.join(root, c["image"])).convert("RGB"), int)
+        D = np.abs(A - B).sum(2)
+        ys, xs = np.nonzero(D)
+        # crop to the changed region, padded, and never smaller than 90 px so the edit has context
+        pad = 26
+        y0, y1 = max(0, ys.min() - pad), min(A.shape[0], ys.max() + pad + 1)
+        x0, x1 = max(0, xs.min() - pad), min(A.shape[1], xs.max() + pad + 1)
+        if y1 - y0 < 90: y0, y1 = max(0, (y0 + y1) // 2 - 45), min(A.shape[0], (y0 + y1) // 2 + 45)
+        if x1 - x0 < 90: x0, x1 = max(0, (x0 + x1) // 2 - 45), min(A.shape[1], (x0 + x1) // 2 + 45)
+        cut = (slice(y0, y1), slice(x0, x1))
+        panels = [(A[cut].astype(np.uint8), f"original, answer {o['answer']}", None),
+                  (B[cut].astype(np.uint8), f"counterfactual, answer {c['answer']}", None),
+                  (D[cut] > 0, f"{len(ys):,} pixels differ", "gray")]
+        for k, (img, ttl, cm) in enumerate(panels):
+            a = ax[r][k]
+            a.imshow(img, cmap=cm, interpolation="nearest")
+            a.set_xticks([]); a.set_yticks([])
+            for sp in a.spines.values(): sp.set_visible(True); sp.set_linewidth(.5)
+            a.set_title(ttl, loc="left", fontsize=6.4, pad=2.5)
+
+        d = json.load(open(f"runs/null_{tag}.json"))[fam]
+        a = ax[r][3]
+        h = {float(k): v for k, v in d.get("null_hist", {}).items()}
+        if h:
+            xv = np.array(sorted(h)); w = np.array([h[v] for v in xv], float)
+            bw = 100 * (xv[1] - xv[0]) if len(xv) > 1 else 1.0
+            a.bar(100 * xv, w / w.sum(), width=max(.7, bw * .9), color=BLIND, alpha=.8, lw=0,
+                  label=f"null ({d['nperm']} label permutations)")
+        a.axvline(100 * d["null_q95"], color=INK, lw=.9, ls=":", label="null 95th pct")
+        a.axvline(100 * d["vis"], color=PROBE, lw=1.7, label="probe @ final layer")
+        a.set_xlabel("probe accuracy (%)", fontsize=6.8); a.set_ylabel("density", fontsize=6.8)
+        a.set_yticks([])
+        a.set_xlim(-2, max(100 * d["null_max"] + 14, 100 * d["vis"] + 8))
+        pv = ("$p<0.001$" if d["p_null"] < 1e-3 else "$p=%.3f$" % d["p_null"])
+        a.set_title(f"{label}    {pv}", loc="left", fontsize=6.4, pad=2.5)
+        if r == 0:
+            a.legend(frameon=False, fontsize=5.6, loc="upper left",
+                     bbox_to_anchor=(.24, .99), handletextpad=.4,
+                     borderaxespad=.1, labelspacing=.3)
+    fig.savefig(f"{OUT}/fig5_interventions.pdf")
+    fig.savefig(f"{OUT}/fig5_interventions.png"); plt.close(fig)
+
+
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)
-    fig1(); fig2(); fig3(); fig4()
+    fig1(); fig2(); fig3(); fig4(); fig5()
     print("wrote", ", ".join(sorted(os.listdir(OUT))))
