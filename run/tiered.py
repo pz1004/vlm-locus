@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Cost-tiered LRC: spend compute where the signal says the failure needs it.
 
 The 6-branch router captures 51% of headroom, but that number is not cost-matched: B-cot

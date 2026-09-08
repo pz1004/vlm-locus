@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Exact-label item generators for the four LRC task families.
 
 Architecture: every item is a **spec** (pure data: positions, colours, values, swaps) plus a

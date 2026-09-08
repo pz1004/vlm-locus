@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Probe-reranked sampling: select among samples by visual evidence, not by frequency.
 
 Best-of-N exposes a gap the branch grid could not: over 8 samples the correct answer appears

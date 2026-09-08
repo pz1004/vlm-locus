@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Real-image families with exact counterfactuals.
 
 The synthetic study's credibility rests on a counterfactual control -- edit one field of the

@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """The locus split: on items the model gets WRONG, is the visual attribute still decodable?
 
 This is the question the whole project is about, and it is answerable from two things already

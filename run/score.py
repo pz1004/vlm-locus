@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Pilot run: base accuracy, blindfolded prior, and the screen-vs-generation disagreement.
 
 This is the first experiment the plan actually needs, and it needs no probes. It answers

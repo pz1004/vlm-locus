@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Best-of-N self-consistency: the honest 'just spend more compute' competitor.
 
 A router that costs k times the base model has to beat the simplest thing you can do with

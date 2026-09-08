@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Gate G3: does the oracle over corrections clear the best fixed branch?
 
 Reports, per family:

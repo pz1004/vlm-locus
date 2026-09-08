@@ -107,10 +107,14 @@ them rather than filed under "not redistributed". `runs/chart_index.json` (742 c
 `runs/chart_index_nolabel.json` (27) each record, per source chart, its ChartQA identifier, its
 category labels, its underlying values, and the bar geometry recovered from the rendered image.
 They are committed because the counterfactual renderer and the per-family pixel-identity guards
-need them, and because the reproduction path would not work without them. ChartQA is distributed
-under **GPL-3.0**; anyone redistributing this repository or building on those two files should
-consult ChartQA's own terms rather than relying on the MIT grant below, which the author cannot
-extend over someone else's data.
+need them, and because the reproduction path would not work without them.
+
+ChartQA is distributed under **GPL-3.0**, and that is why this repository is too. Whether an
+index of identifiers, labels and recovered geometry is a derivative work of the annotations it
+was extracted from is a question the author is not equipped to answer; relicensing means it does
+not have to be answered before anyone can redistribute this, because either way the whole thing
+travels under one licence instead of two that would have to be reconciled first. ChartQA's own
+terms still govern that content directly, upstream of anything granted here.
 
 ## Layout
 
@@ -150,12 +154,28 @@ details will be added on acceptance.
 
 ## License
 
-[MIT](LICENSE) © 2026 Sooyoung Jang. This covers the contents of this repository — the code, the
-generators and the run artefacts committed here.
+[GPL-3.0-only](LICENSE) © 2026 Sooyoung Jang — the code, the generators and the run artefacts
+committed here.
 
-It does not extend to third-party material. COCO *val2017* and ChartQA are downloaded by the
-user under their own terms; no image from either is redistributed here. The exception to
-"not redistributed" is the pair of ChartQA-derived index files described under
-[Re-running the experiments](#re-running-the-experiments) — ChartQA is **GPL-3.0**, and the MIT
-grant above does not and cannot cover that content. The model weights (Qwen2.5-VL, InternVL3,
-SmolVLM) likewise carry their own licenses and are fetched from their upstream repositories.
+This program is free software: you can redistribute it and/or modify it under the terms of
+version 3 of the GNU General Public License as published by the Free Software Foundation. It is
+distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the
+implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See [LICENSE](LICENSE)
+for the full text.
+
+**Why GPL and not something permissive.** Two committed files are derived from ChartQA
+annotations, and ChartQA is GPL-3.0 — see
+[Re-running the experiments](#re-running-the-experiments) for exactly what those files contain.
+Copyleft propagates, so the repository that carries them is GPL-3.0 as well. It is
+`GPL-3.0-only` rather than `-or-later` because ChartQA ships the plain licence text without the
+"or any later version" clause: that forward option was never granted upstream, so it is not
+claimed here.
+
+**On the earlier releases.** Commits up to and including `ce1c88c` were published under MIT.
+That grant cannot be withdrawn from anyone who already has those snapshots, and this section
+does not attempt to; it governs this commit onward.
+
+**Third-party material is not covered by any of the above.** COCO *val2017* and ChartQA are
+downloaded by the user under their own terms, and no image from either is redistributed here.
+The model weights (Qwen2.5-VL, InternVL3, SmolVLM) carry their own licenses and are fetched
+from their upstream repositories.

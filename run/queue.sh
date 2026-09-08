@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 # wait on an explicit PID -- pattern matching on the command line matches this script itself
 WAIT_PID=$1
 while kill -0 "$WAIT_PID" 2>/dev/null; do sleep 15; done

@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Measure what each branch actually costs on this GPU.
 
 Every cost claim so far has been arithmetic on max_new_tokens: "CoT costs 14x because 140

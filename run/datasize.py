@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """How many labels does reading the latent actually need?
 
 B-read and LoRA draw on the same resource -- a labelled calibration set -- so the honest

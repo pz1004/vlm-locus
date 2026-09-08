@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Independent verification of a generated set.
 
 Nothing here calls the generator's own label functions. Every answer is re-derived from the

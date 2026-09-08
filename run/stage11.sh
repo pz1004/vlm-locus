@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 # The comparison that decides the claim: LoRA and B-read at the *same* label budget.
 # At the full split LoRA wins (81.2% vs 75.2%). run/datasize.py shows the probe passing the
 # model at 20 labels per family, so the question is what fine-tuning does with the same 20.

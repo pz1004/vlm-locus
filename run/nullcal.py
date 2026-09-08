@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Calibrate the false-positive rate of the presence verdict, per cell, at the final layer.
 
 The protocol issues a presence verdict when the probe reads the attribute out of the final

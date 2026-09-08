@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Which artefact feeds which paper number -- measured by running the producers, not asserted.
 
 Anyone asking "where does this number come from?" needs an answer that cannot drift from
@@ -12,7 +14,7 @@ It also enforces two things a list cannot:
     contaminated data and still produces a plausible table.
 
   * files that look canonical but are not stay unread. runs/probe_g1_smol.json is the clearest:
-    its tracking probe hits 100.0% at layer 2, which is the numeric skew run/capture.py:33-37
+    its tracking probe hits 100.0% at layer 2, which is the numeric skew run/capture.py:35-39
     documents, and its name is one character from the canonical smolm tag.
 
 Usage:
@@ -35,7 +37,7 @@ QUARANTINE = ("runs/v1_contaminated/", "runs/superseded/")
 # the entry explains itself rather than needing the commit that added it.
 NONCANONICAL = {
     "runs/superseded/probe_g1_smol.json":
-        "sdpa capture: tracking probe 100.0% at layer 2 (the numeric skew capture.py:33-37 "
+        "sdpa capture: tracking probe 100.0% at layer 2 (the numeric skew capture.py:35-39 "
         "documents). The canonical SmolVLM synthetic tag is smolm.",
     "runs/superseded/probe_g1_smol_v2.json":
         "superseded intermediate of the SmolVLM re-capture; canon.py's SYNTH names smolm.",

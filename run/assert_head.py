@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Assert that the state the probe is fitted on is the vector the language-model head consumes.
 
 The whole protocol rests on this: run/capture.py keeps every entry of `out.hidden_states` at the

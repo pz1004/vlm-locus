@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """H-read: a readout parameterised *through* the model's own output head.
 
 The five readouts in run/readout.py all learn `R^2048 -> R^|A|` from scratch and throw the LM

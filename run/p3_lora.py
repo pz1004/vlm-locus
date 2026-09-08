@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Fine-tuning gain per (model, family), against what the probe read from the frozen states.
 
 The claim under test is that probe accuracy lower-bounds the fine-tuned result and rank-orders

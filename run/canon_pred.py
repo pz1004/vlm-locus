@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Per-item predictions of the CANONICAL probe (layers.py, final layer, fixed hyperparameters).
 
 layers.py reports accuracies only. Several analyses need the individual

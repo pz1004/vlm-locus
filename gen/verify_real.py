@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Verify the real-image datasets. The counterfactual exactness checks are the point: on
 synthetic data the guard was "re-render from the same seed and compare"; here each family needs
 its own guard, and every one of them is a pixel identity that either holds or does not.

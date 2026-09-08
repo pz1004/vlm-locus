@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Build the real chart family from the scan index, in the standard manifest schema.
 
 One item per chart -- never two bars from the same image, so a near-duplicate cannot straddle the

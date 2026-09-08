@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Does the evidence margin predict WHICH correction wins?
 
 Headroom (G3) and signal (G1) are both established. Neither implies a router: they have to be

@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Every method on the same 298 held-out items, paired.
 
 One table, one test set, one parser. Rows are grouped by what they need: nothing, boxes, or a

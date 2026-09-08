@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Capture hidden states for the presence test (gate G1).
 
 For every item, two forward passes -- the real image and a mid-grey blindfold -- with

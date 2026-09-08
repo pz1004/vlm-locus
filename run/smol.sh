@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 set -e
 PY=${PY:-.venv/bin/python}
 M=HuggingFaceTB/SmolVLM-Instruct

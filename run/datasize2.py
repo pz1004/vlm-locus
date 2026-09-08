@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """The label-budget curve again, with the probe's hyperparameters tuned per budget.
 
 run/datasize.py held PCA=64 and C=0.5 fixed at every training-set size, which is unfair at the

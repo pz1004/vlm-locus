@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """P0: decompose LoRA's +7.0 pp over the frozen-state readout ceiling into language and vision.
 
 The 83.2% reference adapts both stacks -- `target_modules` was given as bare suffixes, so PEFT

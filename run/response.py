@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Does an INTERVENTION-RESPONSE feature break the 55% ceiling?
 
 Everything the router reads so far describes the item: is the evidence present, does it

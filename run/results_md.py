@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Generate docs/RESULTS.md from out/canon.json.
 
 The repository used to carry five hand-written per-stage result documents. Every one of them

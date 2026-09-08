@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Every reported number, from ONE probe protocol.
 
 The study accumulated two probe pipelines. `run/fit_probes.py` selects a layer on a held-out

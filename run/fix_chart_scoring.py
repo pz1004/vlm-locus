@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Score the chart family on the value the model read, not on whether it rounded.
 
 The real-chart question asks for the nearest multiple of 5, and `parse_in_space` accepts only an

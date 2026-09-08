@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Is tracking failing at parsing or at tracking?
 
 Three probes on the same images, from easiest to hardest:

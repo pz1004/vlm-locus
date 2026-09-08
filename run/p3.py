@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Assemble every (model, family) pair measured anywhere in the study into one table.
 
 The claim under test -- that probe accuracy lower-bounds and rank-orders what fine-tuning

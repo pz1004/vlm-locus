@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Gate G1: does a per-instance evidence margin exist?
 
 Linear probes only, fitted per (family, layer) on the residual stream at the last prompt

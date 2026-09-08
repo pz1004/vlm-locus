@@ -7,7 +7,7 @@ part of the run record.
 
 | file | why it is not canonical |
 |---|---|
-| `probe_g1_smol.json` | sdpa capture. Its tracking probe reaches 100.0% at layer 2, the numeric skew `run/capture.py:33-37` documents (the skew costs the robust probes ≤1.3 pp and the memorising tracking probe 62 pp). The canonical SmolVLM synthetic tag is `smolm`. |
+| `probe_g1_smol.json` | sdpa capture. Its tracking probe reaches 100.0% at layer 2, the numeric skew `run/capture.py:35-39` documents (the skew costs the robust probes ≤1.3 pp and the memorising tracking probe 62 pp). The canonical SmolVLM synthetic tag is `smolm`. |
 | `probe_g1_smol_v2.json` | superseded intermediate of the SmolVLM re-capture. |
 | `layers_smol_v2.json`, `null_smol_v2.json`, `smol_v2_gen.jsonl` | the `smol_v2` sweep, superseded by `smolm`. `canon.py`'s `SYNTH` names `smolm`; the `--audit` glob over `runs/layers_*.json` skipped `smol_v2` only because no `probes_smol_v2.npy` exists, which is a guard by accident rather than by design. |
 | `lora_items_base.json` | the shared-path base eval. `run/lora.py --eval-base` overwrote this on every run, so only the last survived: 75 real-chart items. Real-chart and synthetic-chart ids share a naming scheme, so 21 collided by name and `run/p0.py`'s four-way intersection fell from 298 items to 21 without raising. `p0.py` now reads base from the canonical scored generations (`runs/branches6_test.jsonl`, i.e. `canon.py`'s `GEN["3b"]`) and asserts the four configs share one split. |

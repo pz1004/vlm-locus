@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """What does each branch actually require, and what survives if you take the labels away?
 
 Running the probe as an ANSWER rather than a router signal scores 98.6/69.3/97.3/90.7 on

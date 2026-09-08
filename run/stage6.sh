@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 # Re-run the pipeline on the de-duplicated dataset. chart/counting/spatial regenerate
 # bit-identically, so this is a tracking fix; the clean families are re-run only to prove
 # they reproduce.

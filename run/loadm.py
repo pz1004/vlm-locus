@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """One model loader for every stage, so precision is a flag rather than an edit in three files.
 
 Qwen2.5-VL-7B needs 16.6 GB in bf16 on a 16 GB card. Loading it in 4-bit is the only way it fits,

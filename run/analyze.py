@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """First-pass analysis of a pilot run: difficulty calibration, the measured prior, and the
 L category. Reports the quantities that decide whether the design is sound, not the ones
 that would look good in a paper."""

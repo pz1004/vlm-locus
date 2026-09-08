@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 # Capture counterfactual states at every layer, for every configuration, so that the follow rate
 # can be computed at the final layer -- the same layer every other quantity in the locus verdict
 # uses. run/cfprobe.py kept only the selected layer and saved nothing, which is why the published

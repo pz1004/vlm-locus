@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Scan every ChartQA image for one that admits an exact bar-value counterfactual.
 
 Cheap table checks first (they reject ~45% without touching an image), then bar detection and

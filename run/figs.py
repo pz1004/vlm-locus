@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Every figure, all from out/canon.json plus the frozen run artefacts in runs/.
 
 No number here is typed in: every value is read from the same canonical protocol the tables use,

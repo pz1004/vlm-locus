@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 # Fine-tuning gain per (model, family), to test the claim that probe accuracy lower-bounds
 # and rank-orders what fine-tuning achieves -- at n=32 pairs instead of n=4.
 #

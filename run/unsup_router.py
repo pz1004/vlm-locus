@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Does LRC survive without labels?
 
 Three feature sets, priced by what they cost to compute:

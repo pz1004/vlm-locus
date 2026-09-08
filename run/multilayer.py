@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Is the signal ceiling caused by reading ONE layer?
 
 The router reads a single pre-selected layer. But the locus story is explicitly about a

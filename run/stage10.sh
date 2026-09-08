@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 # Second architecture, identical data. The v1 SmolVLM run used its own difficulty-matched
 # dataset, so its probe numbers are not comparable with Qwen's; this runs SmolVLM over the
 # exact items Qwen was measured on. The correction library is skipped -- section 4 already

@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Is 46% of headroom a limit of the SIGNAL or of the POLICY CLASS?
 
 The shared threshold list captured 46% and lost to always-on `look` on spatial. Two very

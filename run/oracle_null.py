@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """How much of the oracle is real, and how much is four noisy branches getting lucky?
 
 `oracle = any branch correct` is inflated whenever branches make partly independent errors:

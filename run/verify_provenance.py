@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Artefact-provenance checks for the two Stage 3 reproducibility items.
 
 Provenance: run/p0.py's base row must come from the canonical scored generations -- the same file

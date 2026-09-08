@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Gate G3: the oracle over corrections. Is there anything for a router to recover?
 
 Four branches, each a re-implementation of a published correction family, run on every item:

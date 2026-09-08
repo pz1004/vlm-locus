@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Where in the stack does the answer live, and where does it go?
 
 Fits the same capacity-controlled probe at *every* layer on the *same* train split, and

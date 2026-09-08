@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Build the real-image datasets, in the manifest schema run/capture.py already consumes.
 
 Every counterfactual here is exact, and the exactness is checked rather than asserted:

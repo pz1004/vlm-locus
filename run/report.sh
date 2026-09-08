@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 # Regenerate every table in analysis/results-readout-3b.md from the frozen run artefacts.
 # Analysis only -- no GPU, no model. Everything it reads was produced by stages 1-9.
 set -e

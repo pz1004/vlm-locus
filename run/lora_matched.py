@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Assemble the (model, family) adaptation table that run/canon.py's prediction section reads.
 
 This file exists because runs/p3_lora_matched.json had no producer. It was assembled by hand,

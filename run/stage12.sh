@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 # Difficulty-matched SmolVLM replication.
 #
 # Section 10 ran SmolVLM on data calibrated for Qwen, where it sits near chance on spatial and

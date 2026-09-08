@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Emit the calibration (selection) split: the items the probe was fitted with but that are in
 neither its training nor its test split. Router thresholds are fitted here, so it must be
 disjoint from both -- fitting them on probe-training items would report a probe that has seen

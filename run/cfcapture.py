@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Capture hidden states for the *counterfactual* images, at every layer.
 
 run/cfprobe.py computes follow rates by running the edited images through the model and reading

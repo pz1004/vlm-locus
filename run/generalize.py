@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Is the probe reading the attribute, or identifying the arm?
 
 Each family holds 150 `canonical` items and 150 `anti` items, and the two arms were built with

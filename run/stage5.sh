@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 set -e
 PY=${PY:-.venv/bin/python}
 $PY run/unsup.py --ids runs/calib_ids.json --out runs/unsup_calib_3b.jsonl 2>&1 | tail -2

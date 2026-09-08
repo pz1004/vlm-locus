@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Does the probe READ the attribute, or a correlate? The counterfactual control.
 
 A linear probe answering held-out items at 98.6% (chart) while the model answers 34% is the

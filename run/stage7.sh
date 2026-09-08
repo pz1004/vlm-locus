@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 # Promote the de-duplicated, eager-captured run to canonical, then refresh everything that
 # depends on it. chart/counting/spatial images are bit-identical between v1 and v2, so only
 # tracking needs new label-free features; the probes are refit for all four families because

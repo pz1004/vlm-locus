@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 # P2b: the real CHART family -- the load-bearing test.
 #
 # Chart is where the synthetic effect is concentrated (+64 pp, 89% follow, 98.6% decodable from

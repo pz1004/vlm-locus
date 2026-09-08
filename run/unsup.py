@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Label-free routing features: the experiment the whole method claim now rests on.
 
 The bind: LRC's routing features come from a probe fitted on labelled calibration data. But if

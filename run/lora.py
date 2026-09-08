@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """The same-supervision-tier competitor: LoRA fine-tuning on the probe's own labels.
 
 B-read (emit the probe's argmax) needs a labelled calibration set. So does fine-tuning. A

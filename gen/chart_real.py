@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Real chart images with exact bar-value counterfactuals.
 
 Chart-value reading is where the synthetic effect is concentrated (+64 pp, 89% follow, decodable

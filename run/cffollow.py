@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Counterfactual follow rate at the FINAL layer, from cached states. No GPU.
 
 The published follow rates come from run/cfprobe.py, which reads the layer the serialised probe

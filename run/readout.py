@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """If the answer is in the state, how well can it be read?
 
 B-read used a linear probe because the probe's job in the original design was *diagnosis* --

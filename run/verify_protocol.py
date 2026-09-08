@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Protocol-integrity checks: the properties the locus verdict is supposed to have.
 
 Each check corresponds to an objection the protocol has to answer, and fails loudly if a change
@@ -157,6 +159,53 @@ d1 = open(os.environ.get("VLM_LOCUS_DOCS", "docs/RESULTS.md")).read()
 subprocess.run([PY, "run/results_md.py"], capture_output=True)
 chk("the generated results document is byte-stable across regeneration",
     d1 == open(os.environ.get("VLM_LOCUS_DOCS", "docs/RESULTS.md")).read())
+
+# 12 -- licensing. Copyleft propagates from the ChartQA-derived index files, so the licence is
+#       not a cosmetic field: a permissive grant left behind anywhere would be a claim the
+#       author is not in a position to make. Checked, for the same reason the entry counts are.
+SPDX = "GPL-3.0-only"
+LIC = open("LICENSE").read()
+src = subprocess.run(["git", "ls-files", "*.py", "*.sh"], capture_output=True,
+                     text=True).stdout.split()
+nohdr = [f for f in src if SPDX not in "".join(open(f).readlines()[:5])]
+chk("LICENSE is the unmodified GPL-3.0 text",
+    all(s in LIC for s in ("GNU GENERAL PUBLIC LICENSE", "Version 3, 29 June 2007",
+                           "END OF TERMS AND CONDITIONS", "How to Apply These Terms")))
+chk(f"every tracked source file carries SPDX {SPDX}", not nohdr, f"missing={nohdr[:5]}")
+chk("the README names the same licence the sources declare",
+    f"[{SPDX}](LICENSE)" in R and "GNU General Public License" in R)
+chk("no permissive grant survives anywhere in the tree",
+    not subprocess.run(["git", "grep", "-lI", "-e", "MIT License", "-e",
+                        "Permission is hereby granted", "--", ":!run/verify_protocol.py"],
+                       capture_output=True, text=True).stdout.split())
+
+# 12b -- the SPDX headers shifted every source file down by two lines, which is exactly the way
+#        a `file.py:N-M` citation goes quietly stale. Every such citation in the tree points at a
+#        comment block, so the range must cover one exactly: all comment lines, with non-comment
+#        lines either side. Requiring only that the topic word fall somewhere inside the window
+#        is too weak -- a shift of one or two lines keeps it there.
+cites = {(f if "/" in f else "run/" + f, int(a), int(b)) for f, a, b in re.findall(
+    r"([a-z_0-9/]+\.py):(\d+)-(\d+)", subprocess.run(
+        ["git", "grep", "-hI", "-oE", r"[a-z_0-9/]+\.py:[0-9]+-[0-9]+"],
+        capture_output=True, text=True).stdout)}
+
+
+def covers_a_block(f, a, b, topic):
+    """The cited lines are a whole comment block, and it is the one the citation is about."""
+    ln = [l.strip() for l in open(f).readlines()]
+    if not 1 <= a <= b <= len(ln):
+        return False
+    cited = ln[a - 1:b]
+    before = ln[a - 2] if a > 1 else ""          # "" is not a comment, so a block at the top
+    after = ln[b] if b < len(ln) else ""         # or bottom of the file still reads correctly
+    return (all(l.startswith("#") for l in cited)
+            and not before.startswith("#") and not after.startswith("#")
+            and topic in " ".join(cited))
+
+
+chk("the source citation in the docs covers exactly the comment block it names",
+    len(cites) == 1 and all(covers_a_block(f, a, b, "sdpa") for f, a, b in cites),
+    f"cites={sorted(cites)}")
 
 print(f"\n{sum(1 for _, o in ck if o)}/{len(ck)} checks pass")
 sys.exit(0 if all(o for _, o in ck) else 1)

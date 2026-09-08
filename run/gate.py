@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Can the probe's own confidence say when to trust it?
 
 The oracle over {model answer, probe answer} reaches 82.6%, within a point of a full fine-tune.

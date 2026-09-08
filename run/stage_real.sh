@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 # Run the real-image families for one model. Difficulty was calibrated on Qwen2.5-VL-3B, so for
 # any other model the levels are inherited rather than matched; model accuracy is reported
 # alongside every probe number so a floor or ceiling effect is visible rather than hidden.

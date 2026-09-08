@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 # The sampling baselines were measured on the pre-dedup tracking items, whose images no longer
 # exist. chart/counting/spatial regenerate bit-identically so their rows stand; only tracking
 # is re-sampled and spliced back in.

@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Sooyoung Jang
+# SPDX-License-Identifier: GPL-3.0-only
 """Fit and freeze the routing probes, and extract a steering direction per class.
 
 The probe is standardise -> PCA -> multinomial logistic regression. For steering we need a
