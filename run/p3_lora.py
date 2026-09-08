@@ -24,7 +24,9 @@ def best_lora(tag):
 
 
 def main():
-    base = json.load(open("runs/lora_items_base.json")) if os.path.exists("runs/lora_items_base.json") else {}
+    # base accuracy is taken per row from the scored generations further down, which is the
+    # source run/p3.py and run/canon.py use. The runs/lora_items_base.json load that used to sit
+    # here was never read -- and could not have been trusted if it had been, see run/p0.py.
     rows = []
     for f in sorted(glob.glob("runs/lora_*_real*.json")):
         tag = os.path.basename(f)[len("lora_"):-len(".json")]

@@ -26,9 +26,18 @@ data/
 *.safetensors
 runs/*_adapter/
 
-# Superseded pre-fix run kept locally for reference only.
-runs/v1_contaneminated/
+# Superseded pre-fix run kept locally for reference only. This one is NOT tracked: it holds a
+# pre-eager capture under filenames identical to the live ones (states_3b.npz, probes_3b.npy,
+# branches6_test.jsonl, probe_g1.json), so shipping it invites a producer being run against it.
 runs/v1_contaminated/
+
+# runs/superseded/ IS tracked, deliberately -- 256 KB of artefacts that resemble a canonical one
+# and are not, each with the reason in its README. run/manifest.py fails if any of them appears in
+# a producer's read trace, so the directory is the audit trail for that check rather than clutter.
+
+# Pre-revision copies kept while revising. Redundant once the change is committed -- every
+# .published file here shadows a tracked artefact whose previous version is in the history.
+*.published
 
 # Install and download logs
 *.log

@@ -7,6 +7,13 @@ an unchanged one". `lang` and `vis` are the exact complement halves of that run,
 they say which.
 
 Oracle epoch per config, matching how the 83.2% reference was selected.
+
+Base accuracy comes from the canonical scored generations -- the same file run/canon.py reads for
+each cell's `model_acc`, so the base column here is identical to the paper's by construction. It
+used to come from runs/lora_items_base.json, which run/lora.py rewrote on every --eval-base run;
+the surviving copy held 75 real-chart items, 21 of whose ids collide by name with synthetic ones,
+so the four-way intersection below silently fell from 298 items to 21 instead of raising. The
+assertion on the intersection size is what makes that failure loud rather than silent.
 """
 from __future__ import annotations
 import glob, json, os, sys
@@ -33,14 +40,33 @@ def mcnemar(a, b):
     return binomtest(n10, n01 + n10, 0.5).pvalue, n10, n01
 
 
+# the scored generations the synthetic Qwen-3B sweep was aligned to, i.e. run/canon.py's GEN["3b"]
+BASE_GEN = "runs/branches6_test.jsonl"
+
+
+def base_items():
+    """Per-item base correctness, read from the canonical scored generations."""
+    out = {}
+    for line in open(BASE_GEN):
+        r = json.loads(line)
+        out[r["id"]] = dict(ok=bool(r["ok"]["none"] if "ok" in r else r["gen_correct"]))
+    return out
+
+
 def main():
-    cfg = {"base": json.load(open("runs/lora_items_base.json"))}
+    cfg = {"base": base_items()}
     ep = {}
     for tag, name in [("lora", "both"), ("loralang", "lang"), ("loravis", "vis")]:
         if not glob.glob(f"runs/lora_items_{tag}-ep*.json"):
             sys.exit(f"! no per-item files for {tag}; is the run finished?")
         cfg[name], ep[name] = best_epoch(tag)
     ids = sorted(set.intersection(*[set(d) for d in cfg.values()]))
+    # the four configs are evaluated on one shared split; anything less means the id sets do not
+    # correspond, which is the failure mode that produced a 21-item table once already
+    small = min((k, len(d)) for k, d in cfg.items() if len(d) == min(map(len, cfg.values())))
+    if len(ids) < min(len(d) for d in cfg.values()):
+        sys.exit(f"! configs do not share a split: intersection {len(ids)} < smallest config "
+                 f"{small[0]} at {small[1]} items. Do not report this table.")
     fam = {i: i.rsplit("_", 1)[0] for i in ids}
     ok = {k: np.array([d[i]["ok"] for i in ids]) for k, d in cfg.items()}
     print(f"{len(ids)} items shared by all four configs; oracle epochs {ep}\n")

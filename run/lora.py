@@ -106,8 +106,14 @@ def main(a):
     model = L.load(a.model, dev, a.load_4bit)
 
     if a.eval_base:
+        # Tagged per run. This used to write the bare "base", i.e. runs/lora_items_base.json,
+        # which every --eval-base run overwrote: only the last survived, and run/p0.py then
+        # intersected its ids with a *different* dataset's. Real-chart and synthetic-chart items
+        # share a naming scheme (chart_000123), so 21 ids collided by name and the intersection
+        # silently shrank from 298 items to 21 rather than raising. p0.py now takes its base from
+        # the canonical scored generations instead; this file is kept only for inspection.
         print("base model (no adapter):")
-        evaluate(model, proc, recs, test_by_fam, dev, "base")
+        evaluate(model, proc, recs, test_by_fam, dev, f"base_{a.tag}")
 
     # --modules splits the default target set by stack. The default list matches by *suffix*, so
     # it lands on the language model AND on the vision tower's MLPs (192 of 696 adapter tensors
