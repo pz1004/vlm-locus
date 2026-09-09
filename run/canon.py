@@ -542,7 +542,9 @@ def _tab(path, colspec, header, rows, pre=""):
 
 def emit(synth, real, pred_rows, pred, out):
     os.makedirs(TEX, exist_ok=True)
-    CELLHDR = (r"Model & Family & $n$ & chance & model & probe & gap & $p$ & follow & G1 "
+    # `follow` is the point estimate and `LB` its Wilson lower bound. The gate is applied to
+    # the bound, so the column the caption names has to be in the table beside it.
+    CELLHDR = (r"Model & Family & $n$ & chance & model & probe & gap & $p$ & follow & LB & G1 "
                r"& locus")
     for name, rows in [("synthetic", synth), ("real", real)]:
         body = []
@@ -552,9 +554,10 @@ def emit(synth, real, pred_rows, pred, out):
             body.append(f"{r['label']} & {FAMNAME.get(r['family'], r['family'])} & {r['n_test']} "
                         f"& {_pct(r['chance'])} & {_pct(r['model_acc'])} & {_pct(r['probe'])} "
                         f"& {r['gap']:+.1f} & {_p(q.get('p'))} & {_pct(r['follow'], 0)} "
+                        f"& {_pct(r.get('probe_follow_ci', [None])[0], 0)} "
                         f"& {'--' if g is None else ('pass' if g['passes'] else 'fail')} "
                         f"& {r'\textbf{readout}' if r['readout'] else '--'}")
-        _tab(f"{TEX}/cells_{name}.tex", "@{}llrrrrrrrrl@{}", CELLHDR, body,
+        _tab(f"{TEX}/cells_{name}.tex", "@{}llrrrrrrrrrl@{}", CELLHDR, body,
              pre="\\footnotesize\\setlength{\\tabcolsep}{3.4pt}")
 
     NAME = [("probe_gain", "probe gain (probe $-$ base)", "one probe fit"),
