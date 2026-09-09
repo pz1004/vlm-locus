@@ -593,6 +593,15 @@ def emit(synth, real, pred_rows, pred, out):
               "FollowCountMax": f"{max(100 * r['follow'] for r in real if r['family'] == 'counting'):.0f}",
               "FollowSynthChart": f"{100 * next(r['follow'] for r in synth if r['tag'] == '3b' and r['family'] == 'chart'):.0f}",
               "FollowSynthSpatial": f"{100 * next(r['follow'] for r in synth if r['tag'] == 'smolm' and r['family'] == 'spatial'):.0f}",
+              # the individual cells the prose names. These were typed by hand and seven of
+              # them survived Stage 2's move to the final-layer estimator as stale numbers
+              # contradicting the tables on the same page; they are generated now.
+              "FollowSynthSpatialQwen": f"{100 * next(r['follow'] for r in synth if r['tag'] == '3b' and r['family'] == 'spatial'):.0f}",
+              "FollowSynthTracking": f"{100 * next(r['follow'] for r in synth if r['tag'] == '3b' and r['family'] == 'tracking'):.0f}",
+              "FollowSynthChartSmol": f"{100 * next(r['follow'] for r in synth if r['tag'] == 'smolm' and r['family'] == 'chart'):.0f}",
+              "FollowChartNfSmall": f"{100 * next(r['follow'] for r in real if r['tag'] == 'q3b4_real_chart'):.0f}",
+              "FollowChartNfLarge": f"{100 * next(r['follow'] for r in real if r['tag'] == 'q7b_real_chart'):.0f}",
+              "FollowRealChartSmol": f"{100 * next(r['follow'] for r in real if r['tag'] == 'smol_real_chart'):.0f}",
               "PeakPremiumMin": f"{min(100 * (r['peak'] - r['probe']) for r in gl):.1f}",
               "PeakPremiumMax": f"{max(100 * (r['peak'] - r['probe']) for r in gl):.1f}",
               "FprCtrl": f"{sum(1 for r in gl if r['nullcal']['p_null'] < NULL_ALPHA)}/{len(gl)}",
