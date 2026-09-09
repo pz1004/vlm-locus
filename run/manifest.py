@@ -72,8 +72,11 @@ CANONICAL_TAGS = None      # filled from canon.REAL + canon.SYNTH at run time
 PRODUCES = {
     "run/canon.py":   ["tables/cells_synthetic.tex", "tables/cells_real.tex",
                        "tables/prediction.tex", "tables/pairs.tex", "tables/bands.tex",
-                       "tables/facts.tex"],
-    "run/p0.py":      ["tab:decomp (sec 7)", "tab:readouts LoRA rows (appendix)"],
+                       "tables/decomp.tex", "tables/facts.tex"],
+    # p0 produces the artefact; canon.py turns it into the table. tab:decomp used to be typed
+    # into the manuscript from these numbers, which made p0 its sole source in a weaker sense.
+    "run/p0.py":      ["runs/p0_3b.json -> tables/decomp.tex (sec 7)",
+                       "tab:readouts LoRA rows (appendix)"],
     "run/figs.py":    ["figs/fig1..fig5"],
 }
 

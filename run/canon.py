@@ -492,6 +492,38 @@ def _pct(x, d=1):
     return "--" if x is None or (isinstance(x, float) and np.isnan(x)) else f"{100 * x:.{d}f}"
 
 
+DECOMP = "runs/p0_3b.json"
+
+
+def decomp(synth):
+    """S7's locus decomposition, from run/p0.py's artefact instead of typed into main.tex.
+
+    Four of the five rows are p0's own accuracy table, so the base row is the same measurement
+    as Table 3's model column by construction (manifest.py asserts that shared source). The
+    probe row is the canonical Qwen-3B probe: its per-family cells come from cells_synthetic
+    and its ALL from p0's pooled `readout` over the same 298 items.
+    """
+    d = json.load(open(DECOMP))
+    acc, fams = d["acc"], ("chart", "counting", "spatial", "tracking")
+    probe = {f: next(r["probe"] for r in synth if r["tag"] == "3b" and r["family"] == f)
+             for f in fams}
+    probe["ALL"] = d["readout"]
+    # the two single-stack rows are bolded: the point of the table is that either stack alone
+    # recovers most of what both together do
+    plan = [("base model", acc["base"], False),
+            ("supervised linear probe, VLM weights frozen", probe, False),
+            ("LoRA \\texttt{lang} (vision frozen)", acc["lang"], True),
+            ("LoRA \\texttt{vis} (language frozen)", acc["vis"], True),
+            ("LoRA \\texttt{both} (reference)", acc["both"], False)]
+    rows = []
+    for name, a, bold in plan:
+        cells = [f"{100 * a[f]:.1f}" for f in fams]
+        allc = f"{100 * a['ALL']:.1f}"
+        rows.append(f"{name} & " + " & ".join(cells) + " & "
+                    + (f"\\textbf{{{allc}}}" if bold else allc))
+    return rows, d["n"]
+
+
 def _p(x):
     return "--" if x is None else ("$<$0.001" if x < 1e-3 else f"{x:.3f}")
 
@@ -552,6 +584,10 @@ def emit(synth, real, pred_rows, pred, out):
     body = [f"{b['lo']}--{b['hi']} & {b['n']} & {_pct(b['model'])} & {_pct(b['probe'])} "
             f"& {100 * (b['probe'] - b['model']):+.1f}" for b in out["bands"]]
     _tab(f"{TEX}/bands.tex", "@{}lrrrr@{}", "Value band & $n$ & model & probe & gap", body)
+
+    body, _ = decomp(synth)
+    _tab(f"{TEX}/decomp.tex", "@{}lrrrrr@{}",
+         "Configuration & chart & counting & spatial & tracking & ALL", body)
 
     # single-source-of-truth macros for numbers quoted in running prose
     with open(f"{TEX}/facts.tex", "w") as f:
