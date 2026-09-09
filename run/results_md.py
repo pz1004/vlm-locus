@@ -19,6 +19,12 @@ import json, os, sys
 
 from scipy.stats import binomtest
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# imported rather than repeated: this document states which statistic the gate is applied to, and
+# a second copy of that name is how the document came to describe a rule canon.py had stopped
+# running. canon.py guards its entry point, so importing it runs nothing.
+from canon import GATE_CI
+
 JSON = os.environ.get("VLM_LOCUS_JSON", "out/canon.json")
 OUT = os.environ.get("VLM_LOCUS_DOCS", "docs/RESULTS.md")
 
@@ -33,8 +39,8 @@ def sgn(x, d=1):
 
 def cell_table(rows, C):
     out = ["| model | family | n | chance | model | probe | gap | null q95 | "
-           "p(null) | McNemar | follow | bound | locus |",
-           "|---|---|---|--:|--:|--:|--:|--:|--:|--:|--:|--:|:--|"]
+           "p(null) | McNemar | follow | joint | bound | locus |",
+           "|---|---|---|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|:--|"]
     for r in rows:
         nc, pq = r["nullcal"], r.get("paired")
         out.append(
@@ -43,7 +49,8 @@ def cell_table(rows, C):
             f"{pct(nc['null_q95'])} | {nc['p_null']:.4f} | "
             f"{(f'{pq[chr(112)]:.2g}' if pq else '--')} | "
             f"{r['probe_follow_num']}/{r['probe_follow_den']} | "
-            f"{pct(r['probe_follow_ci'][0], 0)} | "
+            f"{r['probe_joint_num']}/{r['probe_joint_den']} | "
+            f"{pct(r[GATE_CI][0], 0)} | "
             f"{'**readout**' if r['readout'] else '--'} |")
     return "\n".join(out)
 
@@ -72,11 +79,13 @@ def main():
     w(f"A **readout locus** is a (model, family) cell where the queried attribute is linearly "
       f"decodable from the final hidden state well above what the model emits, and the decoding "
       f"is shown to track the attribute rather than a correlate. A cell qualifies only if all "
-      f"three hold:\n")
-    w("1. the probe clears the 95th percentile of **its own** label-permutation null "
-      f"(`p < {C['protocol']['null_alpha']}`);")
-    w("2. it beats the model on the same items under an exact paired test (`p < 0.05`);")
-    w(f"3. the **lower 95% bound** on its counterfactual follow rate exceeds "
+      f"four hold:\n")
+    w("1. it passes the presence test at the final layer -- beating a blindfolded refit and its "
+      "own shuffled-label control on accuracy and on per-item log-probability margin;")
+    w("2. it rejects **its own** label-permutation null "
+      f"(`p < {C['protocol']['null_alpha']}`, add-one corrected);")
+    w("3. it beats the model on the same items under an exact paired test (`p < 0.05`);")
+    w(f"4. the **lower 95% bound** on its joint two-endpoint accuracy exceeds "
       f"{C['protocol']['follow_min_pct']:.0f}%.\n")
     byfam = {}
     for r in loci: byfam[r["family"]] = byfam.get(r["family"], 0) + 1
@@ -180,8 +189,10 @@ def main():
 
     w("## All cells\n")
     w("`follow` is numerator/denominator among items the probe answered correctly *before* the "
-      "edit; `bound` is the lower 95% Wilson bound on that rate, which is what the gate is "
-      "applied to.\n")
+      "edit -- a conditional statistic, and one the probe's class support truncates, so it is "
+      "reported but not gated on. `joint` is the share of all n items read correctly at both "
+      "endpoints of the edit, and `bound` is its lower 95% Wilson bound, which is what the gate "
+      "is applied to.\n")
     w("### Synthetic families\n")
     w(cell_table(C["synthetic"], C) + "\n")
     w("### Real-image families\n")

@@ -5,11 +5,12 @@ Generated from `out/canon.json` by `run/results_md.py`. Regenerate with `python3
 
 ## The verdict
 
-A **readout locus** is a (model, family) cell where the queried attribute is linearly decodable from the final hidden state well above what the model emits, and the decoding is shown to track the attribute rather than a correlate. A cell qualifies only if all three hold:
+A **readout locus** is a (model, family) cell where the queried attribute is linearly decodable from the final hidden state well above what the model emits, and the decoding is shown to track the attribute rather than a correlate. A cell qualifies only if all four hold:
 
-1. the probe clears the 95th percentile of **its own** label-permutation null (`p < 0.05`);
-2. it beats the model on the same items under an exact paired test (`p < 0.05`);
-3. the **lower 95% bound** on its counterfactual follow rate exceeds 50%.
+1. it passes the presence test at the final layer -- beating a blindfolded refit and its own shuffled-label control on accuracy and on per-item log-probability margin;
+2. it rejects **its own** label-permutation null (`p < 0.05`, add-one corrected);
+3. it beats the model on the same items under an exact paired test (`p < 0.05`);
+4. the **lower 95% bound** on its joint two-endpoint accuracy exceeds 50%.
 
 Of 28 cells, 18 clear their own null and **7 are readout loci**, in 2 of the 5 families measured: chart (5), spatial (2).
 
@@ -68,43 +69,43 @@ Per-fold difference in MAE (pp, positive = worse with the probe):
 
 ## All cells
 
-`follow` is numerator/denominator among items the probe answered correctly *before* the edit; `bound` is the lower 95% Wilson bound on that rate, which is what the gate is applied to.
+`follow` is numerator/denominator among items the probe answered correctly *before* the edit -- a conditional statistic, and one the probe's class support truncates, so it is reported but not gated on. `joint` is the share of all n items read correctly at both endpoints of the edit, and `bound` is its lower 95% Wilson bound, which is what the gate is applied to.
 
 ### Synthetic families
 
-| model | family | n | chance | model | probe | gap | null q95 | p(null) | McNemar | follow | bound | locus |
-|---|---|---|--:|--:|--:|--:|--:|--:|--:|--:|--:|:--|
-| Qwen-3B | chart | 73 | 5.6 | 34.2 | 98.6 | +64.4 | 12.3 | 0.0005 | 1.4e-14 | 67/72 | 85 | **readout** |
-| Qwen-3B | counting | 75 | 7.7 | 61.3 | 76.0 | +14.7 | 20.0 | 0.0005 | 0.027 | 30/57 | 40 | -- |
-| Qwen-3B | spatial | 75 | 25.0 | 76.0 | 94.7 | +18.7 | 36.0 | 0.0005 | 0.00012 | 71/71 | 95 | **readout** |
-| Qwen-3B | tracking | 75 | 25.0 | 28.0 | 36.0 | +8.0 | 34.7 | 0.0295 | 0.38 | 5/27 | 8 | -- |
-| SmolVLM | chart | 74 | 5.6 | 48.6 | 63.5 | +14.9 | 12.2 | 0.0005 | 0.08 | 24/47 | 37 | -- |
-| SmolVLM | counting | 75 | 7.7 | 20.0 | 38.7 | +18.7 | 18.7 | 0.0005 | 0.016 | 3/29 | 4 | -- |
-| SmolVLM | spatial | 75 | 25.0 | 38.7 | 85.3 | +46.7 | 36.0 | 0.0005 | 3.1e-08 | 56/64 | 77 | **readout** |
-| SmolVLM | tracking | 19 | 33.3 | 31.6 | 47.4 | +15.8 | 52.6 | 0.1509 | 0.55 | 2/9 | 6 | -- |
+| model | family | n | chance | model | probe | gap | null q95 | p(null) | McNemar | follow | joint | bound | locus |
+|---|---|---|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|:--|
+| Qwen-3B | chart | 73 | 5.9 | 34.2 | 98.6 | +64.4 | 12.3 | 0.0005 | 1.4e-14 | 67/72 | 67/73 | 83 | **readout** |
+| Qwen-3B | counting | 75 | 11.1 | 61.3 | 76.0 | +14.7 | 20.0 | 0.0005 | 0.027 | 30/57 | 30/75 | 30 | -- |
+| Qwen-3B | spatial | 75 | 25.0 | 76.0 | 94.7 | +18.7 | 36.0 | 0.0005 | 0.00012 | 71/71 | 71/75 | 87 | **readout** |
+| Qwen-3B | tracking | 75 | 25.0 | 28.0 | 36.0 | +8.0 | 34.7 | 0.0295 | 0.38 | 5/27 | 5/75 | 3 | -- |
+| SmolVLM | chart | 74 | 5.9 | 48.6 | 63.5 | +14.9 | 12.2 | 0.0005 | 0.08 | 24/47 | 24/74 | 23 | -- |
+| SmolVLM | counting | 75 | 11.1 | 20.0 | 38.7 | +18.7 | 18.7 | 0.0005 | 0.016 | 3/29 | 3/75 | 1 | -- |
+| SmolVLM | spatial | 75 | 25.0 | 38.7 | 85.3 | +46.7 | 36.0 | 0.0005 | 3.1e-08 | 56/64 | 56/75 | 64 | **readout** |
+| SmolVLM | tracking | 19 | 33.3 | 31.6 | 47.4 | +15.8 | 52.6 | 0.1509 | 0.55 | 2/9 | 2/19 | 3 | -- |
 
 ### Real-image families
 
-| model | family | n | chance | model | probe | gap | null q95 | p(null) | McNemar | follow | bound | locus |
-|---|---|---|--:|--:|--:|--:|--:|--:|--:|--:|--:|:--|
-| Qwen-3B bf16 | counting | 75 | 20.0 | 44.0 | 57.3 | +13.3 | 34.7 | 0.0005 | 0.013 | 9/43 | 11 | -- |
-| Qwen-3B bf16 | glyph | 75 | 5.6 | 6.7 | 6.7 | +0.0 | 10.7 | 0.4398 | 1 | 0/5 | 0 | -- |
-| Qwen-3B bf16 | spatial | 75 | 50.0 | 69.3 | 60.0 | -9.3 | 61.3 | 0.0945 | 0.28 | 17/45 | 25 | -- |
-| Qwen-3B bf16 | chart | 75 | 4.8 | 81.3 | 94.7 | +13.3 | 10.7 | 0.0005 | 0.0063 | 55/71 | 66 | **readout** |
-| Qwen-3B nf4 | counting | 75 | 20.0 | 44.0 | 57.3 | +13.3 | 34.7 | 0.0005 | 0.087 | 11/43 | 15 | -- |
-| Qwen-3B nf4 | glyph | 75 | 5.6 | 8.0 | 4.0 | -4.0 | 10.7 | 0.8301 | 0.51 | 0/3 | 0 | -- |
-| Qwen-3B nf4 | spatial | 75 | 50.0 | 69.3 | 61.3 | -8.0 | 61.3 | 0.0640 | 0.26 | 15/46 | 21 | -- |
-| Qwen-3B nf4 | chart | 75 | 4.8 | 77.3 | 96.0 | +18.7 | 10.7 | 0.0005 | 0.00052 | 57/72 | 68 | **readout** |
-| Qwen-7B nf4 | counting | 75 | 20.0 | 46.7 | 65.3 | +18.7 | 34.7 | 0.0005 | 0.0026 | 11/49 | 13 | -- |
-| Qwen-7B nf4 | glyph | 75 | 5.6 | 5.3 | 6.7 | +1.3 | 10.7 | 0.4258 | 1 | 1/5 | 4 | -- |
-| Qwen-7B nf4 | spatial | 75 | 50.0 | 60.0 | 61.3 | +1.3 | 61.3 | 0.0570 | 1 | 21/46 | 32 | -- |
-| Qwen-7B nf4 | chart | 75 | 4.8 | 76.0 | 94.7 | +18.7 | 10.7 | 0.0005 | 0.0013 | 59/71 | 73 | **readout** |
-| InternVL3-2B | counting | 75 | 20.0 | 50.7 | 57.3 | +6.7 | 36.0 | 0.0005 | 0.44 | 8/43 | 10 | -- |
-| InternVL3-2B | glyph | 75 | 5.6 | 8.0 | 4.0 | -4.0 | 10.7 | 0.6212 | 0.51 | 0/3 | 0 | -- |
-| InternVL3-2B | spatial | 75 | 50.0 | 54.7 | 50.7 | -4.0 | 60.0 | 0.4918 | 0.74 | 11/38 | 17 | -- |
-| InternVL3-2B | chart | 75 | 4.8 | 60.0 | 94.7 | +34.7 | 10.7 | 0.0005 | 8.7e-07 | 60/71 | 74 | **readout** |
-| SmolVLM | counting | 75 | 20.0 | 40.0 | 53.3 | +13.3 | 33.3 | 0.0005 | 0.031 | 5/40 | 5 | -- |
-| SmolVLM | glyph | 75 | 5.6 | 8.0 | 12.0 | +4.0 | 10.7 | 0.0300 | 0.58 | 0/9 | 0 | -- |
-| SmolVLM | spatial | 75 | 50.0 | 66.7 | 54.7 | -12.0 | 61.3 | 0.2824 | 0.19 | 6/41 | 7 | -- |
-| SmolVLM | chart | 75 | 4.8 | 50.7 | 36.0 | -14.7 | 9.3 | 0.0005 | 0.08 | 7/27 | 13 | -- |
+| model | family | n | chance | model | probe | gap | null q95 | p(null) | McNemar | follow | joint | bound | locus |
+|---|---|---|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|:--|
+| Qwen-3B bf16 | counting | 75 | 25.0 | 44.0 | 57.3 | +13.3 | 34.7 | 0.0005 | 0.013 | 9/43 | 9/75 | 6 | -- |
+| Qwen-3B bf16 | glyph | 75 | 5.6 | 6.7 | 6.7 | +0.0 | 10.7 | 0.4398 | 1 | 0/5 | 0/75 | 0 | -- |
+| Qwen-3B bf16 | spatial | 75 | 50.0 | 69.3 | 60.0 | -9.3 | 61.3 | 0.0945 | 0.28 | 17/45 | 17/75 | 15 | -- |
+| Qwen-3B bf16 | chart | 75 | 5.0 | 81.3 | 94.7 | +13.3 | 10.7 | 0.0005 | 0.0063 | 55/71 | 55/75 | 62 | **readout** |
+| Qwen-3B nf4 | counting | 75 | 25.0 | 44.0 | 57.3 | +13.3 | 34.7 | 0.0005 | 0.087 | 11/43 | 11/75 | 8 | -- |
+| Qwen-3B nf4 | glyph | 75 | 5.6 | 8.0 | 4.0 | -4.0 | 10.7 | 0.8301 | 0.51 | 0/3 | 0/75 | 0 | -- |
+| Qwen-3B nf4 | spatial | 75 | 50.0 | 69.3 | 61.3 | -8.0 | 61.3 | 0.0640 | 0.26 | 15/46 | 15/75 | 13 | -- |
+| Qwen-3B nf4 | chart | 75 | 5.0 | 77.3 | 96.0 | +18.7 | 10.7 | 0.0005 | 0.00052 | 57/72 | 57/75 | 65 | **readout** |
+| Qwen-7B nf4 | counting | 75 | 25.0 | 46.7 | 65.3 | +18.7 | 34.7 | 0.0005 | 0.0026 | 11/49 | 11/75 | 8 | -- |
+| Qwen-7B nf4 | glyph | 75 | 5.6 | 5.3 | 6.7 | +1.3 | 10.7 | 0.4258 | 1 | 1/5 | 1/75 | 0 | -- |
+| Qwen-7B nf4 | spatial | 75 | 50.0 | 60.0 | 61.3 | +1.3 | 61.3 | 0.0570 | 1 | 21/46 | 21/75 | 19 | -- |
+| Qwen-7B nf4 | chart | 75 | 5.0 | 76.0 | 94.7 | +18.7 | 10.7 | 0.0005 | 0.0013 | 59/71 | 59/75 | 68 | **readout** |
+| InternVL3-2B | counting | 75 | 25.0 | 50.7 | 57.3 | +6.7 | 36.0 | 0.0005 | 0.44 | 8/43 | 8/75 | 6 | -- |
+| InternVL3-2B | glyph | 75 | 5.6 | 8.0 | 4.0 | -4.0 | 10.7 | 0.6212 | 0.51 | 0/3 | 0/75 | 0 | -- |
+| InternVL3-2B | spatial | 75 | 50.0 | 54.7 | 50.7 | -4.0 | 60.0 | 0.4918 | 0.74 | 11/38 | 11/75 | 8 | -- |
+| InternVL3-2B | chart | 75 | 5.0 | 60.0 | 94.7 | +34.7 | 10.7 | 0.0005 | 8.7e-07 | 60/71 | 60/75 | 70 | **readout** |
+| SmolVLM | counting | 75 | 25.0 | 40.0 | 53.3 | +13.3 | 33.3 | 0.0005 | 0.031 | 5/40 | 5/75 | 3 | -- |
+| SmolVLM | glyph | 75 | 5.6 | 8.0 | 12.0 | +4.0 | 10.7 | 0.0300 | 0.58 | 0/9 | 0/75 | 0 | -- |
+| SmolVLM | spatial | 75 | 50.0 | 66.7 | 54.7 | -12.0 | 61.3 | 0.2824 | 0.19 | 6/41 | 6/75 | 4 | -- |
+| SmolVLM | chart | 75 | 5.0 | 50.7 | 36.0 | -14.7 | 9.3 | 0.0005 | 0.08 | 7/27 | 7/75 | 5 | -- |
 

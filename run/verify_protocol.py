@@ -23,6 +23,13 @@ def chk(name, ok, note=""):
     ck.append((name, ok)); print(f"{'PASS' if ok else 'FAIL'}  {name}" + (f"   {note}" if note else ""))
 
 
+sys.path.insert(0, os.path.join(os.getcwd(), "run"))
+# the gated statistic's name comes from canon.py, not from a copy here. Checks 1 and 12c below
+# assert properties of "the bound the gate uses", and for three commits they asserted them of
+# the conditional forward bound while canon.py gated on the joint one -- passing by luck, since
+# every locus clears both. A verification harness with its own copy of the rule verifies nothing.
+from canon import GATE_CI, locus, g1_at
+
 subprocess.run([PY, "run/canon.py"], capture_output=True)
 subprocess.run([PY, "run/results_md.py"], capture_output=True)
 C = json.load(open(os.environ.get("VLM_LOCUS_JSON", "out/canon.json")))
@@ -35,10 +42,21 @@ doc = open(os.environ.get("VLM_LOCUS_DOCS", "docs/RESULTS.md")).read()
 # 1 -- the follow gate is on the bound, and no verdict is decided by a couple of items
 loci = [r for r in rows if r["readout"]]
 chk("every locus clears the follow gate on its LOWER bound",
-    all(100 * r["probe_follow_ci"][0] > 50 for r in loci), f"{len(loci)} loci")
-margins = [100 * r["probe_follow_ci"][0] - 50 for r in loci]
+    all(100 * r[GATE_CI][0] > 50 for r in loci), f"{len(loci)} loci, gate on {GATE_CI}")
+margins = [100 * r[GATE_CI][0] - 50 for r in loci]
 chk("no locus clears the follow gate by less than 10 pp of bound",
     min(margins) > 10, f"min margin {min(margins):.1f} pp")
+# and the rule the document states is the rule canon.py runs, recomputed from the row
+chk("every printed verdict equals locus() recomputed from its own row",
+    all(bool(r["readout"]) == locus(r) for r in rows))
+# and the presence test is inside that rule rather than reported beside it. Asserting that every
+# locus passes G1 would be vacuous here -- no cell fails G1 while passing the other three -- so
+# the check is that tightening G1 alone moves the verdict, which it cannot if g1_at is not in the
+# conjunction. This is the check that would have caught G1 missing from it for three commits.
+tight = [r for r in rows if locus(r, pos=0.99)]
+chk("the presence test binds the verdict, not merely reported beside it",
+    len(tight) < len(loci) and all(g1_at(r["nullcal"]) for r in loci),
+    f"tightening pos alone: {len(loci)} loci -> {len(tight)}")
 chk("the two verdict paths agree on the locus count",
     len(loci) == int(subprocess.run([PY, "run/p3.py"], capture_output=True, text=True)
                      .stdout.count("READOUT")), f"canon {len(loci)}")

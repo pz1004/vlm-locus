@@ -302,8 +302,18 @@ def cells(spec):
             gap = 100 * (v["final"] - v["model"])
             fl = F.get(fam, {}).get("probe_follow", float("nan"))
             nc, pq = nullcal(tag, fam), paired(tag, fam)
+            # The generator declares an answer-space size in the item metadata and run/layers.py
+            # copies it through as `chance`. That is not the probe's answer space: the labels the
+            # generator actually emitted, and the rare-class filter, both narrow it. The declared
+            # value therefore understates chance -- by 3.4 pp on synthetic counting, where 1/13 is
+            # declared against 9 emitted classes, and 5.0 pp on real counting, 1/5 against 4. It
+            # differs in 14 of 28 cells. Chance is uniform over the classes the probe is actually
+            # fitted on; the declared value is kept beside it so the discrepancy stays auditable.
+            declared = v["chance"]
+            chance = 1 / nc["classes"] if nc is not None else declared
             r = dict(tag=tag, model=model, label=label, family=fam,
-                     n_test=v["n_test"], chance=v["chance"], model_acc=v["model"],
+                     n_test=v["n_test"], chance=chance, chance_declared=declared,
+                     classes=nc["classes"] if nc is not None else None, model_acc=v["model"],
                      model_all=v["model_all"], probe=v["final"], peak=v["peak"],
                      peak_layer=v["peak_layer"], gap=gap, follow=fl,
                      curve=v["vis"], blindcurve=v["blind"],
@@ -715,6 +725,10 @@ def emit(synth, real, pred_rows, pred, out):
               "RhoGain": f"{pred['probe_gain']['rho_dm']:+.3f}",
               "PGain": f"{pred['probe_gain']['p_dm']:.4f}",
               "RhoGainRaw": f"{pred['probe_gain']['rho']:+.3f}",
+              # the free predictor that looks significant raw and does not survive demeaning; the
+              # prose names the coefficient, so it is generated rather than typed
+              "RhoAboveChanceRaw": f"{pred['above_chance']['rho']:+.3f}",
+              "PAboveChanceRaw": f"{pred['above_chance']['p']:.3f}",
               "PGainRaw": f"{pred['probe_gain']['p']:.4f}",
               "ReadoutReal": str(sum(r["readout"] for r in real)),
               "NReal": str(len(real)),
