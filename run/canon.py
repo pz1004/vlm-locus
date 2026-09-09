@@ -619,6 +619,11 @@ def emit(synth, real, pred_rows, pred, out):
               "NullQMin": f"{100 * min(r['nullcal']['null_q95'] for r in real + synth if r['nullcal']):.1f}",
               "NullQMax": f"{100 * max(r['nullcal']['null_q95'] for r in real + synth if r['nullcal']):.1f}",
               "NullPerm": str(next(r['nullcal']['nperm'] for r in real if r['nullcal'])),
+              # the test's own parameters. The manuscript states the decision rule, so alpha and
+              # the attainable p-floor are generated here rather than typed: the rule is
+              # p_null < NULL_ALPHA, and with B draws no p smaller than 1/(B+1) exists.
+              "NullAlpha": f"{NULL_ALPHA:g}",
+              "NullPFloor": f"1/{next(r['nullcal']['nperm'] for r in real if r['nullcal']) + 1}",
               # what a layer search buys on the designed control, over reading the final layer
               "PeakPremium": f"{np.mean([100 * (r['peak'] - r['probe']) for r in gl]):.1f}",
               "FollowShiftMax": f"{max(abs(100 * (r['probe_follow'] - r['probe_follow_sel'])) for r in real + synth if r.get('probe_follow_sel') == r.get('probe_follow_sel')):.0f}",
