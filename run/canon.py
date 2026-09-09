@@ -603,6 +603,31 @@ def _pct(x, d=1):
 DECOMP = "runs/p0_3b.json"
 
 
+HEADREAD = "runs/headread.json"
+
+
+def headread(rows):
+    """run/headread.py's table: the model's own head given the probe's answer set.
+
+    The exact rows are the families whose answers have distinct first tokens; the rest are
+    scored on the first token alone and marked, because the state is captured at the final
+    prompt token and a one-step read cannot separate "20" from "25". Labels come from the
+    canonical rows so this table names cells the way Tables 4 and 6 do.
+    """
+    if not os.path.exists(HEADREAD):
+        return None, None
+    d = json.load(open(HEADREAD))
+    lab = {(r["tag"], r["family"]): (r["label"], FAMNAME.get(r["family"], r["family"]))
+           for r in rows}
+    body = []
+    for r in d:
+        model, fam = lab.get((r["tag"], r["family"]), (r["tag"], r["family"]))
+        body.append(f"{model} & {fam} & {r['n']} & {r['classes']} & {_pct(r['model'])} "
+                    f"& {_pct(r['head'])} & {_pct(r['probe'])} & "
+                    + ("exact" if r["exact"] else f"first token ({r['head_classes']})"))
+    return body, d
+
+
 def decomp(synth):
     """S7's locus decomposition, from run/p0.py's artefact instead of typed into main.tex.
 
@@ -708,6 +733,12 @@ def emit(synth, real, pred_rows, pred, out):
     _tab(f"{TEX}/bands.tex", "@{}lrrrr@{}", "Value band & $n$ & model & probe & gap", body)
 
     body, _ = decomp(synth)
+    hb, hd = headread(synth + real)
+    if hb is not None:
+        _tab(f"{TEX}/headread.tex", "@{}llrrrrrl@{}",
+             "Model & Family & $n$ & $k$ & model & head & probe & comparison", hb,
+             pre="\\footnotesize\\setlength{\\tabcolsep}{4pt}")
+
     _tab(f"{TEX}/decomp.tex", "@{}lrrrrr@{}",
          "Configuration & chart & counting & spatial & tracking & ALL", body)
 
@@ -784,6 +815,23 @@ def emit(synth, real, pred_rows, pred, out):
               # follow-rate lower bounds: the loci clear the gate by these margins
               "FollowLbMin": f"{100 * min(r['probe_follow_ci'][0] for r in synth + real if r['readout']):.0f}",
               "FollowLbMax": f"{100 * max(r['probe_follow_ci'][0] for r in synth + real if r['readout']):.0f}",
+              # the constrained-head comparison. Its point is which gaps close when the model's
+              # own head is given the probe's candidate set and which do not, so the macros are
+              # the three readouts side by side on the cells where that question is decided.
+              **({} if hd is None else {
+                  **{f"HeadCount{k}{e}": f"{100 * f([r[v] for r in hd if r['family'] == 'counting' and r['exact']]):.1f}"
+                     for k, v in [("Model", "model"), ("Head", "head"), ("Probe", "probe")]
+                     for e, f in [("Min", min), ("Max", max)]},
+                  **{f"HeadSpat{k}{e}": f"{100 * f([r[v] for r in hd if r['family'] == 'spatial' and r['tag'] in ('3b', 'smolm')]):.1f}"
+                     for k, v in [("Model", "model"), ("Head", "head"), ("Probe", "probe")]
+                     for e, f in [("Min", min), ("Max", max)]},
+                  **{f"HeadChartSyn{k}": f"{100 * next(r[v] for r in hd if r['tag'] == '3b' and r['family'] == 'chart'):.1f}"
+                     for k, v in [("Model", "model"), ("Head", "head"), ("Probe", "probe")]},
+                  **{f"HeadChartReal{k}{e}": f"{100 * f([r[v] for r in hd if r['family'] == 'chart' and r['tag'] in ('realchart', 'ivl_real_chart')]):.1f}"
+                     for k, v in [("Head", "head"), ("Probe", "probe")]
+                     for e, f in [("Min", min), ("Max", max)]},
+                  "HeadExact": str(sum(1 for r in hd if r["exact"])),
+                  "HeadCells": str(len(hd))}),
               # how many adaptation runs stand behind the pairs. Sixteen (model, family) pairs
               # come from fewer runs than that, because three real families are trained jointly
               # and chart alone, and the manuscript never said so.
