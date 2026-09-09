@@ -62,6 +62,7 @@ UPSTREAM = [
     ("run/cfcapture.py", "counterfactual images",        "runs/cfstates_<tag>.npz"),
     ("run/cffollow.py", "cfstates + probes",             "runs/cffollow_<tag>.json"),
     ("run/headread.py", "states + gen + unembedding",    "runs/headread.json"),
+    ("run/splits.py",   "states + gen + cfstates",       "runs/splits.json"),
     ("run/lora.py",     "data + probes",                 "runs/lora_items_<tag>-ep<n>.json"),
     ("run/lora_matched.py", "lora_items_<tag>-ep<n>",    "runs/p3_lora_matched.json"),
 ]
@@ -73,7 +74,8 @@ CANONICAL_TAGS = None      # filled from canon.REAL + canon.SYNTH at run time
 PRODUCES = {
     "run/canon.py":   ["tables/cells_synthetic.tex", "tables/cells_real.tex",
                        "tables/prediction.tex", "tables/pairs.tex", "tables/bands.tex",
-                       "tables/decomp.tex", "tables/headread.tex", "tables/facts.tex"],
+                       "tables/decomp.tex", "tables/headread.tex", "tables/splits.tex",
+                       "tables/facts.tex"],
     # p0 produces the artefact; canon.py turns it into the table. tab:decomp used to be typed
     # into the manuscript from these numbers, which made p0 its sole source in a weaker sense.
     "run/p0.py":      ["runs/p0_3b.json -> tables/decomp.tex (sec 7)",

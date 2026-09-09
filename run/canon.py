@@ -603,6 +603,38 @@ def _pct(x, d=1):
 DECOMP = "runs/p0_3b.json"
 
 
+SPLITS = "runs/splits.json"
+
+
+def splits(rows):
+    """run/splits.py's table: the whole verdict re-derived on resampled splits, per condition.
+
+    Reported per condition rather than as one stability number, because the conditions do not
+    fail together: the probe, the presence test and the null hold in every split of every locus,
+    and it is the two comparative conditions -- the paired test and the counterfactual bound --
+    that move, both of them limited by n rather than by the size of the effect.
+    """
+    if not os.path.exists(SPLITS):
+        return None, None
+    d = json.load(open(SPLITS))
+    lab = {(r["tag"], r["family"]): (r["label"], FAMNAME.get(r["family"], r["family"]))
+           for r in rows}
+    body = []
+    for k, rs in d.items():
+        tag, fam = k.split("/")
+        model, famn = lab.get((tag, fam), (tag, fam))
+        S = len(rs)
+        pr = [100 * r["probe"] for r in rs]
+        body.append(
+            f"{model} & {famn} & \\textbf{{{sum(r['readout'] for r in rs)}/{S}}} "
+            f"& {min(pr):.0f}--{max(pr):.0f} "
+            f"& {sum(r['g1'] for r in rs)}/{S} "
+            f"& {sum(r['p_null'] < NULL_ALPHA for r in rs)}/{S} "
+            f"& {sum(r['p_paired'] < 0.05 for r in rs)}/{S} "
+            f"& {sum(r['joint_lb'] > FOLLOW_MIN for r in rs)}/{S}")
+    return body, d
+
+
 HEADREAD = "runs/headread.json"
 
 
@@ -733,6 +765,12 @@ def emit(synth, real, pred_rows, pred, out):
     _tab(f"{TEX}/bands.tex", "@{}lrrrr@{}", "Value band & $n$ & model & probe & gap", body)
 
     body, _ = decomp(synth)
+    sb, sd = splits(synth + real)
+    if sb is not None:
+        _tab(f"{TEX}/splits.tex", "@{}llrrrrrr@{}",
+             "Model & Family & locus & probe & presence & null & paired & bound", sb,
+             pre="\\footnotesize\\setlength{\\tabcolsep}{4pt}")
+
     hb, hd = headread(synth + real)
     if hb is not None:
         _tab(f"{TEX}/headread.tex", "@{}llrrrrrl@{}",
@@ -815,6 +853,35 @@ def emit(synth, real, pred_rows, pred, out):
               # follow-rate lower bounds: the loci clear the gate by these margins
               "FollowLbMin": f"{100 * min(r['probe_follow_ci'][0] for r in synth + real if r['readout']):.0f}",
               "FollowLbMax": f"{100 * max(r['probe_follow_ci'][0] for r in synth + real if r['readout']):.0f}",
+              # the repeated-split analysis. The point is that the conditions do not fail
+              # together, so the macros separate the ones that hold in every split from the two
+              # that do not, and name the control result the calibration claim rests on.
+              **({} if sd is None else {
+                  "SplitS": str(len(next(iter(sd.values())))),
+                  "SplitSynLoci": "/".join(
+                      str(x) for x in [min(sum(r["readout"] for r in rs) for k, rs in sd.items()
+                                           if k in ("3b/chart", "3b/spatial")),
+                                       len(next(iter(sd.values())))]),
+                  "SplitRealMin": str(min(sum(r["readout"] for r in rs) for k, rs in sd.items()
+                                          if k.endswith("_chart/chart") or k == "realchart/chart")),
+                  "SplitRealMax": str(max(sum(r["readout"] for r in rs) for k, rs in sd.items()
+                                          if k.endswith("_chart/chart") or k == "realchart/chart")),
+                  "SplitPairedMin": str(min(sum(r["p_paired"] < 0.05 for r in rs)
+                                            for k, rs in sd.items() if "glyph" not in k)),
+                  "SplitBoundMin": str(min(sum(r["joint_lb"] > FOLLOW_MIN for r in rs)
+                                           for k, rs in sd.items() if "glyph" not in k)),
+                  "SplitCtrlLoci": str(sum(sum(r["readout"] for r in rs)
+                                           for k, rs in sd.items() if "glyph" in k)),
+                  "SplitCtrlN": str(sum(len(rs) for k, rs in sd.items() if "glyph" in k)),
+                  "SplitProbeMin": f"{100 * min(r['probe'] for k, rs in sd.items() if 'glyph' not in k for r in rs):.0f}",
+                  "SplitProbeMax": f"{100 * max(r['probe'] for k, rs in sd.items() if 'glyph' not in k for r in rs):.0f}",
+                  # on the canonical split every locus's bound sits above its resampled mean,
+                  # which the manuscript states rather than leaves for a reviewer to find
+                  "SplitSeedAbove": str(sum(
+                      1 for k, rs in sd.items() if "glyph" not in k
+                      and next(r["joint_lb"] for r in rs if r["seed"] == 0)
+                      > float(np.mean([r["joint_lb"] for r in rs])))),
+                  "SplitLoci": str(sum(1 for k in sd if "glyph" not in k))}),
               # the constrained-head comparison. Its point is which gaps close when the model's
               # own head is given the probe's candidate set and which do not, so the macros are
               # the three readouts side by side on the cells where that question is decided.
