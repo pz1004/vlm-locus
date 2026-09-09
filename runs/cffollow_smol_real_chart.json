@@ -7,7 +7,9 @@
   "probe0": "5",
   "probe1": "15",
   "model0": "5",
-  "model1": null
+  "model1": null,
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000175",
@@ -17,7 +19,9 @@
   "probe0": "70",
   "probe1": "95",
   "model0": "80",
-  "model1": "90"
+  "model1": "90",
+  "a0_in_support": true,
+  "a1_in_support": false
  },
  {
   "id": "chart_000134",
@@ -27,7 +31,9 @@
   "probe0": "45",
   "probe1": "45",
   "model0": "40",
-  "model1": "40"
+  "model1": "40",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000157",
@@ -37,7 +43,9 @@
   "probe0": "0",
   "probe1": "0",
   "model0": null,
-  "model1": null
+  "model1": null,
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000171",
@@ -47,7 +55,9 @@
   "probe0": "90",
   "probe1": "90",
   "model0": "80",
-  "model1": "70"
+  "model1": "70",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000093",
@@ -57,7 +67,9 @@
   "probe0": "15",
   "probe1": "15",
   "model0": "5",
-  "model1": null
+  "model1": null,
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000140",
@@ -67,7 +79,9 @@
   "probe0": "65",
   "probe1": "75",
   "model0": "70",
-  "model1": "70"
+  "model1": "70",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000284",
@@ -77,7 +91,9 @@
   "probe0": "45",
   "probe1": "45",
   "model0": null,
-  "model1": "40"
+  "model1": "40",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000152",
@@ -87,7 +103,9 @@
   "probe0": "70",
   "probe1": "95",
   "model0": "80",
-  "model1": "90"
+  "model1": "90",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000033",
@@ -97,7 +115,9 @@
   "probe0": "70",
   "probe1": "70",
   "model0": "70",
-  "model1": "80"
+  "model1": "80",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000290",
@@ -107,7 +127,9 @@
   "probe0": "65",
   "probe1": "95",
   "model0": "90",
-  "model1": "95"
+  "model1": "95",
+  "a0_in_support": true,
+  "a1_in_support": false
  },
  {
   "id": "chart_000067",
@@ -117,7 +139,9 @@
   "probe0": "50",
   "probe1": "50",
   "model0": "60",
-  "model1": "100"
+  "model1": "100",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000189",
@@ -127,7 +151,9 @@
   "probe0": "55",
   "probe1": "55",
   "model0": "5",
-  "model1": "65"
+  "model1": "65",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000204",
@@ -137,7 +163,9 @@
   "probe0": "20",
   "probe1": "30",
   "model0": "30",
-  "model1": "30"
+  "model1": "30",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000041",
@@ -147,7 +175,9 @@
   "probe0": "35",
   "probe1": "55",
   "model0": "35",
-  "model1": "40"
+  "model1": "40",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000001",
@@ -157,7 +187,9 @@
   "probe0": "90",
   "probe1": "85",
   "model0": "80",
-  "model1": "90"
+  "model1": "90",
+  "a0_in_support": true,
+  "a1_in_support": false
  },
  {
   "id": "chart_000004",
@@ -167,7 +199,9 @@
   "probe0": "5",
   "probe1": "5",
   "model0": "10",
-  "model1": "30"
+  "model1": "30",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000188",
@@ -177,7 +211,9 @@
   "probe0": "85",
   "probe1": "85",
   "model0": "85",
-  "model1": "90"
+  "model1": "90",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000074",
@@ -187,7 +223,9 @@
   "probe0": "70",
   "probe1": "70",
   "model0": "60",
-  "model1": "60"
+  "model1": "60",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000296",
@@ -197,7 +235,9 @@
   "probe0": "70",
   "probe1": "70",
   "model0": "60",
-  "model1": "60"
+  "model1": "60",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000280",
@@ -207,7 +247,9 @@
   "probe0": "5",
   "probe1": "30",
   "model0": "20",
-  "model1": "20"
+  "model1": "20",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000081",
@@ -217,7 +259,9 @@
   "probe0": "60",
   "probe1": "60",
   "model0": "50",
-  "model1": "70"
+  "model1": "70",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000281",
@@ -227,7 +271,9 @@
   "probe0": "80",
   "probe1": "90",
   "model0": "90",
-  "model1": "95"
+  "model1": "95",
+  "a0_in_support": true,
+  "a1_in_support": false
  },
  {
   "id": "chart_000046",
@@ -237,7 +283,9 @@
   "probe0": "70",
   "probe1": "70",
   "model0": "50",
-  "model1": "60"
+  "model1": "60",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000084",
@@ -247,7 +295,9 @@
   "probe0": "35",
   "probe1": "35",
   "model0": "30",
-  "model1": "30"
+  "model1": "30",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000079",
@@ -257,7 +307,9 @@
   "probe0": "0",
   "probe1": "0",
   "model0": "5",
-  "model1": "15"
+  "model1": "15",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000003",
@@ -267,7 +319,9 @@
   "probe0": "10",
   "probe1": "15",
   "model0": null,
-  "model1": "15"
+  "model1": "15",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000177",
@@ -277,7 +331,9 @@
   "probe0": "90",
   "probe1": "90",
   "model0": "80",
-  "model1": "80"
+  "model1": "80",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000108",
@@ -287,7 +343,9 @@
   "probe0": "50",
   "probe1": "45",
   "model0": "40",
-  "model1": "40"
+  "model1": "40",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000170",
@@ -297,7 +355,9 @@
   "probe0": "40",
   "probe1": "40",
   "model0": "50",
-  "model1": "50"
+  "model1": "50",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000071",
@@ -307,7 +367,9 @@
   "probe0": "40",
   "probe1": "45",
   "model0": "50",
-  "model1": "50"
+  "model1": "50",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000054",
@@ -317,7 +379,9 @@
   "probe0": "85",
   "probe1": "85",
   "model0": "80",
-  "model1": "90"
+  "model1": "90",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000285",
@@ -327,7 +391,9 @@
   "probe0": "25",
   "probe1": "25",
   "model0": "20",
-  "model1": "25"
+  "model1": "25",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000214",
@@ -337,7 +403,9 @@
   "probe0": "15",
   "probe1": "85",
   "model0": "20",
-  "model1": "70"
+  "model1": "70",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000100",
@@ -347,7 +415,9 @@
   "probe0": "65",
   "probe1": "80",
   "model0": "70",
-  "model1": "80"
+  "model1": "80",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000182",
@@ -357,7 +427,9 @@
   "probe0": "80",
   "probe1": "80",
   "model0": "50",
-  "model1": "85"
+  "model1": "85",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000244",
@@ -367,7 +439,9 @@
   "probe0": "30",
   "probe1": "35",
   "model0": "30",
-  "model1": "35"
+  "model1": "35",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000210",
@@ -377,7 +451,9 @@
   "probe0": "5",
   "probe1": "15",
   "model0": "5",
-  "model1": null
+  "model1": null,
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000167",
@@ -387,7 +463,9 @@
   "probe0": "25",
   "probe1": "45",
   "model0": "30",
-  "model1": "40"
+  "model1": "40",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000024",
@@ -397,7 +475,9 @@
   "probe0": "50",
   "probe1": "50",
   "model0": "45",
-  "model1": "40"
+  "model1": "40",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000017",
@@ -407,7 +487,9 @@
   "probe0": "55",
   "probe1": "70",
   "model0": "65",
-  "model1": "70"
+  "model1": "70",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000141",
@@ -417,7 +499,9 @@
   "probe0": "15",
   "probe1": "20",
   "model0": null,
-  "model1": null
+  "model1": null,
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000228",
@@ -427,7 +511,9 @@
   "probe0": "65",
   "probe1": "65",
   "model0": "65",
-  "model1": "70"
+  "model1": "70",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000082",
@@ -437,7 +523,9 @@
   "probe0": "65",
   "probe1": "65",
   "model0": "80",
-  "model1": "80"
+  "model1": "80",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000211",
@@ -447,7 +535,9 @@
   "probe0": "0",
   "probe1": "15",
   "model0": null,
-  "model1": "10"
+  "model1": "10",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000025",
@@ -457,7 +547,9 @@
   "probe0": "70",
   "probe1": "70",
   "model0": "65",
-  "model1": "70"
+  "model1": "70",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000195",
@@ -467,7 +559,9 @@
   "probe0": "75",
   "probe1": "90",
   "model0": "90",
-  "model1": "90"
+  "model1": "90",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000013",
@@ -477,7 +571,9 @@
   "probe0": "80",
   "probe1": "80",
   "model0": "90",
-  "model1": "90"
+  "model1": "90",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000091",
@@ -487,7 +583,9 @@
   "probe0": "75",
   "probe1": "90",
   "model0": "80",
-  "model1": "90"
+  "model1": "90",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000213",
@@ -497,7 +595,9 @@
   "probe0": "0",
   "probe1": "0",
   "model0": null,
-  "model1": "5"
+  "model1": "5",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000151",
@@ -507,7 +607,9 @@
   "probe0": "90",
   "probe1": "90",
   "model0": "90",
-  "model1": "90"
+  "model1": "90",
+  "a0_in_support": true,
+  "a1_in_support": false
  },
  {
   "id": "chart_000293",
@@ -517,7 +619,9 @@
   "probe0": "50",
   "probe1": "80",
   "model0": null,
-  "model1": "60"
+  "model1": "60",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000008",
@@ -527,7 +631,9 @@
   "probe0": "50",
   "probe1": "40",
   "model0": "50",
-  "model1": "60"
+  "model1": "60",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000133",
@@ -537,7 +643,9 @@
   "probe0": "45",
   "probe1": "45",
   "model0": "5",
-  "model1": "5"
+  "model1": "5",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000095",
@@ -547,7 +655,9 @@
   "probe0": "75",
   "probe1": "90",
   "model0": "80",
-  "model1": "95"
+  "model1": "95",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000185",
@@ -557,7 +667,9 @@
   "probe0": "60",
   "probe1": "70",
   "model0": "70",
-  "model1": "70"
+  "model1": "70",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000181",
@@ -567,7 +679,9 @@
   "probe0": "50",
   "probe1": "50",
   "model0": "50",
-  "model1": "60"
+  "model1": "60",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000246",
@@ -577,7 +691,9 @@
   "probe0": "25",
   "probe1": "15",
   "model0": "20",
-  "model1": "25"
+  "model1": "25",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000216",
@@ -587,7 +703,9 @@
   "probe0": "70",
   "probe1": "70",
   "model0": "55",
-  "model1": "60"
+  "model1": "60",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000070",
@@ -597,7 +715,9 @@
   "probe0": "30",
   "probe1": "30",
   "model0": null,
-  "model1": null
+  "model1": null,
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000186",
@@ -607,7 +727,9 @@
   "probe0": "85",
   "probe1": "85",
   "model0": "90",
-  "model1": "90"
+  "model1": "90",
+  "a0_in_support": true,
+  "a1_in_support": false
  },
  {
   "id": "chart_000006",
@@ -617,7 +739,9 @@
   "probe0": "95",
   "probe1": "95",
   "model0": "90",
-  "model1": "95"
+  "model1": "95",
+  "a0_in_support": true,
+  "a1_in_support": false
  },
  {
   "id": "chart_000083",
@@ -627,7 +751,9 @@
   "probe0": "5",
   "probe1": "10",
   "model0": "5",
-  "model1": null
+  "model1": null,
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000120",
@@ -637,7 +763,9 @@
   "probe0": "15",
   "probe1": "20",
   "model0": null,
-  "model1": null
+  "model1": null,
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000209",
@@ -647,7 +775,9 @@
   "probe0": "40",
   "probe1": "55",
   "model0": "40",
-  "model1": "50"
+  "model1": "50",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000273",
@@ -657,7 +787,9 @@
   "probe0": "45",
   "probe1": "45",
   "model0": "40",
-  "model1": "40"
+  "model1": "40",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000205",
@@ -667,7 +799,9 @@
   "probe0": "50",
   "probe1": "50",
   "model0": "45",
-  "model1": "50"
+  "model1": "50",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000218",
@@ -677,7 +811,9 @@
   "probe0": "80",
   "probe1": "80",
   "model0": "80",
-  "model1": "90"
+  "model1": "90",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000282",
@@ -687,7 +823,9 @@
   "probe0": "55",
   "probe1": "80",
   "model0": "75",
-  "model1": "80"
+  "model1": "80",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000236",
@@ -697,7 +835,9 @@
   "probe0": "25",
   "probe1": "50",
   "model0": "30",
-  "model1": "40"
+  "model1": "40",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000088",
@@ -707,7 +847,9 @@
   "probe0": "35",
   "probe1": "35",
   "model0": null,
-  "model1": "30"
+  "model1": "30",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000264",
@@ -717,7 +859,9 @@
   "probe0": "50",
   "probe1": "60",
   "model0": "50",
-  "model1": "55"
+  "model1": "55",
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000106",
@@ -727,7 +871,9 @@
   "probe0": "40",
   "probe1": "40",
   "model0": null,
-  "model1": null
+  "model1": null,
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000192",
@@ -737,7 +883,9 @@
   "probe0": "15",
   "probe1": "15",
   "model0": null,
-  "model1": null
+  "model1": null,
+  "a0_in_support": true,
+  "a1_in_support": true
  },
  {
   "id": "chart_000085",
@@ -747,6 +895,8 @@
   "probe0": "65",
   "probe1": "75",
   "model0": "70",
-  "model1": "70"
+  "model1": "70",
+  "a0_in_support": true,
+  "a1_in_support": true
  }
 ]

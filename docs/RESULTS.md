@@ -44,7 +44,7 @@ All **7 of 7** counting cells decode above their own null, and **0** survive the
 
 ## Sensitivity of the one prespecified threshold
 
-The follow threshold is the only free constant in the protocol. Applied to the lower bound, the verdict set is unchanged for every threshold in **[40, 66]**. Outside that range it changes one cell at a time: above 66, `realchart/chart` falls first; below 40, `3b/counting` is admitted. The range does not reach zero, so "any low threshold would do" is not available as a defence.
+The follow threshold is the only free constant in the protocol. Applied to the lower bound, the verdict set is unchanged for every threshold in **[30, 62]**. Outside that range it changes one cell at a time: above 62, `realchart/chart` falls first; below 30, `3b/counting` is admitted. The range does not reach zero, so "any low threshold would do" is not available as a defence.
 
 ## Multiplicity
 

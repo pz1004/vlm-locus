@@ -67,6 +67,16 @@ SYNTH = [("3b", "q3b", "Qwen-3B"), ("smolm", "smol", "SmolVLM")]
 # threshold by 16.5 to 44.9 pp and no verdict turns on the gate's precise position.
 FOLLOW_MIN, NULL_ALPHA = 50.0, 0.05
 
+# Which counterfactual statistic the verdict is gated on. The forward follow rate is conditional
+# on the probe being right before the edit, so its denominator is a probe-dependent subset -- and
+# it is silently truncated by the probe's class support, because predict() cannot return a label
+# it never trained on and the edits routinely produce one (see run/cffollow.py). The joint
+# two-endpoint accuracy is prespecified instead, on three grounds that are fixed before any of
+# them is computed: its denominator is n, it conditions on no probe outcome, and it is symmetric
+# in the two endpoints. Forward, in-support and reverse are computed and reported for every cell
+# beside it; exactly one cell's verdict differs between them, and the manuscript names it.
+GATE_CI = "probe_joint_ci"
+
 
 def wilson(k, m, z=1.96):
     """Wilson score interval; the normal approximation is unusable at these denominators."""
@@ -106,10 +116,42 @@ def follow(tag):
             return (float(np.mean([r[pre] == r["a0"] for r in g])),
                     float(num / len(ok)) if ok else float("nan"), int(num), int(len(ok)))
         p0, pf, pn, pd = st("probe0", "probe1"); m0, mf, mn, md = st("model0", "model1")
+
+        def rate(num, den):
+            return dict(v=float(num / den) if den else float("nan"), num=int(num), den=int(den),
+                        ci=wilson(num, den))
+
+        # forward, restricted to items whose post-edit answer the probe could actually emit
+        sup = [r for r in g if r.get("a1_in_support", True)]
+        oks = [r for r in sup if r["probe0"] == r["a0"]]
+        fs = rate(sum(r["probe1"] == r["a1"] for r in oks), len(oks))
+        # reverse: given the probe reads the edited image correctly, does it read the original?
+        # in support by construction, since probe1 == a1 requires a1 in classes_
+        rev = [r for r in g if r["probe1"] == r["a1"]]
+        rv = rate(sum(r["probe0"] == r["a0"] for r in rev), len(rev))
+        # joint: both endpoints right, denominator n, no conditioning at all
+        jt = rate(sum(r["probe0"] == r["a0"] and r["probe1"] == r["a1"] for r in g), len(g))
+        # probe against model on one shared denominator. The unrestricted comparison is not
+        # like-for-like: the model generates freely and the probe cannot leave its class support,
+        # so the model is scored on items where the probe's answer is unavailable by construction.
+        mt = [r for r in sup if r["probe0"] == r["a0"] and r["model0"] == r["a0"]]
+        mp = rate(sum(r["probe1"] == r["a1"] for r in mt), len(mt))
+        mm = rate(sum(r["model1"] == r["a1"] for r in mt), len(mt))
         out[fam] = dict(n=len(g), probe_acc0=p0, probe_follow=pf, model_acc0=m0, model_follow=mf,
                         probe_follow_num=pn, probe_follow_den=pd,
                         model_follow_num=mn, model_follow_den=md,
                         probe_follow_ci=wilson(pn, pd), model_follow_ci=wilson(mn, md),
+                        probe_unsupported=int(len(g) - len(sup)),
+                        probe_follow_sup=fs["v"], probe_follow_sup_num=fs["num"],
+                        probe_follow_sup_den=fs["den"], probe_follow_sup_ci=fs["ci"],
+                        probe_reverse=rv["v"], probe_reverse_num=rv["num"],
+                        probe_reverse_den=rv["den"], probe_reverse_ci=rv["ci"],
+                        probe_joint=jt["v"], probe_joint_num=jt["num"],
+                        probe_joint_den=jt["den"], probe_joint_ci=jt["ci"],
+                        matched_den=mp["den"], probe_matched=mp["v"],
+                        probe_matched_num=mp["num"], probe_matched_ci=mp["ci"],
+                        model_matched=mm["v"], model_matched_num=mm["num"],
+                        model_matched_ci=mm["ci"],
                         follow_layer="final" if f == fin else "selected",
                         probe_follow_sel=alt.get(fam, (float("nan"), 0))[0],
                         probe_follow_sel_den=alt.get(fam, (float("nan"), 0))[1])
@@ -228,16 +270,17 @@ def cells(spec):
                              # A readout locus needs all three, each with its own null:
                              #   (1) the probe decodes the attribute above its permutation null
                              #   (2) it beats the model on the same items (exact McNemar)
-                             #   (3) it follows the exact counterfactual on most items, judged
-                             #       by the lower confidence bound so a small conditional
-                             #       denominator cannot clear the gate on a point estimate
+                             #   (3) it reads the attribute at both endpoints of the exact
+                             #       counterfactual on most items, judged by the lower confidence
+                             #       bound on GATE_CI's statistic -- see its definition for why
+                             #       the conditional forward rate is not the one gated on
                              # (1) replaces "gap > 2.5 pp", which conflated decodability with
                              # beating the model and priced neither.
                              readout=bool(nc is not None and nc["p_null"] < NULL_ALPHA
                                           and pq is not None and pq["p"] < 0.05
                                           and gap > 0
                                           and 100 * F.get(fam, {}).get(
-                                              "probe_follow_ci", [float("nan")])[0]
+                                              GATE_CI, [float("nan")])[0]
                                           > FOLLOW_MIN)))
     return rows
 
@@ -358,15 +401,15 @@ def oos(rows):
 def follow_sensitivity(rows, alpha=0.05):
     """Over what range of the one prespecified threshold is the verdict set unchanged?
 
-    A prespecified constant owes the reader this sweep. It is computed rather than asserted
-    because the obvious guess is wrong: the stable range does not extend to zero -- below it the
-    synthetic counting cell, whose follow bound is 39.9%, is admitted.
+    A prespecified constant owes the reader this sweep, on whichever statistic GATE_CI names.
+    It is computed rather than asserted because the obvious guess is wrong: the stable range does
+    not extend to zero, since below it the synthetic counting cell is admitted.
     """
     def at(t):
         return frozenset(f"{r['tag']}/{r['family']}" for r in rows
                          if r["nullcal"] is not None and r["nullcal"]["p_null"] < alpha
                          and r.get("paired") and r["paired"]["p"] < alpha and r["gap"] > 0
-                         and 100 * r["probe_follow_ci"][0] > t)
+                         and 100 * r[GATE_CI][0] > t)
     base = at(FOLLOW_MIN)
     ts = [t for t in range(0, 101) if at(t) == base]
     lo, hi = min(ts), max(ts)
@@ -374,7 +417,7 @@ def follow_sensitivity(rows, alpha=0.05):
     below = sorted(at(lo - 1) - base) if lo > 0 else []
     above = sorted(base - at(hi + 1)) if hi < 100 else []
     return dict(lo=lo, hi=hi, n=len(base), admitted_below=below, dropped_above=above,
-                bounds={f"{r['tag']}/{r['family']}": 100 * r["probe_follow_ci"][0]
+                bounds={f"{r['tag']}/{r['family']}": 100 * r[GATE_CI][0]
                         for r in rows if f"{r['tag']}/{r['family']}" in base})
 
 
@@ -542,10 +585,11 @@ def _tab(path, colspec, header, rows, pre=""):
 
 def emit(synth, real, pred_rows, pred, out):
     os.makedirs(TEX, exist_ok=True)
-    # `follow` is the point estimate and `LB` its Wilson lower bound. The gate is applied to
-    # the bound, so the column the caption names has to be in the table beside it.
-    CELLHDR = (r"Model & Family & $n$ & chance & model & probe & gap & $p$ & follow & LB & G1 "
-               r"& locus")
+    # `follow` is the conditional forward rate the prose discusses, `joint` the two-endpoint
+    # accuracy the verdict is gated on, and `LB` the joint rate's Wilson lower bound. The gate is
+    # applied to the bound, so the column the caption names has to be in the table beside it.
+    CELLHDR = (r"Model & Family & $n$ & chance & model & probe & gap & $p$ & follow & joint & LB "
+               r"& G1 & locus")
     for name, rows in [("synthetic", synth), ("real", real)]:
         body = []
         for r in rows:
@@ -554,11 +598,14 @@ def emit(synth, real, pred_rows, pred, out):
             body.append(f"{r['label']} & {FAMNAME.get(r['family'], r['family'])} & {r['n_test']} "
                         f"& {_pct(r['chance'])} & {_pct(r['model_acc'])} & {_pct(r['probe'])} "
                         f"& {r['gap']:+.1f} & {_p(q.get('p'))} & {_pct(r['follow'], 0)} "
-                        f"& {_pct(r.get('probe_follow_ci', [None])[0], 0)} "
+                        f"& {_pct(r.get('probe_joint'), 0)} "
+                        f"& {_pct(r.get(GATE_CI, [None])[0], 0)} "
                         f"& {'--' if g is None else ('pass' if g['passes'] else 'fail')} "
                         f"& {r'\textbf{readout}' if r['readout'] else '--'}")
-        _tab(f"{TEX}/cells_{name}.tex", "@{}llrrrrrrrrrl@{}", CELLHDR, body,
-             pre="\\footnotesize\\setlength{\\tabcolsep}{3.4pt}")
+        # 13 columns overflow the text block at 3.4pt, which is what the joint and LB columns
+        # cost; 2.9pt fits both tables with no overfull box and keeps them visually identical
+        _tab(f"{TEX}/cells_{name}.tex", "@{}llrrrrrrrrrrl@{}", CELLHDR, body,
+             pre="\\footnotesize\\setlength{\\tabcolsep}{2.9pt}")
 
     NAME = [("probe_gain", "probe gain (probe $-$ base)", "one probe fit"),
             ("probe_acc", "probe accuracy", "one probe fit"),
@@ -661,6 +708,30 @@ def emit(synth, real, pred_rows, pred, out):
               # follow-rate lower bounds: the loci clear the gate by these margins
               "FollowLbMin": f"{100 * min(r['probe_follow_ci'][0] for r in synth + real if r['readout']):.0f}",
               "FollowLbMax": f"{100 * max(r['probe_follow_ci'][0] for r in synth + real if r['readout']):.0f}",
+              # the gated statistic: the loci's range, and the highest cell that is not a locus.
+              # The gap between them is what makes the threshold's exact position immaterial.
+              "JointLbMin": f"{100 * min(r[GATE_CI][0] for r in synth + real if r['readout']):.0f}",
+              "JointLbMax": f"{100 * max(r[GATE_CI][0] for r in synth + real if r['readout']):.0f}",
+              "JointLbNonMax": f"{100 * max(r[GATE_CI][0] for r in synth + real if not r['readout']):.0f}",
+              # how much of each conditional forward denominator the class support removes, on the
+              # families where it bites: predict() cannot emit a count the training split never
+              # held, nor a bar value of 100 that no original chart carries
+              "UnsupCountMin": str(min(r['probe_follow_den'] - r['probe_follow_sup_den']
+                                       for r in synth + real if r['family'] == 'counting')),
+              "UnsupCountMax": str(max(r['probe_follow_den'] - r['probe_follow_sup_den']
+                                       for r in synth + real if r['family'] == 'counting')),
+              "UnsupCountPctMax": f"{100 * max((r['probe_follow_den'] - r['probe_follow_sup_den']) / r['probe_follow_den'] for r in synth + real if r['family'] == 'counting'):.0f}",
+              "UnsupChartMax": str(max(r['probe_follow_den'] - r['probe_follow_sup_den']
+                                       for r in real if r['family'] == 'chart')),
+              # the one cell whose verdict depends on which counterfactual statistic is used
+              **{f"Flip{k}": f"{100 * next(r[v][0] for r in synth if r['tag'] == '3b' and r['family'] == 'counting'):.0f}"
+                 for k, v in [("Fwd", "probe_follow_ci"), ("Sup", "probe_follow_sup_ci"),
+                              ("Rev", "probe_reverse_ci"), ("Joint", "probe_joint_ci")]},
+              # and its like-for-like comparison against the model, on one shared denominator
+              **{f"Flip{k}": str(next(r[v] for r in synth
+                                      if r['tag'] == '3b' and r['family'] == 'counting'))
+                 for k, v in [("MatchDen", "matched_den"), ("MatchProbe", "probe_matched_num"),
+                              ("MatchModel", "model_matched_num")]},
               "FollowDenMin": str(min(r['probe_follow_den'] for r in real
                                       if r['family'].startswith('glyph'))),
               "FollowDenMax": str(max(r['probe_follow_den'] for r in real
