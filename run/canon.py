@@ -67,6 +67,13 @@ SYNTH = [("3b", "q3b", "Qwen-3B"), ("smolm", "smol", "SmolVLM")]
 # threshold by 16.5 to 44.9 pp and no verdict turns on the gate's precise position.
 FOLLOW_MIN, NULL_ALPHA = 50.0, 0.05
 
+# The rare-class filter: a label needs this many items in a family to be fitted at all. It is a
+# protocol constant and it lives here, but the analysis path still carries it as the literal 8 in
+# layers.py, nullcal.py, cffollow.py, splits.py and headread.py -- verify_protocol.py check 13
+# asserts those agree with this, because a filter that differs between the probe and the data
+# builder silently produces edit targets the probe cannot emit. gen/build_chart.py imports it.
+MIN_CLASS = 8
+
 # Which counterfactual statistic the verdict is gated on. The forward follow rate is conditional
 # on the probe being right before the edit, so its denominator is a probe-dependent subset -- and
 # it is silently truncated by the probe's class support, because predict() cannot return a label

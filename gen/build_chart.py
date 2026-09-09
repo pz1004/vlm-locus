@@ -10,14 +10,28 @@ answer set makes a majority-class guesser look like a reader.
 The counterfactual raises the queried bar to a different multiple of 5, painting only the added
 rectangle; gen/verify_real.py check [4] then requires every pixel outside that rectangle to be
 bit-identical.
+
+On the top of the value range, and why it cannot be fixed here. A raise-only edit needs a target
+above the original, so the highest target value can never itself be an original -- and a value
+that is never an original is not a class the probe is fitted on, so an edit into it is
+unfollowable however well the representation encodes the change. Excluding the top value does not
+help: it makes the next one down unbuildable and moves the same gap, and measuring that showed it
+moves the gap the wrong way (43 affected items instead of 7, because the tail is thinner than the
+head). The gap is structural to raising bars, and the fix is a bidirectional edit -- render the
+pair as (raised -> stored original) so the target is always an attainable class. Until then
+run/canon.py reports the reverse and joint statistics, which do not have the defect, beside the
+forward rate that does.
 """
 from __future__ import annotations
 import argparse, json, os, random, sys
-from collections import defaultdict
+from collections import Counter, defaultdict
 from PIL import Image
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                "run"))
 import chart_real as C
+from canon import MIN_CLASS
 
 R = "data/real/chartqa/ChartQA Dataset"
 
@@ -36,15 +50,29 @@ def main(a):
     rng.shuffle(ix)
     os.makedirs(os.path.join(a.out, "images"), exist_ok=True)
 
-    # stratify: each chart is assigned to whichever of its candidate answers is least filled
+    # stratify: each chart goes to whichever of its candidate answers is least filled, and ties
+    # break toward the value with the *scarcest global supply*. Breaking them toward the smaller
+    # value instead starves the top of the range -- ChartQA offers 317 charts at 5 and 20 at 95,
+    # so a chart offering both was going to 5 and 95 never filled.
+    supply = defaultdict(int)
+    for d in ix:
+        for v in {cd["value"] for cd in d["cand"]}:
+            supply[v] += 1
     per = defaultdict(list)
     for d in ix:
         vs = {cd["value"] for cd in d["cand"]}
-        v = min(vs, key=lambda v: (len(per[v]), v))
+        v = min(vs, key=lambda v: (len(per[v]), supply[v], v))
         if len(per[v]) < a.n // len(C.VALS) + 4:
             per[v].append((d, [cd for cd in d["cand"] if cd["value"] == v]))
     picked = [x for v in sorted(per) for x in per[v]][: a.n * 2]
     rng.shuffle(picked)
+
+    # The probe is fitted on the values this set actually contains, at or above the rare-class
+    # filter run/layers.py applies, so an edit target outside that set is unfollowable however
+    # well the representation encodes it. Restrict targets to it rather than discover the gap
+    # downstream: with the old builder 34 counterfactuals asked for 95 and no original had it.
+    intended = Counter(v for v in per for _ in per[v])
+    attainable = {v for v, c in intended.items() if c >= MIN_CLASS}
 
     man, made, skipped = [], 0, 0
     for d, cands in picked:
@@ -57,7 +85,11 @@ def main(a):
         # and the raised bar is not the only unlabelled one
         im = C.strip_labels(im, bars)
         if C.has_data_labels(im, bars): skipped += 1; continue
-        tgt = rng.choice(cd["targets"])
+        # prefer a target the probe can emit, and fall back rather than lose the item: only the
+        # top of the range has no attainable target, and dropping those items costs more than
+        # the handful of unfollowable counterfactuals it would save (see the module docstring)
+        tgt_ok = [g for g in cd["targets"] if int(g) in attainable] or cd["targets"]
+        tgt = rng.choice(tgt_ok)
         cf, mask = C.raise_bar(im, bars[cd["bar"]], d["baseline"], d["a"], d["b"], tgt)
         if cf is None: skipped += 1; continue
         iid = f"chart_{made:06d}"
