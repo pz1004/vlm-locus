@@ -784,6 +784,15 @@ def emit(synth, real, pred_rows, pred, out):
               # follow-rate lower bounds: the loci clear the gate by these margins
               "FollowLbMin": f"{100 * min(r['probe_follow_ci'][0] for r in synth + real if r['readout']):.0f}",
               "FollowLbMax": f"{100 * max(r['probe_follow_ci'][0] for r in synth + real if r['readout']):.0f}",
+              # the probe's effective rank. The pipeline asks for 64 components but fits
+              # min(64, n_train - 1), so on a small family the requested capacity is not the
+              # delivered capacity, and the manuscript's "capacity is held fixed" needs the
+              # exception named rather than assumed.
+              "PcaRankMin": str(min(min(64, r['nullcal']['n_train'] - 1)
+                                    for r in real + synth if r['nullcal'])),
+              "PcaCapped": str(sum(1 for r in real + synth
+                                   if r['nullcal'] and r['nullcal']['n_train'] - 1 < 64)),
+              "PcaCells": str(sum(1 for r in real + synth if r['nullcal'])),
               # the presence test's three free constants, and how far each can move before a
               # verdict does. Macro names carry no digits, so G1 is spelled out.
               "GOneBlindHi": f"{100 * gs['blind']['hi']:.0f}",
