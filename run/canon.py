@@ -77,6 +77,11 @@ FOLLOW_MIN, NULL_ALPHA = 50.0, 0.05
 # beside it; exactly one cell's verdict differs between them, and the manuscript names it.
 GATE_CI = "probe_joint_ci"
 
+# The presence test's own thresholds. G1 is a mandatory condition of the locus verdict, so these
+# are as much part of the decision rule as FOLLOW_MIN and owe the reader the same sensitivity
+# sweep -- which g1_sensitivity() computes. run/probe.py's docstring gives the reasons for each.
+G1_BLIND, G1_SHUF, G1_POS = 0.05, 0.10, 0.75
+
 
 def wilson(k, m, z=1.96):
     """Wilson score interval; the normal approximation is unusable at these denominators."""
@@ -195,6 +200,44 @@ def g1(tag, fam):
 GEN = {"3b": "runs/branches6_test.jsonl", "smolm": "runs/smolm_gen.jsonl"}
 
 
+def g1_at(nc, blind=G1_BLIND, shuf=G1_SHUF, pos=G1_POS):
+    """The presence test, recomputed from the stored final-layer statistics.
+
+    run/nullcal.py already stores the verdict as `g1`; this reproduces it from its components so
+    the thresholds can be swept. emit() asserts the two agree in every cell, which is what stops
+    this from drifting into a second, quieter definition of the gate.
+    """
+    return bool(nc["vis"] - nc["blind_refit"] > blind and nc["vis"] - nc["shuffled"] > shuf
+                and nc["mean_margin"] > 0 and nc["pos_margin"] > pos)
+
+
+def locus(r, blind=G1_BLIND, shuf=G1_SHUF, pos=G1_POS, alpha=NULL_ALPHA, follow=FOLLOW_MIN):
+    """The complete decision rule. Every condition and every constant, stated once.
+
+    A cell is a readout locus if all four hold, each against its own reference:
+
+      (1) presence.  The probe beats a blindfolded refit and its own shuffled-label control at
+          the final layer, on accuracy and on per-item log-probability margin (g1_at). This
+          prices the language prior, which a label permutation does not: permuting labels
+          destroys the label-representation relation but leaves the image in place.
+      (2) the null.  Its accuracy rejects its own label-permutation null (Eq. 1 of the paper).
+      (3) the model. It beats the model on the same items under an exact paired test, in the
+          direction of the probe -- the test is two-sided, so `gap > 0` supplies the direction.
+      (4) the counterfactual.  The lower bound on GATE_CI's statistic clears `follow`.
+
+    (1) is mandatory rather than auxiliary and was previously missing from this conjunction while
+    the manuscript called it necessary. Adding it changes no verdict on this grid -- every locus
+    already passed it -- but a protocol whose stated rule is not the one it runs has no rule.
+    """
+    nc, pq = r.get("nullcal"), r.get("paired")
+    if nc is None or pq is None:
+        return False
+    return bool(g1_at(nc, blind, shuf, pos)
+                and nc["p_null"] < alpha
+                and pq["p"] < 0.05 and r["gap"] > 0
+                and 100 * r.get(GATE_CI, [float("nan")])[0] > follow)
+
+
 def paired(tag, fam):
     """McNemar (exact binomial on discordant pairs), canonical probe against the model."""
     pf = f"runs/canonpred_{tag}.json"
@@ -259,29 +302,17 @@ def cells(spec):
             gap = 100 * (v["final"] - v["model"])
             fl = F.get(fam, {}).get("probe_follow", float("nan"))
             nc, pq = nullcal(tag, fam), paired(tag, fam)
-            rows.append(dict(tag=tag, model=model, label=label, family=fam,
-                             n_test=v["n_test"], chance=v["chance"], model_acc=v["model"],
-                             model_all=v["model_all"], probe=v["final"], peak=v["peak"],
-                             peak_layer=v["peak_layer"], gap=gap, follow=fl,
-                             curve=v["vis"], blindcurve=v["blind"],
-                             g1=g1(tag, fam), nullcal=nc,
-                             **{k: v2 for k, v2 in F.get(fam, {}).items()},
-                             paired=paired(tag, fam),
-                             # A readout locus needs all three, each with its own null:
-                             #   (1) the probe decodes the attribute above its permutation null
-                             #   (2) it beats the model on the same items (exact McNemar)
-                             #   (3) it reads the attribute at both endpoints of the exact
-                             #       counterfactual on most items, judged by the lower confidence
-                             #       bound on GATE_CI's statistic -- see its definition for why
-                             #       the conditional forward rate is not the one gated on
-                             # (1) replaces "gap > 2.5 pp", which conflated decodability with
-                             # beating the model and priced neither.
-                             readout=bool(nc is not None and nc["p_null"] < NULL_ALPHA
-                                          and pq is not None and pq["p"] < 0.05
-                                          and gap > 0
-                                          and 100 * F.get(fam, {}).get(
-                                              GATE_CI, [float("nan")])[0]
-                                          > FOLLOW_MIN)))
+            r = dict(tag=tag, model=model, label=label, family=fam,
+                     n_test=v["n_test"], chance=v["chance"], model_acc=v["model"],
+                     model_all=v["model_all"], probe=v["final"], peak=v["peak"],
+                     peak_layer=v["peak_layer"], gap=gap, follow=fl,
+                     curve=v["vis"], blindcurve=v["blind"],
+                     g1=g1(tag, fam), nullcal=nc,
+                     **{k: v2 for k, v2 in F.get(fam, {}).items()},
+                     paired=pq)
+            # the verdict is locus()'s and only locus()'s -- see it for the four conditions
+            r["readout"] = locus(r)
+            rows.append(r)
     return rows
 
 
@@ -398,6 +429,31 @@ def oos(rows):
     return out
 
 
+def g1_sensitivity(rows):
+    """Over what range of each of the presence test's three free constants is the locus set fixed?
+
+    The follow threshold is not the protocol's only prespecified number: G1 is mandatory, so its
+    5 pp blindfold margin, 10 pp shuffled margin and 0.75 positive-margin share are decision
+    constants too. Each is swept alone, holding the other two and everything else fixed, which is
+    what "no verdict turns on its precise position" actually asks. The mean-margin condition has
+    no free constant -- zero is the only value that means anything -- so it is not swept.
+    """
+    base = frozenset(f"{r['tag']}/{r['family']}" for r in rows if locus(r))
+    out = {}
+    # the grids run the full admissible range of each constant, so a reported edge is the point
+    # where a verdict actually moves rather than the end of the sweep
+    for name, kw, grid in [("blind", "blind", [i / 200 for i in range(0, 201)]),
+                           ("shuf", "shuf", [i / 200 for i in range(0, 201)]),
+                           ("pos", "pos", [i / 200 for i in range(0, 200)])]:
+        ok = [t for t in grid
+              if frozenset(f"{r['tag']}/{r['family']}" for r in rows
+                           if locus(r, **{kw: t})) == base]
+        out[name] = dict(lo=min(ok), hi=max(ok), default=dict(blind=G1_BLIND, shuf=G1_SHUF,
+                                                              pos=G1_POS)[kw])
+    out["n"] = len(base)
+    return out
+
+
 def follow_sensitivity(rows, alpha=0.05):
     """Over what range of the one prespecified threshold is the verdict set unchanged?
 
@@ -407,9 +463,7 @@ def follow_sensitivity(rows, alpha=0.05):
     """
     def at(t):
         return frozenset(f"{r['tag']}/{r['family']}" for r in rows
-                         if r["nullcal"] is not None and r["nullcal"]["p_null"] < alpha
-                         and r.get("paired") and r["paired"]["p"] < alpha and r["gap"] > 0
-                         and 100 * r[GATE_CI][0] > t)
+                         if locus(r, alpha=alpha, follow=t))
     base = at(FOLLOW_MIN)
     ts = [t for t in range(0, 101) if at(t) == base]
     lo, hi = min(ts), max(ts)
@@ -470,6 +524,7 @@ def main(a):
     out = dict(synthetic=synth, real=real, prediction=dict(rows=pred_rows, stats=pred),
                multiplicity=multiplicity(synth + real),
                follow_sensitivity=follow_sensitivity(synth + real),
+               g1_sensitivity=g1_sensitivity(synth + real),
                bands=bands(),
                agreement=agreement(["realchart", "q3b4_real_chart", "q7b_real_chart",
                                     "ivl_real_chart"], "chart"),
@@ -585,6 +640,13 @@ def _tab(path, colspec, header, rows, pre=""):
 
 def emit(synth, real, pred_rows, pred, out):
     os.makedirs(TEX, exist_ok=True)
+    gs = g1_sensitivity(synth + real)
+    # g1_at() exists so the presence thresholds can be swept; if it ever disagreed with
+    # run/nullcal.py's stored verdict it would be a second definition of the gate instead
+    bad = [f"{r['tag']}/{r['family']}" for r in synth + real
+           if r["nullcal"] is not None and g1_at(r["nullcal"]) != bool(r["nullcal"]["g1"])]
+    if bad:
+        raise SystemExit(f"g1_at disagrees with nullcal's stored verdict: {bad}")
     # `follow` is the conditional forward rate the prose discusses, `joint` the two-endpoint
     # accuracy the verdict is gated on, and `LB` the joint rate's Wilson lower bound. The gate is
     # applied to the bound, so the column the caption names has to be in the table beside it.
@@ -708,6 +770,11 @@ def emit(synth, real, pred_rows, pred, out):
               # follow-rate lower bounds: the loci clear the gate by these margins
               "FollowLbMin": f"{100 * min(r['probe_follow_ci'][0] for r in synth + real if r['readout']):.0f}",
               "FollowLbMax": f"{100 * max(r['probe_follow_ci'][0] for r in synth + real if r['readout']):.0f}",
+              # the presence test's three free constants, and how far each can move before a
+              # verdict does. Macro names carry no digits, so G1 is spelled out.
+              "GOneBlindHi": f"{100 * gs['blind']['hi']:.0f}",
+              "GOneShufHi": f"{100 * gs['shuf']['hi']:.0f}",
+              "GOnePosHi": f"{gs['pos']['hi']:.2f}",
               # the gated statistic: the loci's range, and the highest cell that is not a locus.
               # The gap between them is what makes the threshold's exact position immaterial.
               "JointLbMin": f"{100 * min(r[GATE_CI][0] for r in synth + real if r['readout']):.0f}",
