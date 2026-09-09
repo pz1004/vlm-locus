@@ -26,7 +26,7 @@ the counterfactual pass with the final-layer probe needs the GPU, and the follow
 probe accuracy can touch.
 """
 from __future__ import annotations
-import argparse, glob, json, os
+import argparse, glob, json, os, re
 
 # Output locations. Defaults keep everything inside the repository so a fresh
 # clone runs standalone; a caller may override them to write straight
@@ -603,6 +603,47 @@ def _pct(x, d=1):
 DECOMP = "runs/p0_3b.json"
 
 
+BUDGET_PROBE = "runs/datasize_3b.json"
+BUDGET_LORA = {20: "runs/lora20_3b_ep*.json", 40: "runs/lora40_3b_ep*.json",
+               165: "runs/lora_3b_ep*.json"}
+
+
+def budget():
+    """The label-budget comparison: a probe and LoRA at 20, 40 and 165 labels per family.
+
+    Both columns were typed into the manuscript, which is how one of them went wrong. The probe
+    curve pools item-weighted over the four families and reproduces what was typed. The LoRA
+    column did not: at 20 labels the manuscript quoted the best of three epochs, 75.2, where the
+    prespecified last-epoch rule of the robustness appendix gives 74.2. That is the selection
+    rule the paper argues against, surviving here because these numbers sat outside this file's
+    coverage. The peak is returned alongside so the correction can be stated rather than hidden.
+    """
+    if not os.path.exists(BUDGET_PROBE):
+        return None
+    d = json.load(open(BUDGET_PROBE))
+    fams = sorted(d)
+    nt = {f: d[f]["n_test"] for f in fams}
+    tot = sum(nt.values())
+    rows = []
+    for b in sorted(BUDGET_LORA):
+        probe = sum(next(p["mean"] for p in d[f]["curve"] if p["n"] == b) * nt[f]
+                    for f in fams) / tot
+        eps = {}
+        for f in glob.glob(BUDGET_LORA[b]):
+            e = int(re.search(r"_ep(\d+)\.json$", f).group(1))
+            j = json.load(open(f))
+            eps[e] = (j.get("acc") or j["final"])["ALL"]
+        if not eps:
+            return None
+        # at the top budget the cap is the family's own training split, which the rare-class
+        # filter has already shortened -- 161 chart items, not 165, hence 656 and not 660
+        items = sum(min(b, d[f]["n_train"]) for f in fams)
+        rows.append(dict(labels=b, n_train=items, probe=float(probe),
+                         lora=float(eps[max(eps)]), lora_peak=float(max(eps.values())),
+                         epoch=max(eps), epochs=len(eps)))
+    return rows
+
+
 SPLITS = "runs/splits.json"
 
 
@@ -765,6 +806,14 @@ def emit(synth, real, pred_rows, pred, out):
     _tab(f"{TEX}/bands.tex", "@{}lrrrr@{}", "Value band & $n$ & model & probe & gap", body)
 
     body, _ = decomp(synth)
+    bd = budget()
+    if bd is not None:
+        _tab(f"{TEX}/budget.tex", "@{}rrrrr@{}",
+             r"labels/family & items & probe & LoRA & LoRA $-$ probe",
+             [f"{r['labels']} & {r['n_train']} & {100 * r['probe']:.1f} & "
+              f"{100 * r['lora']:.1f} & "
+              f"{round(100 * r['lora'], 1) - round(100 * r['probe'], 1):+.1f}" for r in bd])
+
     sb, sd = splits(synth + real)
     if sb is not None:
         _tab(f"{TEX}/splits.tex", "@{}llrrrrrr@{}",
@@ -853,6 +902,16 @@ def emit(synth, real, pred_rows, pred, out):
               # follow-rate lower bounds: the loci clear the gate by these margins
               "FollowLbMin": f"{100 * min(r['probe_follow_ci'][0] for r in synth + real if r['readout']):.0f}",
               "FollowLbMax": f"{100 * max(r['probe_follow_ci'][0] for r in synth + real if r['readout']):.0f}",
+              # the label-budget comparison. Names carry no digits, so the budgets are words.
+              **({} if bd is None else {
+                  f"Budget{w}{k}": f"{100 * r[v]:.1f}"
+                  for w, r in zip(("Twenty", "Forty", "Full"), bd)
+                  for k, v in [("Probe", "probe"), ("Lora", "lora")]}),
+              **({} if bd is None else {
+                  # what the oracle epoch rule would have reported at the tightest budget, which
+                  # is the second instance of the effect the robustness appendix argues from
+                  "BudgetLoraTwentyPeak": f"{100 * bd[0]['lora_peak']:.1f}",
+                  "BudgetLoraTwentyEpochs": str(bd[0]["epochs"])}),
               # the repeated-split analysis. The point is that the conditions do not fail
               # together, so the macros separate the ones that hold in every split from the two
               # that do not, and name the control result the calibration claim rests on.
