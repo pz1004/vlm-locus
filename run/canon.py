@@ -784,6 +784,11 @@ def emit(synth, real, pred_rows, pred, out):
               # follow-rate lower bounds: the loci clear the gate by these margins
               "FollowLbMin": f"{100 * min(r['probe_follow_ci'][0] for r in synth + real if r['readout']):.0f}",
               "FollowLbMax": f"{100 * max(r['probe_follow_ci'][0] for r in synth + real if r['readout']):.0f}",
+              # how many adaptation runs stand behind the pairs. Sixteen (model, family) pairs
+              # come from fewer runs than that, because three real families are trained jointly
+              # and chart alone, and the manuscript never said so.
+              **{k: str(len({r[f] for r in json.load(open("runs/p3_lora_matched.json"))}))
+                 for k, f in [("AdaptRuns", "tag"), ("AdaptConfigs", "model")]},
               # the probe's effective rank. The pipeline asks for 64 components but fits
               # min(64, n_train - 1), so on a small family the requested capacity is not the
               # delivered capacity, and the manuscript's "capacity is held fixed" needs the
