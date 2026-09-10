@@ -27,8 +27,7 @@ import os
 # 64 components, a few hundred rows -- so intra-fit threading is pure oversubscription, and the
 # reduction order inside a fit must not depend on the worker count or the null stops being
 # reproducible. Parallelism goes across permutation draws instead.
-for _v in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS",
-           "VECLIB_MAXIMUM_THREADS", "NUMEXPR_NUM_THREADS"):
+for _v in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS", "VECLIB_MAXIMUM_THREADS", "NUMEXPR_NUM_THREADS"):
     os.environ.setdefault(_v, "1")
 import argparse, json, sys, warnings
 import numpy as np
@@ -47,23 +46,14 @@ from sklearn.model_selection import train_test_split
 warnings.filterwarnings("ignore", message="invalid value encountered in divide")
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from canon import (FOLLOW_MIN, MIN_CLASS, NULL_ALPHA, G1_BLIND, G1_SHUF, G1_POS, GEN,
-                   wilson)
+from canon import FOLLOW_MIN, MIN_CLASS, NULL_ALPHA, G1_BLIND, G1_SHUF, G1_POS, GEN, wilson, pairs_of, split
 
 NJOBS = int(os.environ.get("VLM_LOCUS_NJOBS", 24))
 
-TARGET = dict(counting=lambda m: int(m["attribute"]["count"]),
-              spatial=lambda m: m["attribute"]["relation"],
-              chart=lambda m: int(m["attribute"]["value"]),
-              tracking=lambda m: int(m["attribute"]["end"]),
-              glyph=lambda m: int(m["attribute"]["value"]))
+TARGET = dict(counting=lambda m: int(m["attribute"]["count"]), spatial=lambda m: m["attribute"]["relation"], chart=lambda m: int(m["attribute"]["value"]), tracking=lambda m: int(m["attribute"]["end"]), glyph=lambda m: int(m["attribute"]["value"]))
 
 # the cells whose verdict decides something: the loci, and the controls that calibrate the rate
-CELLS = [("3b", "chart"), ("3b", "spatial"), ("smolm", "spatial"),
-         ("realchart_v2", "chart"), ("q3b4_real_chart_v2", "chart"),
-         ("q7b_real_chart_v2", "chart"), ("ivl_real_chart_v2", "chart"),
-         ("real", "glyph"), ("q3b4_real_3b", "glyph"), ("q7b_real_3b", "glyph"),
-         ("ivl_real_3b", "glyph"), ("smol_real_3b", "glyph")]
+CELLS = [("3b", "chart"), ("3b", "spatial"), ("smolm", "spatial"), ("realchart_v2", "chart"), ("q3b4_real_chart_v2", "chart"), ("q7b_real_chart_v2", "chart"), ("ivl_real_chart_v2", "chart"), ("real", "glyph"), ("q3b4_real_3b", "glyph"), ("q7b_real_3b", "glyph"), ("ivl_real_3b", "glyph"), ("smol_real_3b", "glyph")]
 
 
 def model_ok(tag):
@@ -96,9 +86,7 @@ def logprob_margin(Ztr, ytr, Zte, yte, Btr, Bte):
 
 
 def one(V, Bl, C, cpos, cfref, meta, idx, y, seed, nperm, mok):
-    tr, rest = train_test_split(np.arange(len(idx)), test_size=0.45, random_state=seed,
-                               stratify=y)
-    _, te = train_test_split(rest, test_size=0.55, random_state=seed, stratify=y[rest])
+    tr, _, te = split(y, groups=pairs_of(meta, idx), seed=seed)
     Xv, Xb = V[idx, -1], Bl[idx, -1]
     pv, pb = reduce(Xv, tr), reduce(Xb, tr)
     Ztr, Zte, Btr, Bte = pv(Xv[tr]), pv(Xv[te]), pb(Xb[tr]), pb(Xb[te])
@@ -139,9 +127,7 @@ def one(V, Bl, C, cpos, cfref, meta, idx, y, seed, nperm, mok):
                      for (k, _), a, bb in zip(have, p0, p1))
             jd = len(have)
     lb = 100 * wilson(jn, jd)[0] if jd else float("nan")
-    return dict(seed=seed, probe=av, model=macc, gap=100 * (av - macc), g1=g1, p_null=p_null,
-                p_paired=p_paired, joint_num=jn, joint_den=jd, joint_lb=lb,
-                readout=bool(g1 and p_null < NULL_ALPHA and p_paired < 0.05
+    return dict(seed=seed, probe=av, model=macc, gap=100 * (av - macc), g1=g1, p_null=p_null, p_paired=p_paired, joint_num=jn, joint_den=jd, joint_lb=lb, readout=bool(g1 and p_null < NULL_ALPHA and p_paired < 0.05
                              and av > macc and lb > FOLLOW_MIN))
 
 
@@ -189,8 +175,7 @@ def main(a):
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
-    p.add_argument("--cells", nargs="*", type=lambda s: tuple(s.split("/")),
-                   help="tag/family pairs to run instead of the default decision-relevant set")
+    p.add_argument("--cells", nargs="*", type=lambda s: tuple(s.split("/")), help="tag/family pairs to run instead of the default decision-relevant set")
     p.add_argument("--out", default="runs/splits.json")
     p.add_argument("--splits", type=int, default=20)
     p.add_argument("--nperm", type=int, default=500)

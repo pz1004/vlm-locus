@@ -20,12 +20,9 @@ from sklearn.model_selection import train_test_split
 import os as _os, sys as _sys
 _sys.path.insert(0, _os.path.join(_os.path.dirname(
     _os.path.dirname(_os.path.abspath(__file__))), "run"))
-from canon import MIN_CLASS  # the filter is a protocol constant
+from canon import MIN_CLASS  # the filter is a protocol constant, split
 
-TARGET = dict(counting=lambda m: int(m["attribute"]["count"]),
-              spatial=lambda m: m["attribute"]["relation"],
-              chart=lambda m: int(m["attribute"]["value"]),
-              tracking=lambda m: int(m["attribute"]["end"]))
+TARGET = dict(counting=lambda m: int(m["attribute"]["count"]), spatial=lambda m: m["attribute"]["relation"], chart=lambda m: int(m["attribute"]["value"]), tracking=lambda m: int(m["attribute"]["end"]))
 SIZES = [10, 20, 40, 80, 120, 165]
 GRID = [(k, C) for k in [8, 16, 32, 64] for C in [0.05, 0.5, 5.0]]
 
@@ -43,8 +40,7 @@ def main(states="runs/states_3b.npz", g1="runs/probe_g1.json", out="runs/datasiz
         y = np.array([TARGET[f](meta[i]) for i in idx])
         keep = np.array([c for c in range(len(y)) if (y == y[c]).sum() >= MIN_CLASS])
         idx, y = idx[keep], y[keep]
-        tr, rest = train_test_split(np.arange(len(idx)), test_size=0.45, random_state=0, stratify=y)
-        _, te = train_test_split(rest, test_size=0.55, random_state=0, stratify=y[rest])
+        tr, _, te = split(y, seed=0)
         Xtr, ytr, Xte, yte = V[idx[tr], l], y[tr], V[idx[te], l], y[te]
         ca = [i for i in calib[f] if i in pos]
         Xca = V[[pos[i] for i in ca], l]
@@ -60,13 +56,11 @@ def main(states="runs/states_3b.npz", g1="runs/probe_g1.json", out="runs/datasiz
                 best = None
                 for k, C in GRID:
                     if k >= len(sub): continue
-                    p = make_pipeline(StandardScaler(), PCA(n_components=k, random_state=0),
-                                      LogisticRegression(max_iter=1000, C=C)).fit(Xtr[sub], ytr[sub])
+                    p = make_pipeline(StandardScaler(), PCA(n_components=k, random_state=0), LogisticRegression(max_iter=1000, C=C)).fit(Xtr[sub], ytr[sub])
                     v = float(np.mean(p.predict(Xca).astype(str) == yca))   # chosen on calibration
                     if best is None or v > best[0]: best = (v, p, (k, C))
                 accs.append(float(best[1].score(Xte, yte))); picks.append(best[2])
-            cur.append(dict(n=s, mean=float(np.mean(accs)), sd=float(np.std(accs)),
-                            cfg=str(picks[0])))
+            cur.append(dict(n=s, mean=float(np.mean(accs)), sd=float(np.std(accs)), cfg=str(picks[0])))
             row.append(f"{100*np.mean(accs):6.0f}%±{100*np.std(accs):2.0f}")
         res[f] = dict(curve=cur, n_train=int(len(tr)), n_test=int(len(te)))
         print(f"{f:10s}" + "".join(f"{c:>13s}" for c in row))

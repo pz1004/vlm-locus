@@ -20,17 +20,13 @@ from sklearn.model_selection import train_test_split
 import os as _os, sys as _sys
 _sys.path.insert(0, _os.path.join(_os.path.dirname(
     _os.path.dirname(_os.path.abspath(__file__))), "run"))
-from canon import MIN_CLASS  # the filter is a protocol constant
+from canon import MIN_CLASS  # the filter is a protocol constant, split
 
-TARGET = dict(counting=lambda m: int(m["attribute"]["count"]),
-              spatial=lambda m: m["attribute"]["relation"],
-              chart=lambda m: int(m["attribute"]["value"]),
-              tracking=lambda m: int(m["attribute"]["end"]))
+TARGET = dict(counting=lambda m: int(m["attribute"]["count"]), spatial=lambda m: m["attribute"]["relation"], chart=lambda m: int(m["attribute"]["value"]), tracking=lambda m: int(m["attribute"]["end"]))
 SIZES = [10, 20, 40, 80, 120, 165]
 
 
-def main(states="runs/states_3b.npz", g1="runs/probe_g1.json",
-         branches="runs/branches6_test.jsonl", out="runs/datasize_3b.json"):
+def main(states="runs/states_3b.npz", g1="runs/probe_g1.json", branches="runs/branches6_test.jsonl", out="runs/datasize_3b.json"):
     npz = np.load(states); meta = json.load(open(states.replace(".npz", "_meta.json")))
     V = npz["vis"].astype(np.float32); G = json.load(open(g1))
     macc = {}
@@ -44,15 +40,12 @@ def main(states="runs/states_3b.npz", g1="runs/probe_g1.json",
         y = np.array([TARGET[f](meta[i]) for i in idx])
         keep = np.array([c for c in range(len(y)) if (y == y[c]).sum() >= MIN_CLASS])
         idx, y = idx[keep], y[keep]
-        tr, rest = train_test_split(np.arange(len(idx)), test_size=0.45, random_state=0, stratify=y)
-        _, te = train_test_split(rest, test_size=0.55, random_state=0, stratify=y[rest])
+        tr, _, te = split(y, seed=0)
         Xtr, ytr, Xte, yte = V[idx[tr], l], y[tr], V[idx[te], l], y[te]
         row, cur = [], []
         for s in SIZES:
             if s >= len(tr):
-                accs = [float(make_pipeline(StandardScaler(),
-                                            PCA(n_components=min(64, len(tr) - 1), random_state=0),
-                                            LogisticRegression(max_iter=1000, C=0.5))
+                accs = [float(make_pipeline(StandardScaler(), PCA(n_components=min(64, len(tr) - 1), random_state=0), LogisticRegression(max_iter=1000, C=0.5))
                               .fit(Xtr, ytr).score(Xte, yte))]
             else:
                 accs = []
@@ -61,8 +54,7 @@ def main(states="runs/states_3b.npz", g1="runs/probe_g1.json",
                     sub = rng.choice(len(tr), size=s, replace=False)
                     if len(set(ytr[sub])) < 2: continue
                     accs.append(float(make_pipeline(
-                        StandardScaler(), PCA(n_components=min(64, s - 1), random_state=0),
-                        LogisticRegression(max_iter=1000, C=0.5)).fit(Xtr[sub], ytr[sub])
+                        StandardScaler(), PCA(n_components=min(64, s - 1), random_state=0), LogisticRegression(max_iter=1000, C=0.5)).fit(Xtr[sub], ytr[sub])
                         .score(Xte, yte)))
             cur.append(dict(n=s, mean=float(np.mean(accs)), sd=float(np.std(accs))))
             row.append(f"{100*np.mean(accs):7.0f}%±{100*np.std(accs):2.0f}")

@@ -29,6 +29,7 @@ sys.path.insert(0, os.path.join(os.getcwd(), "run"))
 # the conditional forward bound while canon.py gated on the joint one -- passing by luck, since
 # every locus clears both. A verification harness with its own copy of the rule verifies nothing.
 from canon import GATE_CI, locus, g1_at
+import canon
 
 subprocess.run([PY, "run/canon.py"], capture_output=True)
 subprocess.run([PY, "run/results_md.py"], capture_output=True)
@@ -199,6 +200,33 @@ lit = subprocess.run(["git", "grep", "-n", r"sum() >= 8", "--", "run/", "gen/",
                       ":!run/verify_protocol.py"],
                      capture_output=True, text=True).stdout.split()
 chk("the rare-class filter is imported, not copied", not lit, f"literals={lit[:3]}")
+
+# 12b -- no near-duplicate pair straddles the split. A dataset whose items come in pairs that
+# differ in one bar is leakage waiting to happen: the probe can memorise the image in training
+# and be scored on its twin. gen/build_chart_bidir.py records the pair, canon.split() groups on
+# it, and this asserts the outcome rather than trusting the plumbing -- the cost of getting it
+# wrong is every number moving in the flattering direction, silently.
+import glob as _glob
+straddle = []
+for mp in sorted(_glob.glob("runs/states_*_meta.json")):
+    tag = os.path.basename(mp)[len("states_"):-len("_meta.json")]
+    meta = json.load(open(mp))
+    for fam in {m["family"] for m in meta}:
+        ix = [i for i, m in enumerate(meta) if m["family"] == fam]
+        g = canon.pairs_of(meta, ix)
+        if g is None:
+            continue
+        y = np.array([str(meta[i].get("answer", "")) for i in ix])
+        tr, sel, te = canon.split(y, groups=g, seed=0)
+        if set(g[tr]) & set(g[te]) or set(g[tr]) & set(g[sel]) or set(g[sel]) & set(g[te]):
+            straddle.append(f"{tag}/{fam}")
+npaired = sum(1 for mp in _glob.glob("runs/states_*_meta.json")
+              for m in [json.load(open(mp))]
+              if any(x.get("difficulty", {}).get("pair") for x in m))
+chk("no near-duplicate pair straddles the split", not straddle,
+    f"{npaired} paired dataset(s) captured"
+    + (" -- vacuous until one is" if not npaired else "")
+    + (f", straddling: {straddle}" if straddle else ""))
 
 SPDX = "GPL-3.0-only"
 LIC = open("LICENSE").read()

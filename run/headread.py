@@ -45,18 +45,14 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 # the rare-class filter is a protocol constant, not a local choice: gen/build_chart.py
 # uses it to decide which edit targets a probe will be able to emit, so a copy here that
 # drifted would produce counterfactuals no probe could follow. One definition, imported.
-from canon import MIN_CLASS
+from canon import MIN_CLASS, pairs_of, split
 
 HUB = os.path.expanduser("~/.cache/huggingface/hub")
 # tag -> (model id, cache dir name, head tensor key). Qwen ties its head to the embedding.
-Q3 = ("Qwen/Qwen2.5-VL-3B-Instruct", "models--Qwen--Qwen2.5-VL-3B-Instruct",
-      "model.embed_tokens.weight")
-SM = ("HuggingFaceTB/SmolVLM-Instruct", "models--HuggingFaceTB--SmolVLM-Instruct",
-      "lm_head.weight")
-IV = ("OpenGVLab/InternVL3-2B-hf", "models--OpenGVLab--InternVL3-2B-hf",
-      "language_model.lm_head.weight")
-TAGS = {"3b": Q3, "real": Q3, "realchart_v2": Q3, "smolm": SM, "smol_real_3b": SM,
-        "smol_real_chart_v2": SM, "ivl_real_3b": IV, "ivl_real_chart_v2": IV}
+Q3 = ("Qwen/Qwen2.5-VL-3B-Instruct", "models--Qwen--Qwen2.5-VL-3B-Instruct", "model.embed_tokens.weight")
+SM = ("HuggingFaceTB/SmolVLM-Instruct", "models--HuggingFaceTB--SmolVLM-Instruct", "lm_head.weight")
+IV = ("OpenGVLab/InternVL3-2B-hf", "models--OpenGVLab--InternVL3-2B-hf", "language_model.lm_head.weight")
+TAGS = {"3b": Q3, "real": Q3, "realchart_v2": Q3, "smolm": SM, "smol_real_3b": SM, "smol_real_chart_v2": SM, "ivl_real_3b": IV, "ivl_real_chart_v2": IV}
 
 # where the model's own generations live, mirroring run/canon.py's GEN
 GEN = {"3b": "runs/branches6_test.jsonl", "smolm": "runs/smolm_gen.jsonl"}
@@ -84,8 +80,7 @@ def coarse_model(txt, fam, tk):
     """
     t = txt.strip()
     if fam == "chart":
-        # run/fix_chart_scoring.py's extraction, verbatim: the first number in the string,
-        # clamped to the axis range, rounded to the nearest 5. Anything stricter would score
+        # run/fix_chart_scoring.py's extraction, verbatim: the first number in the string, # clamped to the axis range, rounded to the nearest 5. Anything stricter would score
         # "50%" and "11.5." as unparseable, which the paper's own grader does not.
         m = re.search(r"-?\d+(?:\.\d+)?", t)
         if not m:
@@ -95,11 +90,7 @@ def coarse_model(txt, fam, tk):
     return ids[0] if ids else None
 
 
-TARGET = dict(counting=lambda m: int(m["attribute"]["count"]),
-              spatial=lambda m: m["attribute"]["relation"],
-              chart=lambda m: int(m["attribute"]["value"]),
-              tracking=lambda m: int(m["attribute"]["end"]),
-              glyph=lambda m: int(m["attribute"]["value"]))
+TARGET = dict(counting=lambda m: int(m["attribute"]["count"]), spatial=lambda m: m["attribute"]["relation"], chart=lambda m: int(m["attribute"]["value"]), tracking=lambda m: int(m["attribute"]["end"]), glyph=lambda m: int(m["attribute"]["value"]))
 
 
 def head_rows(cache, key, ids):
@@ -137,9 +128,7 @@ def main(tags):
             idx, y = idx[keep], y[keep]
             if len(idx) < 20:
                 continue
-            tr, rest = train_test_split(np.arange(len(idx)), test_size=0.45, random_state=0,
-                                        stratify=y)
-            _, te = train_test_split(rest, test_size=0.55, random_state=0, stratify=y[rest])
+            tr, _, te = split(y, groups=pairs_of(meta, idx), seed=0)
             answers = sorted({str(v) for v in y})
             first = {a: tk.encode(a, add_special_tokens=False)[0] for a in answers}
             exact = len(set(first.values())) == len(answers) and all(
@@ -155,9 +144,7 @@ def main(tags):
             head_acc = float(np.mean([a == b for a, b in zip(hpred, gold_first)]))
 
             # the probe, same split, same recipe -- scored on the same granularity as the head
-            pipe = make_pipeline(StandardScaler(),
-                                 PCA(n_components=min(64, len(tr) - 1), random_state=0),
-                                 LogisticRegression(max_iter=1000, C=0.5))
+            pipe = make_pipeline(StandardScaler(), PCA(n_components=min(64, len(tr) - 1), random_state=0), LogisticRegression(max_iter=1000, C=0.5))
             pipe.fit(V[idx[tr], -1], y[tr])
             ppred = pipe.predict(S)
             probe_exact = float(np.mean(ppred == y[te]))
@@ -173,9 +160,7 @@ def main(tags):
                 model_acc = (float(np.mean([a == b for a, b in have]))
                              if len(have) == len(mp) else None)
             note = "exact" if exact else f"coarsened to first token ({len(ids)} of {len(answers)})"
-            out.append(dict(tag=tag, family=fam, n=len(te), classes=len(answers),
-                            model=model_acc, head=head_acc, probe=probe_acc,
-                            probe_exact=probe_exact, exact=bool(exact), head_classes=len(ids)))
+            out.append(dict(tag=tag, family=fam, n=len(te), classes=len(answers), model=model_acc, head=head_acc, probe=probe_acc, probe_exact=probe_exact, exact=bool(exact), head_classes=len(ids)))
             m = "   --" if model_acc is None else f"{100 * model_acc:5.1f}"
             print(f"{tag + '/' + fam:26s}{len(te):4d}{len(answers):3d}"
                   f"{('  yes' if exact else '   no'):>7s}{m:>7s}"

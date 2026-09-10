@@ -23,13 +23,9 @@ from sklearn.model_selection import train_test_split
 import os as _os, sys as _sys
 _sys.path.insert(0, _os.path.join(_os.path.dirname(
     _os.path.dirname(_os.path.abspath(__file__))), "run"))
-from canon import MIN_CLASS  # the filter is a protocol constant
+from canon import MIN_CLASS  # the filter is a protocol constant, pairs_of, split
 
-TARGET = dict(counting=lambda m: int(m["attribute"]["count"]),
-              spatial=lambda m: m["attribute"]["relation"],
-              chart=lambda m: int(m["attribute"]["value"]),
-              tracking=lambda m: int(m["attribute"]["end"]),
-              glyph=lambda m: int(m["attribute"]["value"]))
+TARGET = dict(counting=lambda m: int(m["attribute"]["count"]), spatial=lambda m: m["attribute"]["relation"], chart=lambda m: int(m["attribute"]["value"]), tracking=lambda m: int(m["attribute"]["end"]), glyph=lambda m: int(m["attribute"]["value"]))
 
 def main(states, out):
     npz = np.load(states); meta = json.load(open(states.replace(".npz", "_meta.json")))
@@ -42,32 +38,20 @@ def main(states, out):
         y = np.array([TARGET[f](meta[i]) for i in idx])
         keep = np.array([c for c in range(len(y)) if (y == y[c]).sum() >= MIN_CLASS])
         idx, y = idx[keep], y[keep]
-        tr, rest = train_test_split(np.arange(len(idx)), test_size=0.45, random_state=0, stratify=y)
-        _, te = train_test_split(rest, test_size=0.55, random_state=0, stratify=y[rest])
-        pipe = make_pipeline(StandardScaler(),
-                             PCA(n_components=min(64, len(tr) - 1), random_state=0),
-                             LogisticRegression(max_iter=1000, C=0.5))
+        tr, _, te = split(y, groups=pairs_of(meta, idx), seed=0)
+        pipe = make_pipeline(StandardScaler(), PCA(n_components=min(64, len(tr) - 1), random_state=0), LogisticRegression(max_iter=1000, C=0.5))
         pipe.fit(V[idx[tr], l], y[tr])
         sc, pca, lr = pipe[0], pipe[1], pipe[2]
         # raw-space steering direction per class
         Dm = (pca.components_.T @ lr.coef_.T).T / sc.scale_          # [C, D]
         Dm = Dm / np.linalg.norm(Dm, axis=1, keepdims=True)
-        # sklearn gives a binary LogisticRegression ONE coefficient row and decides on the sign,
-        # but every consumer here reconstructs the probe as argmax over coef @ z + intercept,
-        # which on a length-1 vector always returns class 0. Store the equivalent symmetric
+        # sklearn gives a binary LogisticRegression ONE coefficient row and decides on the sign, # but every consumer here reconstructs the probe as argmax over coef @ z + intercept, # which on a length-1 vector always returns class 0. Store the equivalent symmetric
         # two-row form so the stored probe means the same thing to sklearn and to the consumers;
         # softmax([-s/2, +s/2]) reproduces sklearn's predict_proba exactly.
         C, b = lr.coef_, lr.intercept_
         if C.shape[0] == 1 and len(lr.classes_) == 2:
             C, b = np.vstack([-C / 2, C / 2]), np.array([-b[0] / 2, b[0] / 2])
-        store[f] = dict(layer=int(l), classes=[str(c) for c in lr.classes_],
-                        mean=sc.mean_.tolist(), scale=sc.scale_.tolist(),
-                        pca_mean=pca.mean_.tolist(), components=pca.components_.tolist(),
-                        coef=C.tolist(), intercept=b.tolist(),
-                        directions=Dm.tolist(),
-                        test_ids=[meta[i]["id"] for i in idx[te]],
-                        train_ids=[meta[i]["id"] for i in idx[tr]],
-                        test_acc=float(pipe.score(V[idx[te], l], y[te])))
+        store[f] = dict(layer=int(l), classes=[str(c) for c in lr.classes_], mean=sc.mean_.tolist(), scale=sc.scale_.tolist(), pca_mean=pca.mean_.tolist(), components=pca.components_.tolist(), coef=C.tolist(), intercept=b.tolist(), directions=Dm.tolist(), test_ids=[meta[i]["id"] for i in idx[te]], train_ids=[meta[i]["id"] for i in idx[tr]], test_acc=float(pipe.score(V[idx[te], l], y[te])))
         print(f"  {f:10s} layer {l:2d}  classes {len(lr.classes_):2d}  "
               f"test acc {store[f]['test_acc']:.3f}  |test|={len(te)}")
     # A stored probe is only useful if the consumers' reconstruction reproduces sklearn's own
@@ -91,5 +75,4 @@ def main(states, out):
     print(f"wrote {out}")
 
 if __name__ == "__main__":
-    main(sys.argv[1] if len(sys.argv) > 1 else "runs/states_3b.npz",
-         sys.argv[2] if len(sys.argv) > 2 else "runs/probes_3b.npy")
+    main(sys.argv[1] if len(sys.argv) > 1 else "runs/states_3b.npz", sys.argv[2] if len(sys.argv) > 2 else "runs/probes_3b.npy")

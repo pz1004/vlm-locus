@@ -26,17 +26,12 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 # the rare-class filter is a protocol constant, not a local choice: gen/build_chart.py
 # uses it to decide which edit targets a probe will be able to emit, so a copy here that
 # drifted would produce counterfactuals no probe could follow. One definition, imported.
-from canon import MIN_CLASS
+from canon import MIN_CLASS, pairs_of, split
 
-TARGET = dict(counting=lambda m: int(m["attribute"]["count"]),
-              spatial=lambda m: m["attribute"]["relation"],
-              chart=lambda m: int(m["attribute"]["value"]),
-              tracking=lambda m: int(m["attribute"]["end"]),
-              glyph=lambda m: int(m["attribute"]["value"]))
+TARGET = dict(counting=lambda m: int(m["attribute"]["count"]), spatial=lambda m: m["attribute"]["relation"], chart=lambda m: int(m["attribute"]["value"]), tracking=lambda m: int(m["attribute"]["end"]), glyph=lambda m: int(m["attribute"]["value"]))
 
 
-def main(states="runs/states_3b.npz", branches="runs/branches6_test.jsonl",
-         out="runs/layers_3b.json"):
+def main(states="runs/states_3b.npz", branches="runs/branches6_test.jsonl", out="runs/layers_3b.json"):
     npz = np.load(states); meta = json.load(open(states.replace(".npz", "_meta.json")))
     V, B = npz["vis"].astype(np.float32), npz["blind"].astype(np.float32)
     # accepts either a branch grid (`ok.none`) or a plain scoring pass (`gen_correct`), so a
@@ -58,25 +53,18 @@ def main(states="runs/states_3b.npz", branches="runs/branches6_test.jsonl",
         y = np.array([TARGET[f](meta[i]) for i in idx])
         keep = np.array([c for c in range(len(y)) if (y == y[c]).sum() >= MIN_CLASS], dtype=int)
         idx, y = idx[keep], y[keep]
-        tr, rest = train_test_split(np.arange(len(idx)), test_size=0.45, random_state=0, stratify=y)
-        _, te = train_test_split(rest, test_size=0.55, random_state=0, stratify=y[rest])
+        tr, _, te = split(y, groups=pairs_of(meta, idx), seed=0)
         chance = meta[idx[0]]["chance"]
         te_ids = [meta[i]["id"] for i in idx[te]]
         m_te = [model_ok[i] for i in te_ids if i in model_ok]
         vis, blind = [], []
         for l in range(L):
-            pipe = make_pipeline(StandardScaler(),
-                                 PCA(n_components=min(64, len(tr) - 1), random_state=0),
-                                 LogisticRegression(max_iter=1000, C=0.5))
+            pipe = make_pipeline(StandardScaler(), PCA(n_components=min(64, len(tr) - 1), random_state=0), LogisticRegression(max_iter=1000, C=0.5))
             pipe.fit(V[idx[tr], l], y[tr])
             vis.append(float(pipe.score(V[idx[te], l], y[te])))
             blind.append(float(pipe.score(B[idx[te], l], y[te])))
-        res[f] = dict(vis=vis, blind=blind, chance=float(chance),
-                      model=float(np.mean(m_te)) if m_te else float('nan'),
-                      model_all=float(np.mean([v for i, v in model_ok.items()
-                                               if i.rsplit('_', 1)[0] == f])),
-                      peak_layer=int(np.argmax(vis)), peak=float(max(vis)),
-                      final=float(vis[-1]), n_test=int(len(te)))
+        res[f] = dict(vis=vis, blind=blind, chance=float(chance), model=float(np.mean(m_te)) if m_te else float('nan'), model_all=float(np.mean([v for i, v in model_ok.items()
+                                               if i.rsplit('_', 1)[0] == f])), peak_layer=int(np.argmax(vis)), peak=float(max(vis)), final=float(vis[-1]), n_test=int(len(te)))
         print(f"{f:10s} n_te={len(te):3d}  chance {100*chance:4.1f}%  model {100*res[f]['model']:4.1f}%"
               f"   peak L{res[f]['peak_layer']:2d} {100*res[f]['peak']:5.1f}%"
               f"   final L{L-1} {100*res[f]['final']:5.1f}%")

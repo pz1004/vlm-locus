@@ -36,13 +36,9 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 # the rare-class filter is a protocol constant, not a local choice: gen/build_chart.py
 # uses it to decide which edit targets a probe will be able to emit, so a copy here that
 # drifted would produce counterfactuals no probe could follow. One definition, imported.
-from canon import MIN_CLASS
+from canon import MIN_CLASS, pairs_of, split
 
-TARGET = dict(counting=lambda m: int(m["attribute"]["count"]),
-              spatial=lambda m: m["attribute"]["relation"],
-              chart=lambda m: int(m["attribute"]["value"]),
-              tracking=lambda m: int(m["attribute"]["end"]),
-              glyph=lambda m: int(m["attribute"]["value"]))
+TARGET = dict(counting=lambda m: int(m["attribute"]["count"]), spatial=lambda m: m["attribute"]["relation"], chart=lambda m: int(m["attribute"]["value"]), tracking=lambda m: int(m["attribute"]["end"]), glyph=lambda m: int(m["attribute"]["value"]))
 
 
 def main(tag):
@@ -64,12 +60,8 @@ def main(tag):
         y = np.array([TARGET[fam](meta[i]) for i in idx])
         keep = np.array([c for c in range(len(y)) if (y == y[c]).sum() >= MIN_CLASS], dtype=int)
         idx, y = idx[keep], y[keep]
-        tr, rest = train_test_split(np.arange(len(idx)), test_size=0.45,
-                                    random_state=0, stratify=y)
-        _, te = train_test_split(rest, test_size=0.55, random_state=0, stratify=y[rest])
-        pipe = make_pipeline(StandardScaler(),
-                             PCA(n_components=min(64, len(tr) - 1), random_state=0),
-                             LogisticRegression(max_iter=1000, C=0.5))
+        tr, _, te = split(y, groups=pairs_of(meta, idx), seed=0)
+        pipe = make_pipeline(StandardScaler(), PCA(n_components=min(64, len(tr) - 1), random_state=0), LogisticRegression(max_iter=1000, C=0.5))
         pipe.fit(V[idx[tr], -1], y[tr])
         support = {str(c) for c in pipe.classes_}
 
@@ -80,11 +72,7 @@ def main(tag):
         p1 = pipe.predict(C[[cpos[k] for k, _ in have], -1])
         for (k, _), a, b in zip(have, p0, p1):
             r = base[k]
-            out.append(dict(id=k, family=fam, a0=r["a0"], a1=r["a1"],
-                            probe0=str(a), probe1=str(b),
-                            model0=r["model0"], model1=r["model1"],
-                            a0_in_support=str(r["a0"]) in support,
-                            a1_in_support=str(r["a1"]) in support))
+            out.append(dict(id=k, family=fam, a0=r["a0"], a1=r["a1"], probe0=str(a), probe1=str(b), model0=r["model0"], model1=r["model1"], a0_in_support=str(r["a0"]) in support, a1_in_support=str(r["a1"]) in support))
         g = [r for r in out if r["family"] == fam]
         ok = [r for r in g if r["probe0"] == r["a0"]]
         fl = np.mean([r["probe1"] == r["a1"] for r in ok]) if ok else float("nan")
@@ -93,8 +81,7 @@ def main(tag):
         og = [base[k] for k, _ in have]
         ook = [r for r in og if r["probe0"] == r["a0"]]
         ofl = np.mean([r["probe1"] == r["a1"] for r in ook]) if ook else float("nan")
-        report.append((fam, len(g), len(ok), 100 * fl, len(oks), 100 * fls,
-                       len(ook), 100 * ofl))
+        report.append((fam, len(g), len(ok), 100 * fl, len(oks), 100 * fls, len(ook), 100 * ofl))
 
     o = f"runs/cffollow_{tag}.json"
     json.dump(out, open(o, "w"), indent=1)

@@ -26,7 +26,7 @@ from sklearn.model_selection import train_test_split
 import os as _os, sys as _sys
 _sys.path.insert(0, _os.path.join(_os.path.dirname(
     _os.path.dirname(_os.path.abspath(__file__))), "run"))
-from canon import MIN_CLASS  # the filter is a protocol constant
+from canon import MIN_CLASS, split  # the filter is a protocol constant
 
 npz = np.load(sys.argv[1] if len(sys.argv) > 1 else "runs/states_3b.npz")
 meta = json.load(open((sys.argv[1] if len(sys.argv) > 1 else "runs/states_3b.npz")
@@ -67,8 +67,7 @@ for f in fams:
     y = np.array([TARGET[f](meta[i]) for i in idx])
     keep = np.array([c for c in range(len(y)) if (y == y[c]).sum() >= MIN_CLASS])   # drop rare classes
     idx, y = idx[keep], y[keep]
-    tr, rest = train_test_split(np.arange(len(idx)), test_size=0.45, random_state=0, stratify=y)
-    sel_i, te = train_test_split(rest, test_size=0.55, random_state=0, stratify=y[rest])
+    tr, sel_i, te = split(y, seed=0)
     chance = max(np.bincount(np.unique(y, return_inverse=True)[1]).max() / len(y),
                  meta[idx[0]]["chance"])
     # Layer chosen on the SELECTION split, never on the test split. Taking the argmax layer

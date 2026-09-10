@@ -19,7 +19,7 @@ sys.path.insert(0, "run")
 from layers import TARGET
 # the same filter layers.py applies, from the same definition: these predictions are what
 # the paired test scores, so a filter that differed would compare two different item sets
-from canon import MIN_CLASS
+from canon import MIN_CLASS, pairs_of, split
 
 
 def fit(states, out):
@@ -31,17 +31,11 @@ def fit(states, out):
         y = np.array([TARGET[f](meta[i]) for i in idx])
         keep = np.array([c for c in range(len(y)) if (y == y[c]).sum() >= MIN_CLASS], dtype=int)
         idx, y = idx[keep], y[keep]
-        tr, rest = train_test_split(np.arange(len(idx)), test_size=0.45, random_state=0, stratify=y)
-        _, te = train_test_split(rest, test_size=0.55, random_state=0, stratify=y[rest])
-        pipe = make_pipeline(StandardScaler(), PCA(n_components=min(64, len(tr) - 1), random_state=0),
-                             LogisticRegression(max_iter=1000, C=0.5))
+        tr, _, te = split(y, groups=pairs_of(meta, idx), seed=0)
+        pipe = make_pipeline(StandardScaler(), PCA(n_components=min(64, len(tr) - 1), random_state=0), LogisticRegression(max_iter=1000, C=0.5))
         pipe.fit(V[idx[tr], L - 1], y[tr])
         pred = pipe.predict(V[idx[te], L - 1])
-        res[f] = dict(layer=L - 1,
-                      ids=[meta[i]["id"] for i in idx[te]],
-                      pred=[str(p) for p in pred],
-                      gold=[str(g) for g in y[te]],
-                      acc=float(np.mean(pred == y[te])))
+        res[f] = dict(layer=L - 1, ids=[meta[i]["id"] for i in idx[te]], pred=[str(p) for p in pred], gold=[str(g) for g in y[te]], acc=float(np.mean(pred == y[te])))
         print(f"  {f:10s} n={len(te):3d}  final-layer acc {100*res[f]['acc']:5.1f}%")
     json.dump(res, open(out, "w"), indent=1)
     print(f"wrote {out}")

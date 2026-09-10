@@ -23,7 +23,7 @@ from sklearn.model_selection import train_test_split
 import os as _os, sys as _sys
 _sys.path.insert(0, _os.path.join(_os.path.dirname(
     _os.path.dirname(_os.path.abspath(__file__))), "run"))
-from canon import MIN_CLASS  # the filter is a protocol constant
+from canon import MIN_CLASS  # the filter is a protocol constant, split
 
 ST = sys.argv[1] if len(sys.argv) > 1 else "runs/states_3b.npz"
 GEN = sys.argv[2] if len(sys.argv) > 2 else "runs/cal_3b_gen.jsonl"
@@ -33,14 +33,10 @@ meta = json.load(open(ST.replace(".npz", "_meta.json")))
 V, B = npz["vis"].astype(np.float32), npz["blind"].astype(np.float32)
 gen = {r["id"]: r for r in (json.loads(l) for l in open(GEN))}
 g1 = json.load(open(G1))
-TARGET = dict(counting=lambda m: int(m["attribute"]["count"]),
-              spatial=lambda m: m["attribute"]["relation"],
-              chart=lambda m: int(m["attribute"]["value"]),
-              tracking=lambda m: int(m["attribute"]["end"]))
+TARGET = dict(counting=lambda m: int(m["attribute"]["count"]), spatial=lambda m: m["attribute"]["relation"], chart=lambda m: int(m["attribute"]["value"]), tracking=lambda m: int(m["attribute"]["end"]))
 
 def probe(k=64, C=0.5):
-    return make_pipeline(StandardScaler(), PCA(n_components=k, random_state=0),
-                         LogisticRegression(max_iter=1000, C=C))
+    return make_pipeline(StandardScaler(), PCA(n_components=k, random_state=0), LogisticRegression(max_iter=1000, C=C))
 
 print(f"{'family':10s} {'n test':>7s} {'model err':>10s} {'probe acc':>10s} "
       f"{'R (wrong,decodable)':>21s} {'P (wrong,not)':>15s} {'L (right,not dec.)':>19s}")
@@ -50,16 +46,14 @@ for f in sorted(g1):
     y = np.array([TARGET[f](meta[i]) for i in idx])
     keep = np.array([c for c in range(len(y)) if (y == y[c]).sum() >= MIN_CLASS])
     idx, y = idx[keep], y[keep]
-    tr, rest = train_test_split(np.arange(len(idx)), test_size=0.45, random_state=0, stratify=y)
-    _, te = train_test_split(rest, test_size=0.55, random_state=0, stratify=y[rest])
+    tr, _, te = split(y, seed=0)
     l = g1[f]["layer"]
     clf = probe(min(64, len(tr) - 1)); clf.fit(V[idx[tr], l], y[tr])
     dec = clf.predict(V[idx[te], l]) == y[te]
     ok = np.array([gen[meta[i]["id"]]["gen_correct"] for i in idx[te]])
     n = len(te)
     R = float(((~ok) & dec).mean()); P = float(((~ok) & ~dec).mean()); L = float((ok & ~dec).mean())
-    rows[f] = dict(n=n, err=float((~ok).mean()), probe=float(dec.mean()), R=R, P=P, L=L,
-                   R_of_wrong=float((dec[~ok]).mean()) if (~ok).any() else float("nan"))
+    rows[f] = dict(n=n, err=float((~ok).mean()), probe=float(dec.mean()), R=R, P=P, L=L, R_of_wrong=float((dec[~ok]).mean()) if (~ok).any() else float("nan"))
     print(f"{f:10s} {n:7d} {100*(~ok).mean():9.0f}% {100*dec.mean():9.0f}% "
           f"{100*R:20.0f}% {100*P:14.0f}% {100*L:18.0f}%")
 print()

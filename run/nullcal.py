@@ -21,8 +21,7 @@ Two different permutation quantities are computed here, and they answer differen
 
   null (this file).  Train on permuted labels, score against the *true* test labels. Measures
   how high the reported accuracy can go with the label-representation relation destroyed --
-  i.e. the false-positive rate of this cell's presence verdict. This is a decision threshold,
-  not a capacity measure, and it is what replaces the constant.
+  i.e. the false-positive rate of this cell's presence verdict. This is a decision threshold, not a capacity measure, and it is what replaces the constant.
 
 The estimator, split and rare-class filter mirror run/layers.py exactly, so the null is
 calibrated for the same probe that produces the reported number. Reads the cached activations
@@ -37,8 +36,7 @@ import os
 # Pin BLAS threads before numpy loads. Without this the number of parallel workers changes the
 # floating-point reduction order inside each fit, which flips the occasional tied prediction and
 # moves the empirical p by a draw or two -- small, but it makes the null irreproducible.
-for _v in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS",
-           "VECLIB_MAXIMUM_THREADS", "NUMEXPR_NUM_THREADS"):
+for _v in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS", "VECLIB_MAXIMUM_THREADS", "NUMEXPR_NUM_THREADS"):
     os.environ.setdefault(_v, "1")
 import glob, json, sys, time, warnings
 import numpy as np
@@ -53,13 +51,9 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 # the rare-class filter is a protocol constant, not a local choice: gen/build_chart.py
 # uses it to decide which edit targets a probe will be able to emit, so a copy here that
 # drifted would produce counterfactuals no probe could follow. One definition, imported.
-from canon import MIN_CLASS
+from canon import MIN_CLASS, pairs_of, split
 
-TARGET = dict(counting=lambda m: int(m["attribute"]["count"]),
-              spatial=lambda m: m["attribute"]["relation"],
-              chart=lambda m: int(m["attribute"]["value"]),
-              tracking=lambda m: int(m["attribute"]["end"]),
-              glyph=lambda m: int(m["attribute"]["value"]))
+TARGET = dict(counting=lambda m: int(m["attribute"]["count"]), spatial=lambda m: m["attribute"]["relation"], chart=lambda m: int(m["attribute"]["value"]), tracking=lambda m: int(m["attribute"]["end"]), glyph=lambda m: int(m["attribute"]["value"]))
 
 # a permuted fit can hand PCA a degenerate component; the draw is still valid
 warnings.filterwarnings("ignore", message="invalid value encountered in divide")
@@ -69,9 +63,7 @@ NJOBS = int(os.environ.get("VLM_LOCUS_NJOBS", 24))
 
 
 def pipe(k, n, seed=0):
-    return make_pipeline(StandardScaler(),
-                         PCA(n_components=min(k, n - 1), random_state=seed),
-                         LogisticRegression(max_iter=1000, C=0.5))
+    return make_pipeline(StandardScaler(), PCA(n_components=min(k, n - 1), random_state=seed), LogisticRegression(max_iter=1000, C=0.5))
 
 
 def fit(X, y, Xt, yt):
@@ -100,20 +92,11 @@ def cell(V, B, idx, y, tr, te):
     null = np.array(joblib.Parallel(n_jobs=NJOBS)(joblib.delayed(draw)(s) for s in range(NPERM)))
 
     m = lpv - lpb
-    return dict(n_train=int(len(tr)), n_test=int(len(te)), classes=int(len(set(y.tolist()))),
-                vis=av, blind_refit=ab, blind_transfer=at, shuffled=ash,
-                selectivity=av - ash, mean_margin=float(m.mean()),
-                pos_margin=float((m > 0).mean()),
-                null_mean=float(null.mean()), null_sd=float(null.std()),
-                null_q95=float(np.quantile(null, .95)), null_q99=float(np.quantile(null, .99)),
-                null_max=float(null.max()), nperm=NPERM,
-                # the draws are k/n_test, so the distribution is exactly summarised by its
+    return dict(n_train=int(len(tr)), n_test=int(len(te)), classes=int(len(set(y.tolist()))), vis=av, blind_refit=ab, blind_transfer=at, shuffled=ash, selectivity=av - ash, mean_margin=float(m.mean()), pos_margin=float((m > 0).mean()), null_mean=float(null.mean()), null_sd=float(null.std()), null_q95=float(np.quantile(null, .95)), null_q99=float(np.quantile(null, .99)), null_max=float(null.max()), nperm=NPERM, # the draws are k/n_test, so the distribution is exactly summarised by its
                 # value counts -- enough to plot, and far smaller than 2000 floats per cell
                 null_hist={f"{v:.6f}": int(c) for v, c in
-                           zip(*[x.tolist() for x in np.unique(null, return_counts=True)])},
-                # empirical one-sided p, add-one corrected so it can never be exactly zero
-                p_null=float((1 + (null >= av).sum()) / (1 + NPERM)),
-                # G1 at the final layer, under the full gate run/probe.py defines
+                           zip(*[x.tolist() for x in np.unique(null, return_counts=True)])}, # empirical one-sided p, add-one corrected so it can never be exactly zero
+                p_null=float((1 + (null >= av).sum()) / (1 + NPERM)), # G1 at the final layer, under the full gate run/probe.py defines
                 g1=bool(av - ab > 0.05 and av - ash > 0.10
                         and m.mean() > 0 and (m > 0).mean() > 0.75))
 
@@ -137,9 +120,7 @@ def main(tags):
             y = np.array([TARGET[f](meta[i]) for i in idx])
             keep = np.array([c for c in range(len(y)) if (y == y[c]).sum() >= MIN_CLASS], dtype=int)
             idx, y = idx[keep], y[keep]
-            tr, rest = train_test_split(np.arange(len(idx)), test_size=0.45,
-                                        random_state=0, stratify=y)
-            _, te = train_test_split(rest, test_size=0.55, random_state=0, stratify=y[rest])
+            tr, _, te = split(y, groups=pairs_of(meta, idx), seed=0)
             r = cell(V, B, idx, y, tr, te)
             r["chance"] = float(meta[idx[0]]["chance"])
             out[f] = r

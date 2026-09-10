@@ -74,6 +74,51 @@ FOLLOW_MIN, NULL_ALPHA = 50.0, 0.05
 # builder silently produces edit targets the probe cannot emit. gen/build_chart.py imports it.
 MIN_CLASS = 8
 
+
+def pairs_of(meta, idx):
+    """The group key for split(), or None when the dataset has no pairs.
+
+    A dataset whose items come in near-duplicate pairs records the pair in
+    difficulty.pair (gen/build_chart_bidir.py writes it). Returning None for every other
+    dataset is what keeps the ungrouped path -- and every number computed from it -- exactly
+    as it was.
+    """
+    g = [meta[i].get("difficulty", {}).get("pair") for i in idx]
+    return None if all(x is None for x in g) else np.array([str(x) for x in g])
+
+
+def split(y, groups=None, seed=0):
+    """The canonical 55/20/25 split, in one place. Returns (train, selection, test).
+
+    Two steps so the proportions are exact: 55% train, then 45% of the remainder splits into a
+    20% selection share and a 25% test share. Twelve producers carried this as two lines each,
+    which is fine until the split has to change for one dataset and does not change for the
+    other eleven.
+
+    `groups` keeps whole groups on one side. The bidirectional chart pairs differ in a single
+    bar and are otherwise identical, so a pair straddling train and test is near-duplicate
+    leakage -- the defect run/build_chart.py's docstring records as having invalidated synthetic
+    tracking. Grouping cannot also stratify here: a pair holds two different answers by
+    construction, so there is no group label to stratify on, and the balance comes from there
+    being many pairs rather than from the split enforcing it. Callers that need the guarantee
+    should assert it; run/verify_protocol.py does.
+
+    With `groups=None` this is exactly what the twelve call sites did, and the tables are
+    byte-identical across the change.
+    """
+    from sklearn.model_selection import GroupShuffleSplit, train_test_split
+    idx = np.arange(len(y))
+    if groups is None:
+        tr, rest = train_test_split(idx, test_size=0.45, random_state=seed, stratify=y)
+        sel, te = train_test_split(rest, test_size=0.55, random_state=seed, stratify=y[rest])
+        return tr, sel, te
+    g = np.asarray(groups)
+    tr, rest = next(GroupShuffleSplit(n_splits=1, test_size=0.45,
+                                      random_state=seed).split(idx, y, g))
+    sel_r, te_r = next(GroupShuffleSplit(n_splits=1, test_size=0.55,
+                                         random_state=seed).split(rest, y[rest], g[rest]))
+    return tr, rest[sel_r], rest[te_r]
+
 # Which counterfactual statistic the verdict is gated on. The forward follow rate is conditional
 # on the probe being right before the edit, so its denominator is a probe-dependent subset -- and
 # it is silently truncated by the probe's class support, because predict() cannot return a label

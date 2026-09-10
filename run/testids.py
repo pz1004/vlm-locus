@@ -13,13 +13,9 @@ import json, os, sys
 import numpy as np
 from sklearn.model_selection import train_test_split
 
-TARGET = dict(counting=lambda m: int(m["attribute"]["count"]),
-              spatial=lambda m: m["attribute"]["relation"],
-              chart=lambda m: int(m["attribute"]["value"]),
-              tracking=lambda m: int(m["attribute"]["end"]),
-              glyph=lambda m: int(m["attribute"]["value"]))
+TARGET = dict(counting=lambda m: int(m["attribute"]["count"]), spatial=lambda m: m["attribute"]["relation"], chart=lambda m: int(m["attribute"]["value"]), tracking=lambda m: int(m["attribute"]["end"]), glyph=lambda m: int(m["attribute"]["value"]))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from canon import MIN_CLASS
+from canon import MIN_CLASS, pairs_of, split
 
 
 def ids_for(tag):
@@ -30,9 +26,7 @@ def ids_for(tag):
         y = np.array([TARGET[fam](meta[i]) for i in idx])
         keep = np.array([c for c in range(len(y)) if (y == y[c]).sum() >= MIN_CLASS], dtype=int)
         idx, y = idx[keep], y[keep]
-        tr, rest = train_test_split(np.arange(len(idx)), test_size=0.45, random_state=0,
-                                    stratify=y)
-        _, te = train_test_split(rest, test_size=0.55, random_state=0, stratify=y[rest])
+        tr, _, te = split(y, groups=pairs_of(meta, idx), seed=0)
         out += [dict(id=meta[i]["id"], family=fam) for i in idx[te]]
     return out
 
