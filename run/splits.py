@@ -148,7 +148,7 @@ def main(a):
     out = {}
     print(f"{'cell':26s}{'S':>3s}{'readout':>9s}{'probe':>15s}{'p_null':>9s}"
           f"{'joint LB':>15s}{'G1':>6s}")
-    for tag, fam in CELLS:
+    for tag, fam in (a.cells or CELLS):
         st = f"runs/states_{tag}.npz"
         if not os.path.exists(st):
             continue
@@ -178,12 +178,19 @@ def main(a):
               f"{max(r['p_null'] for r in rs):9.4f}"
               f"{np.mean(lbs) if lbs else float('nan'):9.1f} [{min(lbs) if lbs else 0:.0f}-{max(lbs) if lbs else 0:.0f}]"
               f"{sum(r['g1'] for r in rs):4d}/{len(rs)}", flush=True)
-    json.dump(out, open("runs/splits.json", "w"), indent=1)
-    print("  wrote runs/splits.json")
+    prev = {}
+    if os.path.exists(a.out):
+        prev = json.load(open(a.out))
+    merged = {**prev, **out}
+    json.dump(merged, open(a.out, "w"), indent=1)
+    print(f"  wrote {a.out}  ({len(out)} cell(s) updated, {len(merged)} total)")
 
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
+    p.add_argument("--cells", nargs="*", type=lambda s: tuple(s.split("/")),
+                   help="tag/family pairs to run instead of the default decision-relevant set")
+    p.add_argument("--out", default="runs/splits.json")
     p.add_argument("--splits", type=int, default=20)
     p.add_argument("--nperm", type=int, default=500)
     main(p.parse_args())
