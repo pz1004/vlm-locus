@@ -20,6 +20,10 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.join(_os.path.dirname(
+    _os.path.dirname(_os.path.abspath(__file__))), "run"))
+from canon import MIN_CLASS  # the filter is a protocol constant
 
 ST = sys.argv[1] if len(sys.argv) > 1 else "runs/states_3b.npz"
 GEN = sys.argv[2] if len(sys.argv) > 2 else "runs/cal_3b_gen.jsonl"
@@ -44,7 +48,7 @@ rows = {}
 for f in sorted(g1):
     idx = np.array([i for i, m in enumerate(meta) if m["family"] == f and m["id"] in gen])
     y = np.array([TARGET[f](meta[i]) for i in idx])
-    keep = np.array([c for c in range(len(y)) if (y == y[c]).sum() >= 8])
+    keep = np.array([c for c in range(len(y)) if (y == y[c]).sum() >= MIN_CLASS])
     idx, y = idx[keep], y[keep]
     tr, rest = train_test_split(np.arange(len(idx)), test_size=0.45, random_state=0, stratify=y)
     _, te = train_test_split(rest, test_size=0.55, random_state=0, stratify=y[rest])

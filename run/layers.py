@@ -14,13 +14,19 @@ different implications, and no branch in the correction library can tell them ap
 
 Blind states are decoded with the same probe to price the language prior at every depth.
 """
-import json, sys
+import json, sys, os
 import numpy as np
 from sklearn.decomposition import PCA
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# the rare-class filter is a protocol constant, not a local choice: gen/build_chart.py
+# uses it to decide which edit targets a probe will be able to emit, so a copy here that
+# drifted would produce counterfactuals no probe could follow. One definition, imported.
+from canon import MIN_CLASS
 
 TARGET = dict(counting=lambda m: int(m["attribute"]["count"]),
               spatial=lambda m: m["attribute"]["relation"],
@@ -50,7 +56,7 @@ def main(states="runs/states_3b.npz", branches="runs/branches6_test.jsonl",
         idx = np.array([i for i, m in enumerate(meta) if m["family"] == f])
         if len(idx) == 0: continue          # TARGET spans every family ever built, not this set
         y = np.array([TARGET[f](meta[i]) for i in idx])
-        keep = np.array([c for c in range(len(y)) if (y == y[c]).sum() >= 8], dtype=int)
+        keep = np.array([c for c in range(len(y)) if (y == y[c]).sum() >= MIN_CLASS], dtype=int)
         idx, y = idx[keep], y[keep]
         tr, rest = train_test_split(np.arange(len(idx)), test_size=0.45, random_state=0, stratify=y)
         _, te = train_test_split(rest, test_size=0.55, random_state=0, stratify=y[rest])

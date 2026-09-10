@@ -41,6 +41,12 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from transformers import AutoTokenizer
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# the rare-class filter is a protocol constant, not a local choice: gen/build_chart.py
+# uses it to decide which edit targets a probe will be able to emit, so a copy here that
+# drifted would produce counterfactuals no probe could follow. One definition, imported.
+from canon import MIN_CLASS
+
 HUB = os.path.expanduser("~/.cache/huggingface/hub")
 # tag -> (model id, cache dir name, head tensor key). Qwen ties its head to the embedding.
 Q3 = ("Qwen/Qwen2.5-VL-3B-Instruct", "models--Qwen--Qwen2.5-VL-3B-Instruct",
@@ -127,7 +133,7 @@ def main(tags):
         for fam in sorted({m["family"] for m in meta} & set(TARGET)):
             idx = np.array([i for i, m in enumerate(meta) if m["family"] == fam])
             y = np.array([TARGET[fam](meta[i]) for i in idx])
-            keep = np.array([c for c in range(len(y)) if (y == y[c]).sum() >= 8], dtype=int)
+            keep = np.array([c for c in range(len(y)) if (y == y[c]).sum() >= MIN_CLASS], dtype=int)
             idx, y = idx[keep], y[keep]
             if len(idx) < 20:
                 continue

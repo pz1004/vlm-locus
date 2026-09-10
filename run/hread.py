@@ -45,6 +45,9 @@ from sklearn.decomposition import PCA
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+from canon import MIN_CLASS  # the filter is a protocol constant
 
 FINAL = -1          # head-tying is only meaningful at the layer W_U consumes
 
@@ -154,8 +157,8 @@ def main(a):
     for f in P:
         idx = np.array([i for i, m in enumerate(meta) if m["family"] == f])
         ans = np.array([str(meta[i]["answer"]) for i in idx])
-        # same >=8-member class filter fit_probes.py applies, so the splits line up
-        keep = np.array([c for c in range(len(ans)) if (ans == ans[c]).sum() >= 8])
+        # the same rare-class filter fit_probes.py applies, so the splits line up
+        keep = np.array([c for c in range(len(ans)) if (ans == ans[c]).sum() >= MIN_CLASS])
         idx, ans = idx[keep], ans[keep]
         classes = sorted(set(ans))
         cls = {c: j for j, c in enumerate(classes)}

@@ -17,6 +17,9 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 sys.path.insert(0, "run")
 from layers import TARGET
+# the same filter layers.py applies, from the same definition: these predictions are what
+# the paired test scores, so a filter that differed would compare two different item sets
+from canon import MIN_CLASS
 
 
 def fit(states, out):
@@ -26,7 +29,7 @@ def fit(states, out):
         idx = np.array([i for i, m in enumerate(meta) if m["family"] == f])
         if len(idx) == 0: continue
         y = np.array([TARGET[f](meta[i]) for i in idx])
-        keep = np.array([c for c in range(len(y)) if (y == y[c]).sum() >= 8], dtype=int)
+        keep = np.array([c for c in range(len(y)) if (y == y[c]).sum() >= MIN_CLASS], dtype=int)
         idx, y = idx[keep], y[keep]
         tr, rest = train_test_split(np.arange(len(idx)), test_size=0.45, random_state=0, stratify=y)
         _, te = train_test_split(rest, test_size=0.55, random_state=0, stratify=y[rest])

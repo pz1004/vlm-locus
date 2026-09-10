@@ -191,6 +191,15 @@ chk("the generated results document is byte-stable across regeneration",
 # 12 -- licensing. Copyleft propagates from the ChartQA-derived index files, so the licence is
 #       not a cosmetic field: a permissive grant left behind anywhere would be a claim the
 #       author is not in a position to make. Checked, for the same reason the entry counts are.
+# 12a -- protocol constants live in one place. The rare-class filter was the literal 8 in five
+# analysis files and in the data builder, which is the shape of defect this revision kept finding:
+# gen/build_chart.py uses it to decide which edit targets a probe can emit, so a copy that drifted
+# would silently produce counterfactuals no probe could follow.
+lit = subprocess.run(["git", "grep", "-n", r"sum() >= 8", "--", "run/", "gen/",
+                      ":!run/verify_protocol.py"],
+                     capture_output=True, text=True).stdout.split()
+chk("the rare-class filter is imported, not copied", not lit, f"literals={lit[:3]}")
+
 SPDX = "GPL-3.0-only"
 LIC = open("LICENSE").read()
 src = subprocess.run(["git", "ls-files", "*.py", "*.sh"], capture_output=True,

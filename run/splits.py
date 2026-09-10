@@ -47,7 +47,8 @@ from sklearn.model_selection import train_test_split
 warnings.filterwarnings("ignore", message="invalid value encountered in divide")
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from canon import (FOLLOW_MIN, NULL_ALPHA, G1_BLIND, G1_SHUF, G1_POS, GEN, wilson)
+from canon import (FOLLOW_MIN, MIN_CLASS, NULL_ALPHA, G1_BLIND, G1_SHUF, G1_POS, GEN,
+                   wilson)
 
 NJOBS = int(os.environ.get("VLM_LOCUS_NJOBS", 24))
 
@@ -165,7 +166,7 @@ def main(a):
         mok = model_ok(tag)
         idx = np.array([i for i, m in enumerate(meta) if m["family"] == fam])
         y = np.array([TARGET[fam](meta[i]) for i in idx])
-        keep = np.array([c for c in range(len(y)) if (y == y[c]).sum() >= 8], dtype=int)
+        keep = np.array([c for c in range(len(y)) if (y == y[c]).sum() >= MIN_CLASS], dtype=int)
         idx, y = idx[keep], y[keep]
         rs = [one(V, Bl, C, cpos, cfref, meta, idx, y, s, a.nperm, mok)
               for s in range(a.splits)]
