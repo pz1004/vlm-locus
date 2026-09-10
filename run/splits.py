@@ -59,8 +59,8 @@ TARGET = dict(counting=lambda m: int(m["attribute"]["count"]),
 
 # the cells whose verdict decides something: the loci, and the controls that calibrate the rate
 CELLS = [("3b", "chart"), ("3b", "spatial"), ("smolm", "spatial"),
-         ("realchart", "chart"), ("q3b4_real_chart", "chart"),
-         ("q7b_real_chart", "chart"), ("ivl_real_chart", "chart"),
+         ("realchart_v2", "chart"), ("q3b4_real_chart_v2", "chart"),
+         ("q7b_real_chart_v2", "chart"), ("ivl_real_chart_v2", "chart"),
          ("real", "glyph"), ("q3b4_real_3b", "glyph"), ("q7b_real_3b", "glyph"),
          ("ivl_real_3b", "glyph"), ("smol_real_3b", "glyph")]
 

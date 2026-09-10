@@ -38,15 +38,15 @@ from scipy.stats import spearmanr, binomtest, ttest_rel, f as f_dist
 
 # (tag, model label, dataset label) -> the layer sweep and its counterfactual pass
 REAL = [("real",            "q3b",  "Qwen-3B bf16"),
-        ("realchart",       "q3b",  "Qwen-3B bf16"),
+        ("realchart_v2",    "q3b",  "Qwen-3B bf16"),
         ("q3b4_real_3b",    "q3b4", "Qwen-3B nf4"),
-        ("q3b4_real_chart", "q3b4", "Qwen-3B nf4"),
+        ("q3b4_real_chart_v2", "q3b4", "Qwen-3B nf4"),
         ("q7b_real_3b",     "q7b",  "Qwen-7B nf4"),
-        ("q7b_real_chart",  "q7b",  "Qwen-7B nf4"),
+        ("q7b_real_chart_v2", "q7b",  "Qwen-7B nf4"),
         ("ivl_real_3b",     "ivl",  "InternVL3-2B"),
-        ("ivl_real_chart",  "ivl",  "InternVL3-2B"),
+        ("ivl_real_chart_v2", "ivl",  "InternVL3-2B"),
         ("smol_real_3b",    "smol", "SmolVLM"),
-        ("smol_real_chart", "smol", "SmolVLM")]
+        ("smol_real_chart_v2", "smol", "SmolVLM")]
 SYNTH = [("3b", "q3b", "Qwen-3B"), ("smolm", "smol", "SmolVLM")]
 
 # The artefact floor used to be a constant here (2.5 pp, priced once on the designed-absence
@@ -282,7 +282,7 @@ def agreement(tags, fam):
     return out
 
 
-def bands(tag="realchart", fam="chart", edges=(0, 25, 50, 75, 101)):
+def bands(tag="realchart_v2", fam="chart", edges=(0, 25, 50, 75, 101)):
     """Where in the value range the gap lives -- the obvious follow-up question on charts."""
     pf, gf = f"runs/canonpred_{tag}.json", f"runs/{tag}_gen.jsonl"
     if not (os.path.exists(pf) and os.path.exists(gf)): return None
@@ -543,8 +543,8 @@ def main(a):
                follow_sensitivity=follow_sensitivity(synth + real),
                g1_sensitivity=g1_sensitivity(synth + real),
                bands=bands(),
-               agreement=agreement(["realchart", "q3b4_real_chart", "q7b_real_chart",
-                                    "ivl_real_chart"], "chart"),
+               agreement=agreement(["realchart_v2", "q3b4_real_chart_v2", "q7b_real_chart_v2",
+                                    "ivl_real_chart_v2"], "chart"),
                protocol=dict(probe="layers.py final layer, fixed hyperparameters",
                              null_alpha=NULL_ALPHA, follow_min_pct=FOLLOW_MIN))
     os.makedirs(os.path.dirname(JSON) or ".", exist_ok=True)
@@ -891,9 +891,9 @@ def emit(synth, real, pred_rows, pred, out):
               "FollowSynthSpatialQwen": f"{100 * next(r['follow'] for r in synth if r['tag'] == '3b' and r['family'] == 'spatial'):.0f}",
               "FollowSynthTracking": f"{100 * next(r['follow'] for r in synth if r['tag'] == '3b' and r['family'] == 'tracking'):.0f}",
               "FollowSynthChartSmol": f"{100 * next(r['follow'] for r in synth if r['tag'] == 'smolm' and r['family'] == 'chart'):.0f}",
-              "FollowChartNfSmall": f"{100 * next(r['follow'] for r in real if r['tag'] == 'q3b4_real_chart'):.0f}",
-              "FollowChartNfLarge": f"{100 * next(r['follow'] for r in real if r['tag'] == 'q7b_real_chart'):.0f}",
-              "FollowRealChartSmol": f"{100 * next(r['follow'] for r in real if r['tag'] == 'smol_real_chart'):.0f}",
+              "FollowChartNfSmall": f"{100 * next(r['follow'] for r in real if r['tag'] == 'q3b4_real_chart_v2'):.0f}",
+              "FollowChartNfLarge": f"{100 * next(r['follow'] for r in real if r['tag'] == 'q7b_real_chart_v2'):.0f}",
+              "FollowRealChartSmol": f"{100 * next(r['follow'] for r in real if r['tag'] == 'smol_real_chart_v2'):.0f}",
               "PeakPremiumMin": f"{min(100 * (r['peak'] - r['probe']) for r in gl):.1f}",
               "PeakPremiumMax": f"{max(100 * (r['peak'] - r['probe']) for r in gl):.1f}",
               "FprCtrl": f"{sum(1 for r in gl if r['nullcal']['p_null'] < NULL_ALPHA)}/{len(gl)}",
@@ -928,10 +928,13 @@ def emit(synth, real, pred_rows, pred, out):
                       str(x) for x in [min(sum(r["readout"] for r in rs) for k, rs in sd.items()
                                            if k in ("3b/chart", "3b/spatial")),
                                        len(next(iter(sd.values())))]),
-                  "SplitRealMin": str(min(sum(r["readout"] for r in rs) for k, rs in sd.items()
-                                          if k.endswith("_chart/chart") or k == "realchart/chart")),
-                  "SplitRealMax": str(max(sum(r["readout"] for r in rs) for k, rs in sd.items()
-                                          if k.endswith("_chart/chart") or k == "realchart/chart")),
+                  # the real-image chart cells, selected against the canonical tag list rather
+                  # than by matching tag spellings -- the spelling changed once and this broke
+                  **{f"SplitReal{e}": str(f([sum(r["readout"] for r in rs)
+                                             for k, rs in sd.items()
+                                             if k.endswith("/chart")
+                                             and k.split("/")[0] in {t for t, _, _ in REAL}]))
+                     for e, f in [("Min", min), ("Max", max)]},
                   "SplitPairedMin": str(min(sum(r["p_paired"] < 0.05 for r in rs)
                                             for k, rs in sd.items() if "glyph" not in k)),
                   "SplitBoundMin": str(min(sum(r["joint_lb"] > FOLLOW_MIN for r in rs)
@@ -960,7 +963,7 @@ def emit(synth, real, pred_rows, pred, out):
                      for e, f in [("Min", min), ("Max", max)]},
                   **{f"HeadChartSyn{k}": f"{100 * next(r[v] for r in hd if r['tag'] == '3b' and r['family'] == 'chart'):.1f}"
                      for k, v in [("Model", "model"), ("Head", "head"), ("Probe", "probe")]},
-                  **{f"HeadChartReal{k}{e}": f"{100 * f([r[v] for r in hd if r['family'] == 'chart' and r['tag'] in ('realchart', 'ivl_real_chart')]):.1f}"
+                  **{f"HeadChartReal{k}{e}": f"{100 * f([r[v] for r in hd if r['family'] == 'chart' and r['tag'] in ('realchart_v2', 'ivl_real_chart_v2')]):.1f}"
                      for k, v in [("Head", "head"), ("Probe", "probe")]
                      for e, f in [("Min", min), ("Max", max)]},
                   "HeadExact": str(sum(1 for r in hd if r["exact"])),
@@ -988,7 +991,13 @@ def emit(synth, real, pred_rows, pred, out):
               # The gap between them is what makes the threshold's exact position immaterial.
               "JointLbMin": f"{100 * min(r[GATE_CI][0] for r in synth + real if r['readout']):.0f}",
               "JointLbMax": f"{100 * max(r[GATE_CI][0] for r in synth + real if r['readout']):.0f}",
-              "JointLbNonMax": f"{100 * max(r[GATE_CI][0] for r in synth + real if not r['readout']):.0f}",
+              # the nearest miss *on this axis*: the highest bound among cells that satisfy every
+              # other condition and fail only the bound. Comparing against all non-loci was
+              # wrong once a cell failed the paired test while reading a high bound -- that says
+              # nothing about whether the threshold is well placed, which is the claim it backs.
+              "JointLbNonMax": f"{100 * max([r[GATE_CI][0] for r in synth + real
+                                             if not r['readout'] and locus(r, follow=0.0)],
+                                            default=float('nan')):.0f}",
               # how much of each conditional forward denominator the class support removes, on the
               # families where it bites: predict() cannot emit a count the training split never
               # held, nor a bar value of 100 that no original chart carries

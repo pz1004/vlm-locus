@@ -84,14 +84,14 @@
   "head_classes": 2
  },
  {
-  "tag": "realchart",
+  "tag": "realchart_v2",
   "family": "chart",
-  "n": 75,
+  "n": 116,
   "classes": 20,
-  "model": 0.8533333333333334,
-  "head": 0.72,
-  "probe": 0.96,
-  "probe_exact": 0.9466666666666667,
+  "model": 0.9137931034482759,
+  "head": 0.7155172413793104,
+  "probe": 0.9482758620689655,
+  "probe_exact": 0.9224137931034483,
   "exact": false,
   "head_classes": 10
  },
@@ -180,14 +180,14 @@
   "head_classes": 2
  },
  {
-  "tag": "smol_real_chart",
+  "tag": "smol_real_chart_v2",
   "family": "chart",
-  "n": 75,
+  "n": 116,
   "classes": 20,
-  "model": 0.6666666666666666,
-  "head": 0.48,
-  "probe": 0.4533333333333333,
-  "probe_exact": 0.36,
+  "model": 0.7068965517241379,
+  "head": 0.5517241379310345,
+  "probe": 0.6293103448275862,
+  "probe_exact": 0.5,
   "exact": false,
   "head_classes": 10
  },
@@ -228,14 +228,14 @@
   "head_classes": 2
  },
  {
-  "tag": "ivl_real_chart",
+  "tag": "ivl_real_chart_v2",
   "family": "chart",
-  "n": 75,
+  "n": 116,
   "classes": 20,
-  "model": 0.8666666666666667,
-  "head": 0.7333333333333333,
-  "probe": 0.96,
-  "probe_exact": 0.9466666666666667,
+  "model": 0.8103448275862069,
+  "head": 0.7241379310344828,
+  "probe": 0.9396551724137931,
+  "probe_exact": 0.9137931034482759,
   "exact": false,
   "head_classes": 10
  }

@@ -49,8 +49,8 @@ SM = ("HuggingFaceTB/SmolVLM-Instruct", "models--HuggingFaceTB--SmolVLM-Instruct
       "lm_head.weight")
 IV = ("OpenGVLab/InternVL3-2B-hf", "models--OpenGVLab--InternVL3-2B-hf",
       "language_model.lm_head.weight")
-TAGS = {"3b": Q3, "real": Q3, "realchart": Q3, "smolm": SM, "smol_real_3b": SM,
-        "smol_real_chart": SM, "ivl_real_3b": IV, "ivl_real_chart": IV}
+TAGS = {"3b": Q3, "real": Q3, "realchart_v2": Q3, "smolm": SM, "smol_real_3b": SM,
+        "smol_real_chart_v2": SM, "ivl_real_3b": IV, "ivl_real_chart_v2": IV}
 
 # where the model's own generations live, mirroring run/canon.py's GEN
 GEN = {"3b": "runs/branches6_test.jsonl", "smolm": "runs/smolm_gen.jsonl"}
