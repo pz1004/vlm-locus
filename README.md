@@ -28,7 +28,7 @@ locus** only if all three hold, each against its own control:
 | the decoding tracks the attribute | the **lower 95% bound** on the exact-counterfactual follow rate exceeds 50% | a probe can decode a *correlate* and still be useless; edits are pixel-guarded so exactly one field changes |
 
 The null is what makes the negatives readable, and it cannot be a constant: its 95th percentile
-runs from 9.3% to 61.3% across our grid as the class count and sample size vary. The protocol is
+runs from 8.6% to 61.3% across our grid as the class count and sample size vary. The protocol is
 validated on a family designed to have nothing to read — a numeral rendered below the resolution
 at which any model reads it — where the presence test fires at the nominal rate and the composed
 verdict never fires.

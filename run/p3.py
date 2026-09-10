@@ -12,7 +12,7 @@ reads from the frozen final layer, and whether the probe follows a counterfactua
 without a follow rate is not evidence, which is the lesson the glyph control taught.
 """
 from __future__ import annotations
-import glob, json, os, re
+import glob, json, os, re, sys
 import numpy as np
 
 # Apparent gap when the attribute is absent, measured on the designed negative control (glyph at
@@ -53,8 +53,17 @@ def null_ok(tag, fam):
 
 def rows():
     out = []
-    for f in sorted(glob.glob("runs/layers_*.json")):
-        tag = os.path.basename(f)[len("layers_"):-len(".json")]
+    # Enumerate the canonical tags, not every layers_*.json on disk. The glob was a latent
+    # defect the repository already knew about -- run/canon.py:332 had the same one and escaped
+    # only because a companion file happened to be absent -- and it fired the moment a second
+    # generation of the chart family existed: p3 swept both and disagreed with canon on the
+    # locus count, which is the check that caught it.
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from canon import REAL, SYNTH
+    for tag in [t for t, _, _ in REAL] + [t for t, _, _ in SYNTH]:
+        f = f"runs/layers_{tag}.json"
+        if not os.path.exists(f):
+            continue
         d = json.load(open(f))
         cf = {}
         cfp = f.replace("layers_", "cfprobe_")
@@ -95,7 +104,15 @@ def main():
         # denominator of five clears the gate on one item.
         nk = null_ok(r["tag"], r["family"])
         lo = r.get("follow_lo")
+        # ...and beats the model under the exact paired test. That condition was missing here
+        # while canon.py applied it, so this path was a weaker rule that agreed by luck: it
+        # agreed on every cell until one passed the null, the gap and the bound while failing
+        # the paired test, and then reported a locus canon.py did not. The test itself is
+        # imported rather than reimplemented, which is the whole point.
+        from canon import paired as _paired
+        pq = _paired(r["tag"], r["family"])
         v = ("READOUT" if nk and gap > 0 and lo is not None and lo > FOLLOW_MIN
+             and pq is not None and pq["p"] < 0.05
              else "-" if fol is None else "no gap")
         print(f"{r['tag']:<22}{r['family']:<10}{r['n'] or 0:4d}{100*(r['chance'] or 0):7.1f}%"
               f"{100*r['model']:7.1f}%{100*r['final']:7.1f}%{gap:+8.1f}"
