@@ -44,10 +44,19 @@ def main(a):
         pair = o["id"]
         for lo, hi, direction in ((o, c, "raise"), (c, o, "lower")):
             iid = f"{lo['id']}__{direction}"
+            # which member carries a painted bar, declared rather than inferred: a painted
+            # bar's value is not in the source table, so gen/verify_real.py's check [2] cannot
+            # re-derive it and gen/verify_geom.py must. Marking it here is what lets the two
+            # checks cover every item between them instead of each covering half.
             rec = dict(lo, id=iid, cf_of=None, cf_kind=f"{direction}_bar",
+                       synthetic_bar=bool(lo is c),
                        difficulty=dict(lo["difficulty"], pair=pair, direction=direction))
             man.append(rec)
+            # both directions share the pair's one mask; name it, because deriving the path
+            # from the counterfactual's image only works in the raising direction
             man.append(dict(hi, id=f"{iid}_cf", cf_of=iid, cf_kind=f"{direction}_bar",
+                            cf_mask=f"images/{pair}_cf_mask.png",
+                            synthetic_bar=bool(hi is c),
                             difficulty=dict(hi["difficulty"], pair=pair, direction=direction)))
             n_up += direction == "raise"
             n_down += direction == "lower"

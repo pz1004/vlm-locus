@@ -44,13 +44,21 @@ def main(a):
     fn2id = {i["file_name"]: i["id"] for i in imgs.values()}
     import sys as _s; _s.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     import chart_real as _C
-    bad, n = [], 0
+    bad, n, geom = [], 0, 0
     for r in base:
         c = r.get("coco") or {}
         if r["family"] == "chart" and c.get("source"):
+            n += 1
+            # A painted bar's value is not in the source table -- the table describes the chart
+            # as published, and the generator changed it. Those items are declared in the
+            # manifest and verified against the rendered geometry instead, which is the check
+            # that can see them; between the two every item is re-derived from something other
+            # than the label itself. Neither branch is allowed to fall back to the other.
+            if r.get("synthetic_bar"):
+                geom += 1
+                continue
             sp, stem = c["source"].split("/")[1:]
             cats, vals = _C.read_table(f"data/real/chartqa/ChartQA Dataset/{sp}/tables/{stem}.csv")
-            n += 1
             if cats is None or r["referents"][0] not in cats:
                 bad.append((r["id"], "category not in table")); continue
             v = vals[cats.index(r["referents"][0])]
@@ -71,7 +79,9 @@ def main(a):
         elif r["family"] == "counting":
             k = sum(an["category_id"] == c["cat_id"] for an in anns)
             if str(k) != r["answer"]: bad.append((r["id"], f"{k} != {r['answer']}"))
-    check(not bad, f"{n-len(bad)}/{n} labels re-derived from the source annotations/tables"
+    check(not bad, f"{n-len(bad)-geom}/{n-geom} labels re-derived from the source "
+                   f"annotations/tables"
+                   + (f"; {geom} painted bars deferred to gen/verify_geom.py" if geom else "")
                    + (f"  e.g. {bad[:3]}" if bad else ""))
 
     print("\n[3] every counterfactual changes the answer")
@@ -91,7 +101,12 @@ def main(a):
             m = np.ones(A.shape[:2], bool); m[y0:y1 + 1, x0:x1 + 1] = False
             ok = A.shape == B.shape and np.array_equal(A[m], B[m])
         elif f in ("counting", "chart"):
-            mp = os.path.join(a.root, r["image"].replace(".png", "_mask.png"))
+            # A pair's mask is one rectangle and serves both directions, but deriving its path
+            # from the counterfactual's image name only works when the counterfactual is the
+            # edited image. Reverse the pair and the counterfactual is the unsuffixed original,
+            # whose "_mask.png" does not exist. A record may name the mask instead.
+            mp = os.path.join(a.root, r.get("cf_mask")
+                              or r["image"].replace(".png", "_mask.png"))
             if not os.path.exists(mp): ok = False
             else:
                 m = np.asarray(Image.open(mp).convert("L")) == 0
@@ -102,7 +117,7 @@ def main(a):
     for f, (k, n, ex) in sorted(per_fam.items()):
         guard = dict(spatial="flip(cf) == original, bit-identical",
                      counting="pixels outside the pasted silhouette identical",
-                     chart="pixels outside the raised-bar rectangle identical",
+                     chart="pixels outside the edited-bar rectangle identical",
                      glyph="pixels outside the glyph box identical")[f]
         check(k == n, f"{f:9s} {k}/{n}  [{guard}]" + (f"  e.g. {ex}" if ex else ""))
 
