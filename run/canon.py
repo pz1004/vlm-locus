@@ -374,6 +374,12 @@ def prediction(real):
         helped=[int(sum(r["lora"] > r["base"] for r in inf)), len(inf)])
     stats["coupling_null"] = coupling_null(kp, kb, kl, fam)
     stats["oos"] = oos(rows)
+    # The same thing with the designed control dropped. On this grid the family-held-out
+    # difference is -3.6 pp with the control in and +1.1 pp with it out, because adaptation
+    # cannot help on a family with nothing to read and the probe correctly says so -- a fold
+    # where the answer is "nothing happens, and the probe knows it" is not forecasting skill.
+    # One of four folds should not be able to carry a headline, so both are reported.
+    stats["oos_noctrl"] = oos([r for r in rows if r["family"] != "glyph"])
     return rows, stats
 
 
@@ -993,6 +999,13 @@ def emit(synth, real, pred_rows, pred, out):
               # the same cells under the selected-layer estimator, for the robustness appendix
               **{f"FollowChartSel{e}": f"{f([100 * r['probe_follow_sel'] for r in rc if r['readout']]):.0f}"
                  for e, f in [("Min", min), ("Max", max)]},
+              # out-of-sample, with the designed control excluded; and the single fold that
+              # drives the difference when it is included
+              **{f"OosNoCtrl{a}{b}": f"{v:+.2f}" if b == "Delta" else f"{v:.2f}"
+                 for a, k in [("Model", "heldout_model"), ("Fam", "heldout_family")]
+                 for b, v in [("Delta", pred['oos_noctrl'][k]['delta']),
+                              ("P", pred['oos_noctrl'][k]['p_paired'])]},
+              "OosCtrlFold": f"{pred['oos']['heldout_family']['per_fold']['glyph']:+.1f}",
               "ChartLoci": str(sum(1 for r in rc if r['readout'])),
               "ChartCells": str(len(rc)),
               **{f"ChartNear{k}": v for k, v in [
