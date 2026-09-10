@@ -30,10 +30,13 @@ import json, os, re, sys
 import numpy as np
 
 # model -> (tag for the 3-family set, tag for the chart set). Language-only throughout.
-TAGS = {"q3b":  ("lora_q3b_real_3b",       "lora_q3b_real_chart"),
-        "q7b":  ("lora_q7b_real_3b_lang",  "lora_q7b_real_chart_lang"),
-        "ivl":  ("lora_ivl_real_3b",       "lora_ivl_real_chart"),
-        "smol": ("lora_smol_real_3b",      "lora_smol_real_chart")}
+# The chart arm moved to the 466-item family; the three-family arm did not. Keeping both names
+# here rather than deriving them means a rename shows up as a KeyError instead of silently
+# pairing a v2 probe gain against a v1 adaptation measured on a different held-out set.
+TAGS = {"q3b":  ("lora_q3b_real_3b",       "lora_q3b_real_chart_v2"),
+        "q7b":  ("lora_q7b_real_3b_lang",  "lora_q7b_real_chart_v2_lang"),
+        "ivl":  ("lora_ivl_real_3b",       "lora_ivl_real_chart_v2"),
+        "smol": ("lora_smol_real_3b",      "lora_smol_real_chart_v2")}
 
 # language / vision LoRA modules actually trained, from the run logs
 MODULES = {"q3b": (252, 0), "q7b": (196, 0), "ivl": (268, 0), "smol": (249, 0)}
