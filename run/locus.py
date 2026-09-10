@@ -23,7 +23,7 @@ from sklearn.model_selection import train_test_split
 import os as _os, sys as _sys
 _sys.path.insert(0, _os.path.join(_os.path.dirname(
     _os.path.dirname(_os.path.abspath(__file__))), "run"))
-from canon import MIN_CLASS  # the filter is a protocol constant, split
+from canon import MIN_CLASS, split  # the filter is a protocol constant
 
 ST = sys.argv[1] if len(sys.argv) > 1 else "runs/states_3b.npz"
 GEN = sys.argv[2] if len(sys.argv) > 2 else "runs/cal_3b_gen.jsonl"

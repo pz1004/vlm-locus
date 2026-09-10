@@ -60,9 +60,16 @@ def main(a):
             print(f"  states {hv.shape} (layers x dim); buffer "
                   f"{2*V.nbytes/2**20:.0f} MB", flush=True)
         V[i], B[i] = hv, hb
+        # `pair` is recorded always, None when the dataset has none. A dataset whose items come
+        # in near-duplicate pairs needs them kept on one side of the probe's split, and this is
+        # the only place that key can travel from the manifest to the analysis. Recording it
+        # unconditionally is deliberate: an absent field and a null one look identical to a
+        # consumer, and the first silently ungroups a split that has to be grouped -- which is
+        # exactly what happened on the first bidirectional capture.
         meta.append(dict(id=r["id"], family=r["family"], arm=r["prior_arm"],
                          level=r["difficulty"].get("level"), answer=r["answer"],
                          answer_space=r["answer_space"], chance=r["chance"],
+                         pair=r["difficulty"].get("pair"),
                          attribute=r["attribute"]))
         if (i + 1) % 100 == 0:
             el = time.time() - t0

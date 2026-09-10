@@ -220,9 +220,19 @@ for mp in sorted(_glob.glob("runs/states_*_meta.json")):
         tr, sel, te = canon.split(y, groups=g, seed=0)
         if set(g[tr]) & set(g[te]) or set(g[tr]) & set(g[sel]) or set(g[sel]) & set(g[te]):
             straddle.append(f"{tag}/{fam}")
+# and every captured dataset declares the field at all. run/capture.py used to drop it, so a
+# paired dataset captured before that fix reports "no pairs" and its split silently ungroups --
+# which is how the first bidirectional capture put 275 of 466 pairs across the boundary.
+nofield = [os.path.basename(mp)[len("states_"):-len("_meta.json")]
+           for mp in sorted(_glob.glob("runs/states_*_meta.json"))
+           for m in [json.load(open(mp))] if m and "pair" not in m[0]]
+chk("every captured dataset declares the pair field", not nofield,
+    f"missing in {len(nofield)} of {len(_glob.glob('runs/states_*_meta.json'))}"
+    + (f": {nofield[:4]}" if nofield else ""))
+
 npaired = sum(1 for mp in _glob.glob("runs/states_*_meta.json")
               for m in [json.load(open(mp))]
-              if any(x.get("difficulty", {}).get("pair") for x in m))
+              if any(canon.pairs_of(m, range(len(m))) is not None for _ in [0]))
 chk("no near-duplicate pair straddles the split", not straddle,
     f"{npaired} paired dataset(s) captured"
     + (" -- vacuous until one is" if not npaired else "")

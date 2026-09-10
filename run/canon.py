@@ -83,7 +83,10 @@ def pairs_of(meta, idx):
     dataset is what keeps the ungrouped path -- and every number computed from it -- exactly
     as it was.
     """
-    g = [meta[i].get("difficulty", {}).get("pair") for i in idx]
+    # two shapes reach here: manifest records nest it under difficulty, and the metadata
+    # run/capture.py writes beside the states carries it at the top level
+    g = [(meta[i]["pair"] if "pair" in meta[i]
+          else meta[i].get("difficulty", {}).get("pair")) for i in idx]
     return None if all(x is None for x in g) else np.array([str(x) for x in g])
 
 
