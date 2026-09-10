@@ -12,18 +12,18 @@ A **readout locus** is a (model, family) cell where the queried attribute is lin
 3. it beats the model on the same items under an exact paired test (`p < 0.05`);
 4. the **lower 95% bound** on its joint two-endpoint accuracy exceeds 50%.
 
-Of 28 cells, 18 clear their own null and **7 are readout loci**, in 2 of the 5 families measured: chart (5), spatial (2).
+Of 28 cells, 18 clear their own null and **6 are readout loci**, in 2 of the 5 families measured: chart (4), spatial (2).
 
 | | count |
 |---|--:|
 | cells measured | 28 |
 | clear their own permutation null | 18 |
-| readout loci | 7 |
+| readout loci | 6 |
 | rejected on the counterfactual alone | 5 |
 
 ## Why the threshold cannot be a constant
 
-The null's 95th percentile runs from **9.3% to 61.3%** across the grid as the class count and sample size vary, so no single percentage-point floor serves: it is simultaneously too strict on the low-class families and too permissive on the high-class ones. This is the reason the protocol calibrates per cell rather than applying one measured floor.
+The null's 95th percentile runs from **8.6% to 61.3%** across the grid as the class count and sample size vary, so no single percentage-point floor serves: it is simultaneously too strict on the low-class families and too permissive on the high-class ones. This is the reason the protocol calibrates per cell rather than applying one measured floor.
 
 ## The designed absence
 
@@ -45,27 +45,27 @@ All **7 of 7** counting cells decode above their own null, and **0** survive the
 
 ## Sensitivity of the one prespecified threshold
 
-The follow threshold is the only free constant in the protocol. Applied to the lower bound, the verdict set is unchanged for every threshold in **[30, 62]**. Outside that range it changes one cell at a time: above 62, `realchart/chart` falls first; below 30, `3b/counting` is admitted. The range does not reach zero, so "any low threshold would do" is not available as a defence.
+The follow threshold is the only free constant in the protocol. Applied to the lower bound, the verdict set is unchanged for every threshold in **[30, 63]**. Outside that range it changes one cell at a time: above 63, `smolm/spatial` falls first; below 30, `3b/counting` is admitted. The range does not reach zero, so "any low threshold would do" is not available as a defence.
 
 ## Multiplicity
 
-The permutation `p` is at its floor for every locus, so the binding quantity is the paired test; it is corrected across all 28 cells at once. Under Benjamini--Hochberg **7/7** loci survive; under Holm, **6/7**, the exception being `Qwen-3B bf16 chart`.
+The permutation `p` is at its floor for every locus, so the binding quantity is the paired test; it is corrected across all 28 cells at once. Under Benjamini--Hochberg **6/6** loci survive; under Holm, **6/6**.
 
 ## What the diagnostic does not buy
 
-Probe gain is associated with fine-tuning gain in sample --- family-demeaned Spearman rho = +0.591 (p = 0.0159), incremental F(1,10) = 7.81 (p = 0.019), and p = 0.0101 against a permutation null that keeps the shared-baseline coupling intact. Out of sample it buys nothing detectable:
+Probe gain is associated with fine-tuning gain in sample --- family-demeaned Spearman rho = +0.645 (p = 0.0070), incremental F(1,10) = 4.86 (p = 0.052), and p = 0.0114 against a permutation null that keeps the shared-baseline coupling intact. Out of sample it buys nothing detectable:
 
 | held out | MAE baseline | MAE with probe | difference | paired p | 95% CI |
 |---|--:|--:|--:|--:|--:|
-| one model at a time | 7.58 | 7.77 | +0.20 | 0.87 | [-2.2, +2.5] |
-| one family at a time | 19.69 | 21.95 | +2.26 | 0.29 | [-1.8, +6.3] |
+| one model at a time | 6.20 | 6.75 | +0.55 | 0.55 | [-1.2, +2.3] |
+| one family at a time | 23.27 | 19.67 | -3.61 | 0.05 | [-7.0, -0.2] |
 
 Neither difference is resolved and the per-fold directions disagree, so this is a report of **no demonstrable benefit**, not of harm. An instrument earns its use by demonstrating benefit; on the evidence here this one does not, and should not be used to triage which fine-tuning run to launch.
 
 Per-fold difference in MAE (pp, positive = worse with the probe):
 
-- held out one model: `ivl` +3.39, `q3b` -0.31, `q7b` -2.53, `smol` +0.25
-- held out one family: `chart` +5.25, `counting` +4.32, `glyph` +2.96, `spatial` -3.49
+- held out one model: `ivl` +3.24, `q3b` +0.55, `q7b` -2.52, `smol` +0.94
+- held out one family: `chart` +1.80, `counting` -0.99, `glyph` -10.97, `spatial` -4.26
 
 ## All cells
 
@@ -91,21 +91,21 @@ Per-fold difference in MAE (pp, positive = worse with the probe):
 | Qwen-3B bf16 | counting | 75 | 25.0 | 44.0 | 57.3 | +13.3 | 34.7 | 0.0005 | 0.013 | 9/43 | 9/75 | 6 | -- |
 | Qwen-3B bf16 | glyph | 75 | 5.6 | 6.7 | 6.7 | +0.0 | 10.7 | 0.4398 | 1 | 0/5 | 0/75 | 0 | -- |
 | Qwen-3B bf16 | spatial | 75 | 50.0 | 69.3 | 60.0 | -9.3 | 61.3 | 0.0945 | 0.28 | 17/45 | 17/75 | 15 | -- |
-| Qwen-3B bf16 | chart | 75 | 5.0 | 81.3 | 94.7 | +13.3 | 10.7 | 0.0005 | 0.0063 | 55/71 | 55/75 | 62 | **readout** |
+| Qwen-3B bf16 | chart | 116 | 5.0 | 88.8 | 92.2 | +3.4 | 9.5 | 0.0005 | 0.39 | 95/107 | 95/116 | 74 | -- |
 | Qwen-3B nf4 | counting | 75 | 25.0 | 44.0 | 57.3 | +13.3 | 34.7 | 0.0005 | 0.087 | 11/43 | 11/75 | 8 | -- |
 | Qwen-3B nf4 | glyph | 75 | 5.6 | 8.0 | 4.0 | -4.0 | 10.7 | 0.8301 | 0.51 | 0/3 | 0/75 | 0 | -- |
 | Qwen-3B nf4 | spatial | 75 | 50.0 | 69.3 | 61.3 | -8.0 | 61.3 | 0.0640 | 0.26 | 15/46 | 15/75 | 13 | -- |
-| Qwen-3B nf4 | chart | 75 | 5.0 | 77.3 | 96.0 | +18.7 | 10.7 | 0.0005 | 0.00052 | 57/72 | 57/75 | 65 | **readout** |
+| Qwen-3B nf4 | chart | 116 | 5.0 | 79.3 | 93.1 | +13.8 | 9.5 | 0.0005 | 0.0004 | 95/108 | 95/116 | 74 | **readout** |
 | Qwen-7B nf4 | counting | 75 | 25.0 | 46.7 | 65.3 | +18.7 | 34.7 | 0.0005 | 0.0026 | 11/49 | 11/75 | 8 | -- |
 | Qwen-7B nf4 | glyph | 75 | 5.6 | 5.3 | 6.7 | +1.3 | 10.7 | 0.4258 | 1 | 1/5 | 1/75 | 0 | -- |
 | Qwen-7B nf4 | spatial | 75 | 50.0 | 60.0 | 61.3 | +1.3 | 61.3 | 0.0570 | 1 | 21/46 | 21/75 | 19 | -- |
-| Qwen-7B nf4 | chart | 75 | 5.0 | 76.0 | 94.7 | +18.7 | 10.7 | 0.0005 | 0.0013 | 59/71 | 59/75 | 68 | **readout** |
+| Qwen-7B nf4 | chart | 116 | 5.0 | 77.6 | 92.2 | +14.7 | 9.5 | 0.0005 | 0.00049 | 93/107 | 93/116 | 72 | **readout** |
 | InternVL3-2B | counting | 75 | 25.0 | 50.7 | 57.3 | +6.7 | 36.0 | 0.0005 | 0.44 | 8/43 | 8/75 | 6 | -- |
 | InternVL3-2B | glyph | 75 | 5.6 | 8.0 | 4.0 | -4.0 | 10.7 | 0.6212 | 0.51 | 0/3 | 0/75 | 0 | -- |
 | InternVL3-2B | spatial | 75 | 50.0 | 54.7 | 50.7 | -4.0 | 60.0 | 0.4918 | 0.74 | 11/38 | 11/75 | 8 | -- |
-| InternVL3-2B | chart | 75 | 5.0 | 60.0 | 94.7 | +34.7 | 10.7 | 0.0005 | 8.7e-07 | 60/71 | 60/75 | 70 | **readout** |
+| InternVL3-2B | chart | 116 | 5.0 | 61.2 | 91.4 | +30.2 | 9.5 | 0.0005 | 3.1e-08 | 95/106 | 95/116 | 74 | **readout** |
 | SmolVLM | counting | 75 | 25.0 | 40.0 | 53.3 | +13.3 | 33.3 | 0.0005 | 0.031 | 5/40 | 5/75 | 3 | -- |
 | SmolVLM | glyph | 75 | 5.6 | 8.0 | 12.0 | +4.0 | 10.7 | 0.0300 | 0.58 | 0/9 | 0/75 | 0 | -- |
 | SmolVLM | spatial | 75 | 50.0 | 66.7 | 54.7 | -12.0 | 61.3 | 0.2824 | 0.19 | 6/41 | 6/75 | 4 | -- |
-| SmolVLM | chart | 75 | 5.0 | 50.7 | 36.0 | -14.7 | 9.3 | 0.0005 | 0.08 | 7/27 | 7/75 | 5 | -- |
+| SmolVLM | chart | 116 | 5.0 | 60.3 | 50.0 | -10.3 | 8.6 | 0.0005 | 0.096 | 11/58 | 11/116 | 5 | -- |
 

@@ -2,11 +2,11 @@
  {
   "model": "ivl",
   "family": "chart",
-  "n": 75,
-  "lora": 0.96,
+  "n": 116,
+  "lora": 0.9310344827586207,
   "epoch": 2,
   "rule": "last",
-  "tag": "lora_ivl_real_chart",
+  "tag": "lora_ivl_real_chart_v2",
   "modules": "lang",
   "n_lang_modules": 268,
   "n_vision_modules": 0
@@ -50,11 +50,11 @@
  {
   "model": "q3b",
   "family": "chart",
-  "n": 75,
-  "lora": 0.92,
+  "n": 116,
+  "lora": 0.9655172413793104,
   "epoch": 2,
   "rule": "last",
-  "tag": "lora_q3b_real_chart",
+  "tag": "lora_q3b_real_chart_v2",
   "modules": "lang",
   "n_lang_modules": 252,
   "n_vision_modules": 0
@@ -98,11 +98,11 @@
  {
   "model": "q7b",
   "family": "chart",
-  "n": 75,
-  "lora": 0.9733333333333334,
+  "n": 116,
+  "lora": 0.9655172413793104,
   "epoch": 2,
   "rule": "last",
-  "tag": "lora_q7b_real_chart_lang",
+  "tag": "lora_q7b_real_chart_v2_lang",
   "modules": "lang",
   "n_lang_modules": 196,
   "n_vision_modules": 0
@@ -146,11 +146,11 @@
  {
   "model": "smol",
   "family": "chart",
-  "n": 75,
-  "lora": 0.6933333333333334,
+  "n": 116,
+  "lora": 0.7844827586206896,
   "epoch": 2,
   "rule": "last",
-  "tag": "lora_smol_real_chart",
+  "tag": "lora_smol_real_chart_v2",
   "modules": "lang",
   "n_lang_modules": 249,
   "n_vision_modules": 0

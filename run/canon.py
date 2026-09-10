@@ -987,6 +987,18 @@ def emit(synth, real, pred_rows, pred, out):
               "GOneBlindHi": f"{100 * gs['blind']['hi']:.0f}",
               "GOneShufHi": f"{100 * gs['shuf']['hi']:.0f}",
               "GOnePosHi": f"{gs['pos']['hi']:.2f}",
+              # how many of the real chart configurations are loci, and the near miss among
+              # them. The manuscript said "four of five" for two revisions; it is generated now
+              # so a recount cannot be missed in prose the way it was.
+              # the same cells under the selected-layer estimator, for the robustness appendix
+              **{f"FollowChartSel{e}": f"{f([100 * r['probe_follow_sel'] for r in rc if r['readout']]):.0f}"
+                 for e, f in [("Min", min), ("Max", max)]},
+              "ChartLoci": str(sum(1 for r in rc if r['readout'])),
+              "ChartCells": str(len(rc)),
+              **{f"ChartNear{k}": v for k, v in [
+                  ("Gap", f"{next(r['gap'] for r in rc if not r['readout'] and r['gap'] > 0):+.1f}"),
+                  ("P", f"{next(r['paired']['p'] for r in rc if not r['readout'] and r['gap'] > 0):.2f}"),
+                  ("Lb", f"{100 * next(r[GATE_CI][0] for r in rc if not r['readout'] and r['gap'] > 0):.0f}")]},
               # the gated statistic: the loci's range, and the highest cell that is not a locus.
               # The gap between them is what makes the threshold's exact position immaterial.
               "JointLbMin": f"{100 * min(r[GATE_CI][0] for r in synth + real if r['readout']):.0f}",
