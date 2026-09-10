@@ -1006,6 +1006,14 @@ def emit(synth, real, pred_rows, pred, out):
                  for b, v in [("Delta", pred['oos_noctrl'][k]['delta']),
                               ("P", pred['oos_noctrl'][k]['p_paired'])]},
               "OosCtrlFold": f"{pred['oos']['heldout_family']['per_fold']['glyph']:+.1f}",
+              # the precision contrast on identical weights and identical items: with the
+              # larger chart set it no longer widens the gap, it decides the verdict, so the
+              # four numbers the claim rests on are generated rather than typed
+              **{f"Quant{w}{p_}": f"{100 * next(r[k] for r in rc if r['label'] == lbl):.1f}"
+                 for w, k in [("Model", "model_acc"), ("Probe", "probe")]
+                 for p_, lbl in [("Bf", "Qwen-3B bf16"), ("Nf", "Qwen-3B nf4")]},
+              **{f"ScaleGap{e}": f"{next(r['gap'] for r in rc if r['label'] == lbl):+.1f}"
+                 for e, lbl in [("Small", "Qwen-3B nf4"), ("Large", "Qwen-7B nf4")]},
               "ChartLoci": str(sum(1 for r in rc if r['readout'])),
               "ChartCells": str(len(rc)),
               **{f"ChartNear{k}": v for k, v in [
