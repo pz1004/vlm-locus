@@ -597,6 +597,7 @@ def main(a):
                follow_sensitivity=follow_sensitivity(synth + real),
                g1_sensitivity=g1_sensitivity(synth + real),
                bands=bands(),
+               bidir=bidir(),
                agreement=agreement(["realchart_v2", "q3b4_real_chart_v2", "q7b_real_chart_v2",
                                     "ivl_real_chart_v2"], "chart"),
                protocol=dict(probe="layers.py final layer, fixed hyperparameters",
@@ -703,6 +704,69 @@ def budget():
                          lora=float(eps[max(eps)]), lora_peak=float(max(eps.values())),
                          epoch=max(eps), epochs=len(eps)))
     return rows
+
+
+# The bidirectional real-chart control. Deliberately NOT in REAL: every base item in the
+# replication set is a published ChartQA render, and half of this set's are generator-painted,
+# because each pair is emitted twice and the lowering direction starts from the edited image.
+# Substituting it would buy a cleaner counterfactual by making "replication on real images" half
+# synthetic, which is a worse trade than the one it fixes. It answers one question instead --
+# whether the probe only tracks increases -- and that question needs no canonical status.
+BIDIR = [("realchart_bidir", "q3b", "Qwen-3B bf16"),
+         ("q3b4_real_chart_bidir", "q3b4", "Qwen-3B nf4"),
+         ("q7b_real_chart_bidir", "q7b", "Qwen-7B nf4"),
+         ("ivl_real_chart_bidir", "ivl", "InternVL3-2B"),
+         ("smol_real_chart_bidir", "smol", "SmolVLM")]
+
+
+def bidir():
+    """The bidirectional control: does the direction of the edit change what the probe tracks?
+
+    Reports the counterfactual statistics and the presence test, and stops there. The paired
+    McNemar condition is not recomputed here because its input, runs/canonpred_<tag>.json, is
+    written by no script in this repository -- seventeen of those files exist and feed a
+    mandatory condition of the locus verdict, and nothing produces them. Rather than fabricate a
+    verdict from three conditions of four, the split-stability analysis supplies the comparative
+    evidence for these cells: run/splits.py refits everything per split and computes the paired
+    test itself, so runs/splits.json already carries it for all twenty splits including seed 0.
+
+    Forward and reverse are reported and are equal by construction, which is the point. Both
+    count the items whose two endpoints the probe reads correctly and differ only in denominator,
+    and on a set closed under pair reversal every image appears once as a base and once as a
+    counterfactual, so the denominators range over one multiset of states. The statistic that can
+    see a direction effect here is the joint one, which is symmetric in the endpoints.
+    """
+    out = []
+    for tag, model, label in BIDIR:
+        nc = nullcal(tag, "chart")
+        fl = follow(tag).get("chart")
+        if nc is None or fl is None:
+            continue
+        g = json.load(open(f"runs/cffollow_{tag}.json"))
+        # the pair key comes from the capture metadata, not from parsing ids: the two directions
+        # of a pair are named after different images, so an id stem does not recover it
+        pk = {m["id"]: m.get("pair") for m in
+              json.load(open(f"runs/states_{tag}_meta.json"))}
+        # the model's own accuracy on the same held-out items, so the cells that carry a gap
+        # can be separated from the one that does not without naming any of them
+        G = {}
+        for line in open(GEN.get(tag, f"runs/{tag}_gen.jsonl")):
+            r = json.loads(line)
+            G[r["id"]] = bool(r["ok"]["none"] if "ok" in r else r["gen_correct"])
+        ids = [r["id"] for r in g if r["id"] in G]
+        macc = float(np.mean([G[i] for i in ids])) if ids else float("nan")
+        out.append(dict(tag=tag, model=model, label=label, n=fl["n"],
+                        probe=nc["vis"], model_acc=macc,
+                        gap=100 * (nc["vis"] - macc),
+                        null_q95=nc["null_q95"], p_null=nc["p_null"],
+                        g1=g1_at(nc),
+                        fwd=fl["probe_follow_sup"], rev=fl["probe_reverse"],
+                        fwd_den=fl["probe_follow_sup_den"], rev_den=fl["probe_reverse_den"],
+                        joint=fl["probe_joint"], joint_num=fl["probe_joint_num"],
+                        joint_den=fl["probe_joint_den"], joint_ci=fl["probe_joint_ci"],
+                        unsupported=fl["probe_unsupported"],
+                        pairs=len({pk[r["id"]] for r in g if pk.get(r["id"])})))
+    return out
 
 
 SPLITS = "runs/splits.json"
@@ -1092,6 +1156,25 @@ def emit(synth, real, pred_rows, pred, out):
                  for p_, lbl in [("Bf", "Qwen-3B bf16"), ("Nf", "Qwen-3B nf4")]},
               **{f"ScaleGap{e}": f"{next(r['gap'] for r in rc if r['label'] == lbl):+.1f}"
                  for e, lbl in [("Small", "Qwen-3B nf4"), ("Large", "Qwen-7B nf4")]},
+              # the bidirectional control. The cells are split on whether the probe beats the
+              # model at all, which separates the four that carry a gap from the one that does
+              # not without naming any of them.
+              **({} if not out.get("bidir") else (lambda B, P: {
+                  "BidirCells": str(len(B)),
+                  "BidirCellsPos": str(len(P)),
+                  "BidirPairs": str(B[0]["pairs"]),
+                  "BidirN": str(B[0]["n"]),
+                  "BidirUnsupMax": str(max(b["unsupported"] for b in B)),
+                  "BidirFollowMin": f"{100 * min(b['fwd'] for b in P):.0f}",
+                  "BidirFollowMax": f"{100 * max(b['fwd'] for b in P):.0f}",
+                  "BidirJointLbMin": f"{100 * min(b['joint_ci'][0] for b in P):.0f}",
+                  "BidirJointLbMax": f"{100 * max(b['joint_ci'][0] for b in P):.0f}",
+                  "BidirGapMin": f"{min(b['gap'] for b in P):+.1f}",
+                  "BidirGapMax": f"{max(b['gap'] for b in P):+.1f}",
+                  "BidirNegLabel": next(b["label"] for b in B if b["gap"] <= 0),
+                  "BidirNegFollow": f"{100 * next(b['fwd'] for b in B if b['gap'] <= 0):.0f}",
+                  "BidirNegLb": f"{100 * next(b['joint_ci'][0] for b in B if b['gap'] <= 0):.0f}",
+              })(out["bidir"], [b for b in out["bidir"] if b["gap"] > 0])),
               "ChartLoci": str(sum(1 for r in rc if r['readout'])),
               "ChartCells": str(len(rc)),
               # where in the value range the gap lives. The prose used to carry these as

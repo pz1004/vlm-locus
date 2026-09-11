@@ -348,6 +348,28 @@ if bands:
         all(b["probe"] == b["model"] for b in bands[-int(facts["BandTiedN"]):]),
         f"{facts['BandTiedN']} of {facts['BandN']} tied, all at the top")
 
+# 12g -- the bidirectional set is a control and must stay one. Its base items are half
+# generator-painted, because the lowering direction has to start from an edited image, so
+# promoting it into REAL would buy a cleaner counterfactual by making the real-image replication
+# half synthetic. The claims the manuscript makes about it are that the class-support truncation
+# is gone and that the four cells carrying a gap bound well above the one that does not.
+bd = C.get("bidir") or []
+if bd:
+    chk("the bidirectional control is not in the canonical grid",
+        not ({b["tag"] for b in bd} & {r["tag"] for r in rows}),
+        f"{len(bd)} control cells, {len({r['tag'] for r in rows})} canonical tags")
+    chk("its class-support truncation is gone, and beats the one-directional set",
+        max(b["unsupported"] for b in bd) == 0 < int(facts["UnsupChartMax"]),
+        f"{facts['BidirUnsupMax']} unfollowable, against {facts['UnsupChartMax']}")
+    # the split the macros make is on the gap, so it has to actually separate the cells
+    pos = [b for b in bd if b["gap"] > 0]
+    chk("the control's gap split separates the cells it claims to",
+        len(pos) == int(facts["BidirCellsPos"]) < len(bd)
+        and min(b["joint_ci"][0] for b in pos) > max(b["joint_ci"][0] for b in bd if b["gap"] <= 0),
+        f"{len(pos)} with a gap bound >= {100 * min(b['joint_ci'][0] for b in pos):.0f}%, "
+        f"{len(bd) - len(pos)} without <= "
+        f"{100 * max(b['joint_ci'][0] for b in bd if b['gap'] <= 0):.0f}%")
+
 SPDX = "GPL-3.0-only"
 LIC = open("LICENSE").read()
 src = subprocess.run(["git", "ls-files", "*.py", "*.sh"], capture_output=True,
