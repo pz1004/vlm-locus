@@ -195,10 +195,7 @@ subprocess.run([PY, "run/results_md.py"], capture_output=True)
 chk("the generated results document is byte-stable across regeneration",
     d1 == open(os.environ.get("VLM_LOCUS_DOCS", "docs/RESULTS.md")).read())
 
-# 12 -- licensing. Copyleft propagates from the ChartQA-derived index files, so the licence is
-#       not a cosmetic field: a permissive grant left behind anywhere would be a claim the
-#       author is not in a position to make. Checked, for the same reason the entry counts are.
-# 12a -- protocol constants live in one place. The rare-class filter was the literal 8 in five
+# 12 -- protocol constants live in one place. The rare-class filter was the literal 8 in five
 # analysis files and in the data builder, which is the shape of defect this revision kept finding:
 # gen/build_chart.py uses it to decide which edit targets a probe can emit, so a copy that drifted
 # would silently produce counterfactuals no probe could follow.
@@ -207,7 +204,7 @@ lit = subprocess.run(["git", "grep", "-n", r"sum() >= 8", "--", "run/", "gen/",
                      capture_output=True, text=True).stdout.split()
 chk("the rare-class filter is imported, not copied", not lit, f"literals={lit[:3]}")
 
-# 12b -- no near-duplicate pair straddles the split. A dataset whose items come in pairs that
+# 13 -- no near-duplicate pair straddles the split. A dataset whose items come in pairs that
 # differ in one bar is leakage waiting to happen: the probe can memorise the image in training
 # and be scored on its twin. gen/build_chart_bidir.py records the pair, canon.split() groups on
 # it, and this asserts the outcome rather than trusting the plumbing -- the cost of getting it
@@ -244,7 +241,7 @@ chk("no near-duplicate pair straddles the split", not straddle,
     + (" -- vacuous until one is" if not npaired else "")
     + (f", straddling: {straddle}" if straddle else ""))
 
-# 12d -- the reverse follow rate is only worth quoting where it can differ from the forward one.
+# 14 -- the reverse follow rate is only worth quoting where it can differ from the forward one.
 # Both statistics count the same numerator, items whose two endpoints the probe both reads
 # correctly, and differ only in denominator: forward divides by the items read correctly before
 # the edit, reverse by those read correctly after it. On a set closed under pair reversal every
@@ -307,12 +304,12 @@ chk("no reverse-rate macro is sourced from a cell where it cannot differ",
     + (" -- vacuous until one is" if not degenerate else "")
     + (f", quoted by: {quoted}" if quoted else ""))
 
-# 12e -- the split table and its macros are populated from the canonical rows, not from a string
+# 15 -- the split table and its macros are populated from the canonical rows, not from a string
 # test on the key. run/splits.py merges rather than clobbers, so runs/splits.json accumulates
 # every cell ever resampled; `"glyph" not in k` admitted all of them and additionally conflated
-# "decision cell" with "locus". Five bidirectional cells merged in moved SplitProbeMin from 76 to
-# 31 and SplitLoci from 7 to 12, and rendered their raw tags into a LaTeX table, where the
-# underscore is a hard error. This check is live rather than hypothetical: those five cells are
+# "decision cell" with "locus". Five bidirectional cells merged in took SplitProbeMin from 76
+# down to 31 and SplitLoci from 7 up to 12, and rendered their raw tags into a LaTeX table,
+# where the underscore is a hard error. This check is live rather than hypothetical: those five cells are
 # in runs/splits.json now and the note below says how many are being excluded.
 sdj = json.load(open(canon.SPLITS)) if os.path.exists(canon.SPLITS) else {}
 cells = {f"{r['tag']}/{r['family']}" for r in rows}
@@ -332,7 +329,7 @@ chk("the split macros count loci and decision cells separately, and correctly",
                                          and not k.split("/")[1].startswith("glyph")]),
     f"loci {facts['SplitLoci']}, decision cells {facts['SplitCells']}")
 
-# 12f -- the band paragraph's two structural claims, the ones no macro carries. Its numbers were
+# 16 -- the band paragraph's two structural claims, the ones no macro carries. Its numbers were
 # literals until the larger chart set made every one of them wrong -- +27.8 pp against an actual
 # +9.7, "18--20 items per band" against 22--33, and "the 25--49 band is 100% for both" naming a
 # band that is 93.9/97.0 -- while tab:bands beside them regenerated and disagreed. The numbers
@@ -348,7 +345,7 @@ if bands:
         all(b["probe"] == b["model"] for b in bands[-int(facts["BandTiedN"]):]),
         f"{facts['BandTiedN']} of {facts['BandN']} tied, all at the top")
 
-# 12g -- the bidirectional set is a control and must stay one. Its base items are half
+# 17 -- the bidirectional set is a control and must stay one. Its base items are half
 # generator-painted, because the lowering direction has to start from an edited image, so
 # promoting it into REAL would buy a cleaner counterfactual by making the real-image replication
 # half synthetic. The claims the manuscript makes about it are that the class-support truncation
@@ -377,7 +374,7 @@ if bd:
         f"{len(bd) - len(pos)} without <= "
         f"{100 * max(b['joint_ci'][0] for b in bd if b['gap'] <= 0):.0f}%")
 
-# 12h -- run/canonpred.py and run/layers.py fit the same probe and must agree. They are separate
+# 18 -- run/canonpred.py and run/layers.py fit the same probe and must agree. They are separate
 # fits of one definition, which is the arrangement this protocol keeps finding bugs in, so the
 # agreement is asserted rather than assumed. It is not exact everywhere: the fit is thread-count
 # dependent on exactly one cell of the grid, the InternVL degraded-glyph control, where the probe
@@ -405,7 +402,7 @@ chk("the committed canonpred files are reproduced by their producer",
     rc.returncode == 0 and "all reproduce" in rc.stdout,
     rc.stdout.strip().split("\n")[-1] if rc.stdout else "no output")
 
-# 12i -- every artefact family the analysis reads is named, literally, in some tracked producer.
+# 19 -- every artefact family the analysis reads is named, literally, in some tracked producer.
 # runs/canonpred_*.json had a producer, run/canon_pred.py, that built its output path from argv
 # and was called by no driver. The string "canonpred" therefore appeared nowhere in it, so a
 # search for the artefact's name found only the consumer and the files looked producerless. The
@@ -437,6 +434,9 @@ chk("every artefact family the analysis reads is named in a tracked producer",
     not unnamed, f"{len(fams)} families checked"
     + (f", unnamed: {unnamed}" if unnamed else ""))
 
+# 20 -- licensing. Copyleft propagates from the ChartQA-derived index files, so the licence is
+#       not a cosmetic field: a permissive grant left behind anywhere would be a claim the
+#       author is not in a position to make. Checked, for the same reason the entry counts are.
 SPDX = "GPL-3.0-only"
 LIC = open("LICENSE").read()
 src = subprocess.run(["git", "ls-files", "*.py", "*.sh"], capture_output=True,
@@ -453,7 +453,7 @@ chk("no permissive grant survives anywhere in the tree",
                         "Permission is hereby granted", "--", ":!run/verify_protocol.py"],
                        capture_output=True, text=True).stdout.split())
 
-# 12b -- the SPDX headers shifted every source file down by two lines, which is exactly the way
+# 21 -- the SPDX headers shifted every source file down by two lines, which is exactly the way
 #        a `file.py:N-M` citation goes quietly stale. Every such citation in the tree points at a
 #        comment block, so the range must cover one exactly: all comment lines, with non-comment
 #        lines either side. Requiring only that the topic word fall somewhere inside the window
@@ -480,6 +480,16 @@ def covers_a_block(f, a, b, topic):
 chk("the source citation in the docs covers exactly the comment block it names",
     len(cites) == 1 and all(covers_a_block(f, a, b, "sdpa") for f, a, b in cites),
     f"cites={sorted(cites)}")
+
+# 22 -- the check numbering itself. Two blocks were both numbered 12b for several commits, and
+# 12c never existed, because the numbers were prose that nothing read -- while run/canon.py
+# cross-references one of them by number. A header is "# N -- ", and they must be 1..N, once each,
+# in order.
+nums = [int(m) for m in re.findall(r"^# (\d+) -- ", open(__file__).read(), re.M)]
+chk("the check numbers are unique, gapless and in order",
+    nums == list(range(1, len(nums) + 1)),
+    f"{len(nums)} headers, 1..{max(nums) if nums else 0}"
+    + ("" if nums == sorted(set(nums)) else f", out of order or repeated: {nums}"))
 
 print(f"\n{sum(1 for _, o in ck if o)}/{len(ck)} checks pass")
 sys.exit(0 if all(o for _, o in ck) else 1)

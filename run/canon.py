@@ -69,7 +69,7 @@ FOLLOW_MIN, NULL_ALPHA = 50.0, 0.05
 
 # The rare-class filter: a label needs this many items in a family to be fitted at all. It is a
 # protocol constant and it lives here, but the analysis path still carries it as the literal 8 in
-# layers.py, nullcal.py, cffollow.py, splits.py and headread.py -- verify_protocol.py check 13
+# layers.py, nullcal.py, cffollow.py, splits.py and headread.py -- verify_protocol.py check 12
 # asserts those agree with this, because a filter that differs between the probe and the data
 # builder silently produces edit targets the probe cannot emit. gen/build_chart.py imports it.
 MIN_CLASS = 8
