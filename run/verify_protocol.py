@@ -361,6 +361,13 @@ if bd:
     chk("its class-support truncation is gone, and beats the one-directional set",
         max(b["unsupported"] for b in bd) == 0 < int(facts["UnsupChartMax"]),
         f"{facts['BidirUnsupMax']} unfollowable, against {facts['UnsupChartMax']}")
+    # the manuscript's strongest claim about the control is that judging it by the same four
+    # conditions returns the same answer as the replication set, model for model. That is what
+    # makes it a control rather than a second experiment, so it is asserted rather than eyeballed.
+    cm = {r["model"] for r in C["real"] if r["family"] == "chart" and r["readout"]}
+    bm = {b["model"] for b in bd if b["readout"]}
+    chk("the control reproduces the replication set's verdict, model for model", cm == bm,
+        f"canonical {sorted(cm)}, control {sorted(bm)}")
     # the split the macros make is on the gap, so it has to actually separate the cells
     pos = [b for b in bd if b["gap"] > 0]
     chk("the control's gap split separates the cells it claims to",
@@ -369,6 +376,34 @@ if bd:
         f"{len(pos)} with a gap bound >= {100 * min(b['joint_ci'][0] for b in pos):.0f}%, "
         f"{len(bd) - len(pos)} without <= "
         f"{100 * max(b['joint_ci'][0] for b in bd if b['gap'] <= 0):.0f}%")
+
+# 12h -- run/canonpred.py and run/layers.py fit the same probe and must agree. They are separate
+# fits of one definition, which is the arrangement this protocol keeps finding bugs in, so the
+# agreement is asserted rather than assumed. It is not exact everywhere: the fit is thread-count
+# dependent on exactly one cell of the grid, the InternVL degraded-glyph control, where the probe
+# scores below chance and its predictions are arbitrary by construction. canonpred pins BLAS
+# threads so a reader on another machine gets the same file; layers.py does not. The boundary is
+# the point of the check -- any cell that clears its own null must agree exactly, because a cell
+# with real signal has no near-ties to flip.
+dis = []
+for r in rows:
+    fp = f"runs/canonpred_{r['tag']}.json"
+    if not os.path.exists(fp):
+        continue
+    d = json.load(open(fp)).get(r["family"])
+    if d is None or abs(d["acc"] - r["probe"]) < 1e-12:
+        continue
+    dis.append((f"{r['tag']}/{r['family']}", round(abs(d['acc'] - r['probe']) * r['n_test']),
+                r["nullcal"]["p_null"] < canon.NULL_ALPHA))
+chk("canonpred and layers.py agree on every cell that clears its own null",
+    not any(clears for _, _, clears in dis),
+    f"{len(dis)} cell(s) differ, all below their null: "
+    + (", ".join(f"{n} by {k} item(s)" for n, k, _ in dis) if dis else "none"))
+# and the producer reproduces what is committed, which is what makes the verdict rederivable
+rc = subprocess.run([PY, "run/canonpred.py", "--check"], capture_output=True, text=True)
+chk("the committed canonpred files are reproduced by their producer",
+    rc.returncode == 0 and "all reproduce" in rc.stdout,
+    rc.stdout.strip().split("\n")[-1] if rc.stdout else "no output")
 
 SPDX = "GPL-3.0-only"
 LIC = open("LICENSE").read()

@@ -722,13 +722,9 @@ BIDIR = [("realchart_bidir", "q3b", "Qwen-3B bf16"),
 def bidir():
     """The bidirectional control: does the direction of the edit change what the probe tracks?
 
-    Reports the counterfactual statistics and the presence test, and stops there. The paired
-    McNemar condition is not recomputed here because its input, runs/canonpred_<tag>.json, is
-    written by no script in this repository -- seventeen of those files exist and feed a
-    mandatory condition of the locus verdict, and nothing produces them. Rather than fabricate a
-    verdict from three conditions of four, the split-stability analysis supplies the comparative
-    evidence for these cells: run/splits.py refits everything per split and computes the paired
-    test itself, so runs/splits.json already carries it for all twenty splits including seed 0.
+    Carries the full four-condition verdict, the same locus() every canonical cell is judged by.
+    It reported three conditions of four until run/canonpred.py existed, because the paired
+    McNemar test reads per-item predictions that no script in this repository wrote.
 
     Forward and reverse are reported and are equal by construction, which is the point. Both
     count the items whose two endpoints the probe reads correctly and differ only in denominator,
@@ -755,17 +751,21 @@ def bidir():
             G[r["id"]] = bool(r["ok"]["none"] if "ok" in r else r["gen_correct"])
         ids = [r["id"] for r in g if r["id"] in G]
         macc = float(np.mean([G[i] for i in ids])) if ids else float("nan")
-        out.append(dict(tag=tag, model=model, label=label, n=fl["n"],
+        r = dict(tag=tag, model=model, label=label, n=fl["n"],
                         probe=nc["vis"], model_acc=macc,
                         gap=100 * (nc["vis"] - macc),
                         null_q95=nc["null_q95"], p_null=nc["p_null"],
-                        g1=g1_at(nc),
+                        g1=g1_at(nc), nullcal=nc, paired=paired(tag, "chart"),
+                        probe_joint_ci=fl["probe_joint_ci"],
                         fwd=fl["probe_follow_sup"], rev=fl["probe_reverse"],
                         fwd_den=fl["probe_follow_sup_den"], rev_den=fl["probe_reverse_den"],
                         joint=fl["probe_joint"], joint_num=fl["probe_joint_num"],
                         joint_den=fl["probe_joint_den"], joint_ci=fl["probe_joint_ci"],
                         unsupported=fl["probe_unsupported"],
-                        pairs=len({pk[r["id"]] for r in g if pk.get(r["id"])})))
+                        pairs=len({pk[m["id"]] for m in g if pk.get(m["id"])}))
+        # judged by locus(), not by a rule written for the control
+        r["readout"] = locus(r)
+        out.append(r)
     return out
 
 
@@ -1162,6 +1162,8 @@ def emit(synth, real, pred_rows, pred, out):
               **({} if not out.get("bidir") else (lambda B, P: {
                   "BidirCells": str(len(B)),
                   "BidirCellsPos": str(len(P)),
+                  "BidirLoci": str(sum(1 for b in B if b["readout"])),
+                  "BidirNearP": f"{next((b['paired']['p'] for b in B if not b['readout'] and b['gap'] > 0), float('nan')):.2f}",
                   "BidirPairs": str(B[0]["pairs"]),
                   "BidirN": str(B[0]["n"]),
                   "BidirUnsupMax": str(max(b["unsupported"] for b in B)),
