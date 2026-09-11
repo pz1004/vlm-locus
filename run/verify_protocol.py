@@ -24,8 +24,8 @@ def chk(name, ok, note=""):
 
 
 sys.path.insert(0, os.path.join(os.getcwd(), "run"))
-# the gated statistic's name comes from canon.py, not from a copy here. Checks 1 and 12c below
-# assert properties of "the bound the gate uses", and for three commits they asserted them of
+# the gated statistic's name comes from canon.py, not from a copy here. Check 1 below asserts
+# properties of "the bound the gate uses", and for three commits it asserted them of
 # the conditional forward bound while canon.py gated on the joint one -- passing by luck, since
 # every locus clears both. A verification harness with its own copy of the rule verifies nothing.
 from canon import GATE_CI, locus, g1_at
@@ -237,6 +237,69 @@ chk("no near-duplicate pair straddles the split", not straddle,
     f"{npaired} paired dataset(s) captured"
     + (" -- vacuous until one is" if not npaired else "")
     + (f", straddling: {straddle}" if straddle else ""))
+
+# 12d -- the reverse follow rate is only worth quoting where it can differ from the forward one.
+# Both statistics count the same numerator, items whose two endpoints the probe both reads
+# correctly, and differ only in denominator: forward divides by the items read correctly before
+# the edit, reverse by those read correctly after it. On a set closed under pair reversal every
+# image appears once as a base and once as a counterfactual, so the two denominators range over
+# one multiset of states and are equal by construction -- the reverse rate is then identically
+# the forward rate and carries no information at all. The statistic exists to answer "does the
+# probe only track increases?", and it is exactly the bidirectional dataset built to ask that
+# question on which it cannot answer. So two things are asserted: that the identity does hold
+# where the geometry says it must (it fails if base and counterfactual captures ever diverge on
+# the same image, which is the skew run/capture.py's header documents), and that no reverse-rate
+# macro is sourced from a cell where it is degenerate.
+def reversal_closed(recs, pair_of):
+    """Every pair contributes both of its directions, with the endpoints swapped."""
+    grp = {}
+    for r in recs:
+        p = pair_of.get(r["id"])
+        if p is None:
+            return False
+        grp.setdefault(p, []).append(r)
+    return bool(grp) and all(len(v) == 2 and (v[0]["a0"], v[0]["a1"]) == (v[1]["a1"], v[1]["a0"])
+                             for v in grp.values())
+
+
+symmetric, broken = [], []
+for fp in sorted(_glob.glob("runs/cffollow_*.json")):
+    tag = os.path.basename(fp)[len("cffollow_"):-len(".json")]
+    mp = f"runs/states_{tag}_meta.json"
+    if not os.path.exists(mp):
+        continue
+    pair_of = {m["id"]: m.get("pair") for m in json.load(open(mp))}
+    recs = json.load(open(fp))
+    for fam in {r["family"] for r in recs}:
+        g = [r for r in recs if r["family"] == fam]
+        if not reversal_closed(g, pair_of):
+            continue
+        symmetric.append(f"{tag}/{fam}")
+        d0 = sum(r["probe0"] == r["a0"] for r in g)
+        d1 = sum(r["probe1"] == r["a1"] for r in g)
+        if d0 != d1:
+            broken.append(f"{tag}/{fam} {d0}!={d1}")
+chk("forward and reverse coincide on every reversal-closed set, as the geometry requires",
+    not broken, f"{len(symmetric)} symmetric cell(s)"
+    + (" -- vacuous until one is" if not symmetric else "")
+    + (f", diverging: {broken}" if broken else ""))
+
+# and nothing quotes the degenerate value. A "Rev" macro carrying a reversal-closed cell's
+# reverse rate would read as evidence of direction-insensitivity while being arithmetic. To
+# negative-test this one, inject the macro in run/canon.py where it is generated: editing
+# out/tables/facts.tex does nothing, because canon.py takes VLM_LOCUS_TEX as its *output*
+# directory and this harness reruns it before reading the file back.
+degenerate = set()
+for cell in symmetric:
+    tag, fam = cell.split("/", 1)
+    fl = canon.follow(tag).get(fam, {})
+    if "probe_reverse_ci" in fl:
+        degenerate |= {f"{100 * fl['probe_reverse_ci'][0]:.0f}", f"{100 * fl['probe_reverse']:.0f}"}
+quoted = sorted(k for k, v in facts.items() if "Rev" in k and v in degenerate)
+chk("no reverse-rate macro is sourced from a cell where it cannot differ",
+    not quoted, f"{len(degenerate)} degenerate value(s) guarded"
+    + (" -- vacuous until one is" if not degenerate else "")
+    + (f", quoted by: {quoted}" if quoted else ""))
 
 SPDX = "GPL-3.0-only"
 LIC = open("LICENSE").read()
