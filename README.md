@@ -143,7 +143,7 @@ Excluded because they are large and reproducible from the code:
   a silent train/serve skew; it costs the robust probes at most 1.3 pp and the memorising tracking
   probe 62 pp, which is how it was found. `manifest.py` checks for exactly this.
 
-All 124 artefacts the analysis actually reads *are* committed, which is why the reproduction path
+All 125 artefacts the analysis actually reads *are* committed, which is why the reproduction path
 above needs nothing else. `python3 run/manifest.py --json` lists them.
 
 ## Citation

@@ -481,7 +481,35 @@ chk("the source citation in the docs covers exactly the comment block it names",
     len(cites) == 1 and all(covers_a_block(f, a, b, "sdpa") for f, a, b in cites),
     f"cites={sorted(cites)}")
 
-# 22 -- the check numbering itself. Two blocks were both numbered 12b for several commits, and
+# 22 -- the label-preserving control, and the dissociation that is the whole point of it. Neither
+# half means anything alone: a probe that never moves on a sham has shown nothing if it also never
+# follows a real edit, and that is not hypothetical -- it is the cell without a gap, which moves on
+# shams more than any other and tracks real edits least. So the two are asserted together, on the
+# same items, with the sham edit the same size as the real one it is paired with.
+sh = C.get("sham") or []
+if sh:
+    pos = [b for b in sh if b["gap"] > 0]
+    neg = [b for b in sh if b["gap"] <= 0]
+    chk("the sham control is scored on the same held-out items as the real edit",
+        len({b["n"] for b in sh}) == 1
+        and all(b["n"] == sh[0]["n"] for b in sh), f"n={sh[0]['n']} in all {len(sh)} cells")
+    chk("cells with a gap follow the real edit and do not move on the sham",
+        all(b["follow_real"] > 0.5 and b["probe_moved"] / b["n"] < 0.05 for b in pos),
+        f"{len(pos)} cells: follow "
+        f"{100*min(b['follow_real'] for b in pos):.0f}-{100*max(b['follow_real'] for b in pos):.0f}%, "
+        f"moved at most {max(b['probe_moved'] for b in pos)}/{sh[0]['n']}")
+    chk("the cell that moves on the sham is the cell that does not follow the real edit",
+        bool(neg) and max(sh, key=lambda b: b["probe_moved"]) is
+        max(neg, key=lambda b: b["probe_moved"])
+        and min(sh, key=lambda b: b["follow_real"]) in neg,
+        f"{neg[0]['label'] if neg else '-'}: moved {neg[0]['probe_moved'] if neg else 0}, "
+        f"follows {100*neg[0]['follow_real'] if neg else 0:.0f}%")
+    # and the images themselves hold: same answer, exact pixel guard, queried bar untouched
+    rs = subprocess.run([PY, "gen/verify_sham.py"], capture_output=True, text=True)
+    chk("the sham images pass their own guards", rs.returncode == 0 and "PASS" in rs.stdout,
+        rs.stdout.strip().split("\n")[-1] if rs.stdout else "did not run")
+
+# 23 -- the check numbering itself. Two blocks were both numbered 12b for several commits, and
 # 12c never existed, because the numbers were prose that nothing read -- while run/canon.py
 # cross-references one of them by number. A header is "# N -- ", and they must be 1..N, once each,
 # in order.

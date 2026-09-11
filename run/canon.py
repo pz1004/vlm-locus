@@ -598,6 +598,7 @@ def main(a):
                g1_sensitivity=g1_sensitivity(synth + real),
                bands=bands(),
                bidir=bidir(),
+               sham=sham(real),
                agreement=agreement(["realchart_v2", "q3b4_real_chart_v2", "q7b_real_chart_v2",
                                     "ivl_real_chart_v2"], "chart"),
                protocol=dict(probe="layers.py final layer, fixed hyperparameters",
@@ -768,6 +769,44 @@ def bidir():
         # judged by locus(), not by a rule written for the control
         r["readout"] = locus(r)
         out.append(r)
+    return out
+
+
+SHAM = "runs/sham.json"
+
+
+def sham(rows):
+    """The label-preserving control, beside the real edit it is the counterpart of.
+
+    run/shamfollow.py raises a bar the question does not ask about, by the same amount as that
+    item's real counterfactual, and asks whether the probe's answer moves. It must not: the
+    answer has not changed. Reported next to the real-edit follow rate on the same items and the
+    same probe, because neither number means much alone -- a probe that never moves has shown
+    nothing if it also never follows, which is exactly the cell that fails here.
+
+    Cells are split on whether the probe beats the model at all, the same derived property the
+    bidirectional control uses, so no model is named to make the grouping.
+    """
+    if not os.path.exists(SHAM):
+        return []
+    S = json.load(open(SHAM))
+    out = []
+    for r in rows:
+        d = S.get(r["tag"])
+        if d is None or r["family"] != "chart":
+            continue
+        fl = follow(r["tag"]).get("chart", {})
+        ps, ms = d["probe_stable"], d["model_stable"]
+        out.append(dict(tag=r["tag"], label=r["label"], gap=r["gap"], n=ps["den"],
+                        readout=bool(r["readout"]),
+                        follow_real=fl.get("probe_follow_sup", float("nan")),
+                        probe_moved=ps["den"] - ps["num"], model_moved=ms["den"] - ms["num"],
+                        probe_stable=ps["v"], probe_stable_ci=ps["ci"],
+                        probe_stable_correct=d["probe_stable_correct"]["v"],
+                        probe_stable_correct_num=d["probe_stable_correct"]["num"],
+                        probe_stable_correct_den=d["probe_stable_correct"]["den"],
+                        probe_stable_correct_ci=d["probe_stable_correct"]["ci"],
+                        model_stable=ms["v"]))
     return out
 
 
@@ -1185,6 +1224,22 @@ def emit(synth, real, pred_rows, pred, out):
                   "BidirNegFollow": f"{100 * next(b['fwd'] for b in B if b['gap'] <= 0):.0f}",
                   "BidirNegLb": f"{100 * next(b['joint_ci'][0] for b in B if b['gap'] <= 0):.0f}",
               })(out["bidir"], [b for b in out["bidir"] if b["gap"] > 0])),
+              # the label-preserving control. Split on gap > 0, the same derived property the
+              # bidirectional control uses: the cell without a gap is also the cell whose probe
+              # moves on a sham, and naming it by model would hide that those are the same fact.
+              **({} if not out.get("sham") else (lambda B, P: {
+                  "ShamCells": str(len(B)),
+                  "ShamCellsPos": str(len(P)),
+                  "ShamN": str(B[0]["n"]),
+                  "ShamMovedMax": str(max(b["probe_moved"] for b in P)),
+                  "ShamStableLbMin": f"{100 * min(b['probe_stable_correct_ci'][0] for b in P):.0f}",
+                  "ShamFollowMin": f"{100 * min(b['follow_real'] for b in P):.0f}",
+                  "ShamFollowMax": f"{100 * max(b['follow_real'] for b in P):.0f}",
+                  "ShamModelMovedMax": str(max(b["model_moved"] for b in P)),
+                  "ShamNegLabel": next(b["label"] for b in B if b["gap"] <= 0),
+                  "ShamNegMoved": str(next(b["probe_moved"] for b in B if b["gap"] <= 0)),
+                  "ShamNegFollow": f"{100 * next(b['follow_real'] for b in B if b['gap'] <= 0):.0f}",
+              })(out["sham"], [b for b in out["sham"] if b["gap"] > 0])),
               "ChartLoci": str(sum(1 for r in rc if r['readout'])),
               "ChartCells": str(len(rc)),
               # where in the value range the gap lives. The prose used to carry these as
