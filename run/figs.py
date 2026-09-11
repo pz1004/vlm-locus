@@ -6,12 +6,15 @@ No number here is typed in: every value is read from the same canonical protocol
 so a figure cannot drift from the text.
 """
 from __future__ import annotations
-import json, os
+import json, os, sys
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from canon import GATE_CI          # the y axis is whichever bound the verdict is gated on
 
 # Defaults keep output inside the repository; a caller may override them.
 JSON = os.environ.get("VLM_LOCUS_JSON", "out/canon.json")
@@ -60,6 +63,12 @@ def fig2():
     protocol was calibrated: the floor is retired, and the follow gate is applied to the lower
     confidence bound, so a cell could sit above the drawn line and still not be a locus. The axes
     below are the two calibrated quantities, which is also what the caption always claimed.
+
+    The y axis is canon.GATE_CI, read from canon rather than named here. It plotted the
+    conditional forward bound for several commits while the verdict gated on the joint one, so
+    the dashed line at 50 was drawn against a statistic it does not threshold -- harmless only
+    for as long as no cell straddles 50 on one bound and not the other, which is luck rather
+    than a property. run/verify_protocol.py asserts the two agree.
     """
     fig, a = plt.subplots(figsize=(3.6, 3.05))
     rows = [(r, "o") for r in C["synthetic"]] + [(r, "s") for r in C["real"]]
@@ -68,9 +77,9 @@ def fig2():
     a.axvline(0, color=INK, lw=.7, ls="--"); a.axhline(50, color=INK, lw=.7, ls="--")
     for r, mk in rows:
         nc = r.get("nullcal")
-        if nc is None or not r["probe_follow_den"]: continue
+        if nc is None or not r["probe_joint_den"]: continue
         x = 100 * (r["probe"] - nc["null_q95"])
-        lo = 100 * r["probe_follow_ci"][0]
+        lo = 100 * r[GATE_CI][0]
         good = r["readout"]
         paired_ok = r.get("paired") and r["paired"]["p"] < 0.05 and r["gap"] > 0
         a.scatter(x, lo, marker=mk, s=27 if good else 20,
@@ -80,39 +89,46 @@ def fig2():
     rc = [r for r in C["real"] if r["family"] == "chart" and r["readout"]]
     if rc:
         xs = [100 * (r["probe"] - r["nullcal"]["null_q95"]) for r in rc]
-        ys = [100 * r["probe_follow_ci"][0] for r in rc]
+        ys = [100 * r[GATE_CI][0] for r in rc]
         a.add_patch(plt.Rectangle((min(xs) - 4, min(ys) - 4),
                                   max(xs) - min(xs) + 8, max(ys) - min(ys) + 8,
                                   fill=False, ec=PROBE, lw=.7, ls=":", zorder=2))
-        a.annotate("real charts\n(4 configs)", (max(xs) + 4, (min(ys) + max(ys)) / 2),
+        a.annotate(f"real charts\n({len(rc)} configs)", (max(xs) + 4, (min(ys) + max(ys)) / 2),
                    xytext=(7, -14), textcoords="offset points", fontsize=6.2, color=PROBE,
                    arrowprops=dict(arrowstyle="-", color=PROBE, lw=.6))
     # right-anchored, so the offset is the gap to the marker rather than to the text's left edge
-    # the synthetic chart point (86, 85) sits above the real-chart cluster and beside the
-    # spatial point (59, 95), so the two synthetic labels are put on separate rows
-    LAB = {("3b", "chart"): ("Qwen-3B chart", -6, 16),
-           ("3b", "spatial"): ("Qwen-3B spatial", -9, -9),
-           ("smolm", "spatial"): ("SmolVLM spatial", -9, 0)}
+    # the synthetic chart point (86, 83) sits above the real-chart cluster (82-84, 72-74)
+    # and below the spatial point (59, 87), so the two synthetic labels are put on separate rows
+    # the chart label carries a leader and the other two do not: on the gated bound the chart
+    # and spatial points are 4 units apart where on the forward bound they were 10, so a bare
+    # label above the chart point sits nearer the spatial one and reads as its caption
+    LAB = {("3b", "chart"): ("Qwen-3B chart", -6, 16, True),
+           ("3b", "spatial"): ("Qwen-3B spatial", -9, -9, False),
+           ("smolm", "spatial"): ("SmolVLM spatial", -9, 0, False)}
     for r in C["synthetic"]:
         k = (r["tag"], r["family"])
         if r["readout"] and k in LAB:
-            t, dx, dy = LAB[k]
+            t, dx, dy, lead = LAB[k]
             a.annotate(t, (100 * (r["probe"] - r["nullcal"]["null_q95"]),
-                           100 * r["probe_follow_ci"][0]),
+                           100 * r[GATE_CI][0]),
                        textcoords="offset points", xytext=(dx, dy), fontsize=6.2, color=INK,
-                       ha="right", va="center")
+                       ha="right", va="center",
+                       arrowprops=dict(arrowstyle="-", color=INK, lw=.5,
+                                       shrinkA=1, shrinkB=3) if lead else None)
     # the near-miss is the informative negative: decodes well, does not track the edit
     nm = [r for r in C["synthetic"] if r["tag"] == "3b" and r["family"] == "counting"]
     if nm:
         r = nm[0]
-        a.annotate("Qwen-3B counting\n(30/57 = 53%, bound 40%)",
-                   (100 * (r["probe"] - r["nullcal"]["null_q95"]), 100 * r["probe_follow_ci"][0]),
+        a.annotate(f"Qwen-3B counting\n({r['probe_joint_num']}/{r['probe_joint_den']} = "
+                   f"{100 * r['probe_joint_num'] / r['probe_joint_den']:.0f}%, "
+                   f"bound {100 * r[GATE_CI][0]:.0f}%)",
+                   (100 * (r["probe"] - r["nullcal"]["null_q95"]), 100 * r[GATE_CI][0]),
                    xytext=(-40, -22), textcoords="offset points", fontsize=6.0, color="#8a4500",
                    arrowprops=dict(arrowstyle="-", color="#8a4500", lw=.6))
     # no in-plot region labels: the axis labels already name both calibrated quantities, and the
     # dashed lines plus shading carry the quadrant rule that the caption states
     a.set_xlabel("probe accuracy $-$ its own null 95th pct. (pp)")
-    a.set_ylabel("follow rate, lower 95% bound (%)")
+    a.set_ylabel("two-endpoint accuracy, lower 95% bound (%)")
     a.set_xlim(-70, 100); a.set_ylim(-8, 108)
     a.legend(handles=[Line2D([], [], marker="o", ls="", mfc="white", mec="#777777", label="synthetic"),
                       Line2D([], [], marker="s", ls="", mfc="white", mec="#777777", label="real"),

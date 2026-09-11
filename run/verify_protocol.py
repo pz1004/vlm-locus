@@ -122,17 +122,23 @@ chk("the generated results carry the counting counts the artefacts support",
     and f"**{sum(1 for r in cn if r['readout'])}** survive" in doc)
 
 # 7 -- the figure matches the calibrated protocol
-# only the drawing calls count -- the docstring deliberately explains what was removed
+# Only the body counts: the docstring deliberately explains what was removed, and says "artefact
+# floor" while doing so. It used to be excluded by an allowlist of line prefixes, which silently
+# dropped every line the list did not anticipate -- `lo = 100 * r[GATE_CI][0]`, the one that sets
+# the y value, began with neither. Cutting the docstring instead keeps every code line.
 figs = open("run/figs.py").read()
 fig2 = figs[figs.index("def fig2():"):figs.index("def fig3():")]
-code = "\n".join(l for l in fig2.split("\n")
-                 if l.strip().startswith(("a.", "fig", "for", "if", "rc", "xs", "ys", "LAB", "nm")))
+code = fig2[fig2.index('"""', fig2.index('"""') + 3) + 3:]
 chk("the locus map draws no constant gate line",
     not re.search(r"ax[vh]line\(\s*2\.5", code) and "artefact floor" not in code)
 chk("its gate lines are the calibrated ones (null at 0, follow bound at 50)",
     "axvline(0" in code and "axhline(50" in code)
-chk("the locus map plots the follow lower bound, not the point estimate",
-    "probe_follow_ci" in code and '100 * r["follow"]' not in code)
+# and it plots the bound the verdict is gated on, named from canon rather than copied. It plotted
+# probe_follow_ci against a line at 50 for several commits while the gate was probe_joint_ci; no
+# cell straddled 50 on one and not the other, so it passed on luck rather than on agreement.
+chk("the locus map plots the gated bound, not a second copy of the rule",
+    "GATE_CI" in code and not re.search(r'"probe_\w+_ci"', code)
+    and '100 * r["follow"]' not in code)
 
 # 8 -- the head assertion can be run on the quantised configurations too, since quantisation
 #      changes the numerics the assertion measures and two configurations are quantised
