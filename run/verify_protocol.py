@@ -307,6 +307,31 @@ chk("no reverse-rate macro is sourced from a cell where it cannot differ",
     + (" -- vacuous until one is" if not degenerate else "")
     + (f", quoted by: {quoted}" if quoted else ""))
 
+# 12e -- the split table and its macros are populated from the canonical rows, not from a string
+# test on the key. run/splits.py merges rather than clobbers, so runs/splits.json accumulates
+# every cell ever resampled; `"glyph" not in k` admitted all of them and additionally conflated
+# "decision cell" with "locus". Five bidirectional cells merged in moved SplitProbeMin from 76 to
+# 31 and SplitLoci from 7 to 12, and rendered their raw tags into a LaTeX table, where the
+# underscore is a hard error. This check is live rather than hypothetical: those five cells are
+# in runs/splits.json now and the note below says how many are being excluded.
+sdj = json.load(open(canon.SPLITS)) if os.path.exists(canon.SPLITS) else {}
+cells = {f"{r['tag']}/{r['family']}" for r in rows}
+loci_k = {f"{r['tag']}/{r['family']}" for r in rows if r["readout"]}
+extra = sorted(k for k in sdj if k not in cells)
+stex = open(f"{TEX}/splits.tex").read()
+drawn = [l for l in stex.split("\n") if l.rstrip().endswith("\\\\") and "&" in l
+         and "Model &" not in l]
+want = [k for k in sdj if k in cells]
+chk("the split table renders every canonical cell and nothing else",
+    len(drawn) == len(want) and not any("_" in l.split("&")[0] for l in drawn),
+    f"{len(drawn)} rows, {len(want)} canonical, {len(extra)} non-canonical excluded")
+# and the two populations the macros name are the sets they claim, recomputed from the verdicts
+chk("the split macros count loci and decision cells separately, and correctly",
+    int(facts["SplitLoci"]) == len([k for k in sdj if k in loci_k])
+    and int(facts["SplitCells"]) == len([k for k in sdj if k in cells
+                                         and not k.split("/")[1].startswith("glyph")]),
+    f"loci {facts['SplitLoci']}, decision cells {facts['SplitCells']}")
+
 SPDX = "GPL-3.0-only"
 LIC = open("LICENSE").read()
 src = subprocess.run(["git", "ls-files", "*.py", "*.sh"], capture_output=True,

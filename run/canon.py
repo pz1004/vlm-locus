@@ -718,13 +718,19 @@ def splits(rows):
     """
     if not os.path.exists(SPLITS):
         return None, None
-    d = json.load(open(SPLITS))
     lab = {(r["tag"], r["family"]): (r["label"], FAMNAME.get(r["family"], r["family"]))
            for r in rows}
+    # run/splits.py merges rather than clobbers, so runs/splits.json accumulates every cell ever
+    # resampled -- including ones that are measured but not part of the canonical grid. Only
+    # canonical cells are rendered, and this is the single place that decides it: everything
+    # downstream partitions what comes back. A non-canonical cell used to fall through to its raw
+    # tag, which put an unescaped underscore in a LaTeX table and moved five summary macros.
+    d = {k: v for k, v in json.load(open(SPLITS)).items()
+         if tuple(k.split("/")) in lab}
     body = []
     for k, rs in d.items():
         tag, fam = k.split("/")
-        model, famn = lab.get((tag, fam), (tag, fam))
+        model, famn = lab[(tag, fam)]
         S = len(rs)
         pr = [100 * r["probe"] for r in rs]
         body.append(
@@ -735,6 +741,25 @@ def splits(rows):
             f"& {sum(r['p_paired'] < 0.05 for r in rs)}/{S} "
             f"& {sum(r['joint_lb'] > FOLLOW_MIN for r in rs)}/{S}")
     return body, d
+
+
+def split_pops(sd, synth, real):
+    """Which cells each split macro is computed over. One definition each, from the verdicts.
+
+    `"glyph" not in k` used to stand for two different sets at once -- "a cell whose verdict this
+    analysis is about" and "a locus" -- and they are not the same: the bf16 real-chart cell is a
+    decision cell and is not a locus, so it was counted among "the loci" in the seed-above claim.
+    The synthetic arm had the mirror problem, a hardcoded pair of tag spellings that silently
+    omitted the third synthetic locus, the one that holds in 12 splits of 20 rather than 20.
+    """
+    k = lambda r: f"{r['tag']}/{r['family']}"
+    loci = {k(r) for r in synth + real if r["readout"]}
+    syn = {k(r) for r in synth}
+    glyph = lambda c: c.split("/")[1].startswith("glyph")
+    return dict(cells=[c for c in sd if not glyph(c)],          # every decision cell
+                loci=[c for c in sd if c in loci],              # ...that is a locus
+                ctrl=[c for c in sd if glyph(c)],               # the designed-absence controls
+                syn=[c for c in sd if c in loci and c in syn])  # the synthetic loci
 
 
 HEADREAD = "runs/headread.json"
@@ -876,6 +901,7 @@ def emit(synth, real, pred_rows, pred, out):
               f"{round(100 * r['lora'], 1) - round(100 * r['probe'], 1):+.1f}" for r in bd])
 
     sb, sd = splits(synth + real)
+    sp = None if sd is None else split_pops(sd, synth, real)
     if sb is not None:
         _tab(f"{TEX}/splits.tex", "@{}llrrrrrr@{}",
              "Model & Family & locus & probe & presence & null & paired & bound", sb,
@@ -978,10 +1004,13 @@ def emit(synth, real, pred_rows, pred, out):
               # that do not, and name the control result the calibration claim rests on.
               **({} if sd is None else {
                   "SplitS": str(len(next(iter(sd.values())))),
-                  "SplitSynLoci": "/".join(
-                      str(x) for x in [min(sum(r["readout"] for r in rs) for k, rs in sd.items()
-                                           if k in ("3b/chart", "3b/spatial")),
-                                       len(next(iter(sd.values())))]),
+                  # stated the way the real-image arm is, min--max out of S, so the two clauses
+                  # of the same sentence are comparable. It was one number over a hardcoded pair
+                  # of tags, which omitted the third synthetic locus and read 20/20.
+                  **{f"SplitSyn{e}": str(f([sum(r["readout"] for r in sd[k])
+                                            for k in sp["syn"]]))
+                     for e, f in [("Min", min), ("Max", max)]},
+                  "SplitSynN": str(len(sp["syn"])),
                   # the real-image chart cells, selected against the canonical tag list rather
                   # than by matching tag spellings -- the spelling changed once and this broke
                   **{f"SplitReal{e}": str(f([sum(r["readout"] for r in rs)
@@ -989,22 +1018,23 @@ def emit(synth, real, pred_rows, pred, out):
                                              if k.endswith("/chart")
                                              and k.split("/")[0] in {t for t, _, _ in REAL}]))
                      for e, f in [("Min", min), ("Max", max)]},
-                  "SplitPairedMin": str(min(sum(r["p_paired"] < 0.05 for r in rs)
-                                            for k, rs in sd.items() if "glyph" not in k)),
-                  "SplitBoundMin": str(min(sum(r["joint_lb"] > FOLLOW_MIN for r in rs)
-                                           for k, rs in sd.items() if "glyph" not in k)),
-                  "SplitCtrlLoci": str(sum(sum(r["readout"] for r in rs)
-                                           for k, rs in sd.items() if "glyph" in k)),
-                  "SplitCtrlN": str(sum(len(rs) for k, rs in sd.items() if "glyph" in k)),
-                  "SplitProbeMin": f"{100 * min(r['probe'] for k, rs in sd.items() if 'glyph' not in k for r in rs):.0f}",
-                  "SplitProbeMax": f"{100 * max(r['probe'] for k, rs in sd.items() if 'glyph' not in k for r in rs):.0f}",
+                  "SplitPairedMin": str(min(sum(r["p_paired"] < 0.05 for r in sd[k])
+                                            for k in sp["cells"])),
+                  "SplitBoundMin": str(min(sum(r["joint_lb"] > FOLLOW_MIN for r in sd[k])
+                                           for k in sp["cells"])),
+                  "SplitCells": str(len(sp["cells"])),
+                  "SplitCtrlLoci": str(sum(sum(r["readout"] for r in sd[k])
+                                           for k in sp["ctrl"])),
+                  "SplitCtrlN": str(sum(len(sd[k]) for k in sp["ctrl"])),
+                  "SplitProbeMin": f"{100 * min(r['probe'] for k in sp['cells'] for r in sd[k]):.0f}",
+                  "SplitProbeMax": f"{100 * max(r['probe'] for k in sp['cells'] for r in sd[k]):.0f}",
                   # on the canonical split every locus's bound sits above its resampled mean,
                   # which the manuscript states rather than leaves for a reviewer to find
                   "SplitSeedAbove": str(sum(
-                      1 for k, rs in sd.items() if "glyph" not in k
-                      and next(r["joint_lb"] for r in rs if r["seed"] == 0)
-                      > float(np.mean([r["joint_lb"] for r in rs])))),
-                  "SplitLoci": str(sum(1 for k in sd if "glyph" not in k))}),
+                      1 for k in sp["loci"]
+                      if next(r["joint_lb"] for r in sd[k] if r["seed"] == 0)
+                      > float(np.mean([r["joint_lb"] for r in sd[k]])))),
+                  "SplitLoci": str(len(sp["loci"]))}),
               # the constrained-head comparison. Its point is which gaps close when the model's
               # own head is given the probe's candidate set and which do not, so the macros are
               # the three readouts side by side on the cells where that question is decided.
