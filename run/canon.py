@@ -1094,6 +1094,18 @@ def emit(synth, real, pred_rows, pred, out):
                  for e, lbl in [("Small", "Qwen-3B nf4"), ("Large", "Qwen-7B nf4")]},
               "ChartLoci": str(sum(1 for r in rc if r['readout'])),
               "ChartCells": str(len(rc)),
+              # where in the value range the gap lives. The prose used to carry these as
+              # literals -- +27.8 pp, 18--20 items per band, "the 25--49 band is 100% for both"
+              # -- none of which survived the larger chart set, while tab:bands beside them was
+              # regenerated and disagreed.
+              **({} if not out.get("bands") else {
+                  "BandGapMax": f"{100 * max(b['probe'] - b['model'] for b in out['bands']):+.1f}",
+                  "BandNMin": str(min(b["n"] for b in out["bands"])),
+                  "BandNMax": str(max(b["n"] for b in out["bands"])),
+                  "BandN": str(len(out["bands"])),
+                  "BandTiedN": str(sum(1 for b in out["bands"]
+                                       if b["probe"] == b["model"])),
+                  "BandPeak": f"{100 * max(b['model'] for b in out['bands']):.0f}"}),
               **{f"ChartNear{k}": v for k, v in [
                   ("Gap", f"{next(r['gap'] for r in rc if not r['readout'] and r['gap'] > 0):+.1f}"),
                   ("P", f"{next(r['paired']['p'] for r in rc if not r['readout'] and r['gap'] > 0):.2f}"),

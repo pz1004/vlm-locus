@@ -332,6 +332,22 @@ chk("the split macros count loci and decision cells separately, and correctly",
                                          and not k.split("/")[1].startswith("glyph")]),
     f"loci {facts['SplitLoci']}, decision cells {facts['SplitCells']}")
 
+# 12f -- the band paragraph's two structural claims, the ones no macro carries. Its numbers were
+# literals until the larger chart set made every one of them wrong -- +27.8 pp against an actual
+# +9.7, "18--20 items per band" against 22--33, and "the 25--49 band is 100% for both" naming a
+# band that is 93.9/97.0 -- while tab:bands beside them regenerated and disagreed. The numbers
+# are macros now; these two are the sentence's remaining prose assertions.
+bands = C.get("bands") or []
+if bands:
+    peak = max(range(len(bands)), key=lambda i: bands[i]["model"])
+    chk("the band paragraph's 'peaks in the middle and falls again' still holds",
+        0 < peak < len(bands) - 1 and bands[-1]["model"] < bands[peak]["model"],
+        f"peak at band {peak + 1} of {len(bands)}, "
+        f"{100 * bands[peak]['model']:.0f}% then {100 * bands[-1]['model']:.0f}%")
+    chk("the bands with no gap are the high ones, as the paragraph says",
+        all(b["probe"] == b["model"] for b in bands[-int(facts["BandTiedN"]):]),
+        f"{facts['BandTiedN']} of {facts['BandN']} tied, all at the top")
+
 SPDX = "GPL-3.0-only"
 LIC = open("LICENSE").read()
 src = subprocess.run(["git", "ls-files", "*.py", "*.sh"], capture_output=True,
