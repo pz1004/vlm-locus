@@ -724,7 +724,9 @@ def bidir():
 
     Carries the full four-condition verdict, the same locus() every canonical cell is judged by.
     It reported three conditions of four until run/canonpred.py existed, because the paired
-    McNemar test reads per-item predictions that no script in this repository wrote.
+    McNemar test reads per-item predictions whose producer, run/canon_pred.py, named its output
+    only through argv and was called by no driver -- findable by neither grep nor a read of the
+    drivers.
 
     Forward and reverse are reported and are equal by construction, which is the point. Both
     count the items whose two endpoints the probe reads correctly and differ only in denominator,
@@ -1148,6 +1150,12 @@ def emit(synth, real, pred_rows, pred, out):
                  for b, v in [("Delta", pred['oos_noctrl'][k]['delta']),
                               ("P", pred['oos_noctrl'][k]['p_paired'])]},
               "OosCtrlFold": f"{pred['oos']['heldout_family']['per_fold']['glyph']:+.1f}",
+              # the folds other than the control, formatted as the sentence lists them. They were
+              # three literals, and the chart one drifted to +2.6 while the text still said +1.8.
+              "OosFoldsRest": (lambda v: ", ".join(f"${x:+.1f}$" for x in v[:-1])
+                               + f" and ${v[-1]:+.1f}$")(
+                  [pred['oos']['heldout_family']['per_fold'][k]
+                   for k in sorted(pred['oos']['heldout_family']['per_fold']) if k != 'glyph']),
               # the precision contrast on identical weights and identical items: with the
               # larger chart set it no longer widens the gap, it decides the verdict, so the
               # four numbers the claim rests on are generated rather than typed

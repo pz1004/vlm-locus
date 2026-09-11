@@ -405,6 +405,38 @@ chk("the committed canonpred files are reproduced by their producer",
     rc.returncode == 0 and "all reproduce" in rc.stdout,
     rc.stdout.strip().split("\n")[-1] if rc.stdout else "no output")
 
+# 12i -- every artefact family the analysis reads is named, literally, in some tracked producer.
+# runs/canonpred_*.json had a producer, run/canon_pred.py, that built its output path from argv
+# and was called by no driver. The string "canonpred" therefore appeared nowhere in it, so a
+# search for the artefact's name found only the consumer and the files looked producerless. The
+# artefact was reproducible all along and nothing could show that it was. A producer that does
+# not name what it writes is invisible to exactly the search anyone would run.
+# the consumers are excluded: run/canon.py names every family it reads, so searching them too
+# would let a consumer stand in for a producer -- which is the exact confusion that hid this.
+READERS = {"run/canon.py", "run/verify_protocol.py", "run/manifest.py",
+           "run/verify_provenance.py", "run/results_md.py"}
+# shell drivers count: one that invokes a producer with an explicit --out names the artefact
+# just as well as a default path does. runs/lora20_3b.json is findable that way. canonpred was
+# findable neither way, which is what separated it.
+prod = [f for f in subprocess.run(["git", "ls-files", "run/*.py", "gen/*.py", "*.sh"],
+                                  capture_output=True, text=True).stdout.split()
+        if f not in READERS]
+src = {f: open(f).read() for f in prod}
+fams, unnamed = set(), []
+for pth in json.loads(subprocess.run([PY, "run/manifest.py", "--json"],
+                                     capture_output=True, text=True).stdout)["reads"]:
+    b = os.path.basename(pth)
+    if not pth.startswith("runs/") or "_" not in b:
+        continue
+    # the family is the stem up to the tag, e.g. runs/canonpred_q7b...json -> "canonpred_"
+    fams.add(b.split("_")[0] + "_")
+for f in sorted(fams):
+    if not any(f in t for t in src.values()):
+        unnamed.append(f)
+chk("every artefact family the analysis reads is named in a tracked producer",
+    not unnamed, f"{len(fams)} families checked"
+    + (f", unnamed: {unnamed}" if unnamed else ""))
+
 SPDX = "GPL-3.0-only"
 LIC = open("LICENSE").read()
 src = subprocess.run(["git", "ls-files", "*.py", "*.sh"], capture_output=True,

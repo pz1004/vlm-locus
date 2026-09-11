@@ -34,7 +34,7 @@ The `glyph` family renders a numeral below the resolution at which any model rea
 | Qwen-3B bf16 | 6.7 | 10.7 | 0.4398 | 0/5 | -- | -- |
 | Qwen-3B nf4 | 4.0 | 10.7 | 0.8301 | 0/3 | -- | -- |
 | Qwen-7B nf4 | 6.7 | 10.7 | 0.4258 | 1/5 | -- | -- |
-| InternVL3-2B | 4.0 | 10.7 | 0.6212 | 0/3 | -- | -- |
+| InternVL3-2B | 5.3 | 10.7 | 0.6212 | 0/3 | -- | -- |
 | SmolVLM | 12.0 | 10.7 | 0.0300 | 0/9 | fires | -- |
 
 That 1-of-5 needs its arithmetic stated rather than a label attached to it. A correctly calibrated test at alpha = 0.05 *expects* 0.25 false positives in 5 cells and produces at least one about 23% of the time, so 1 is what a nominal test looks like, not evidence against it (exact binomial against alpha, p = 0.226). Equally, 5 cells cannot resolve the rate: the 95% interval on 1/5 runs from 0.5% to 72%. What the family establishes is therefore weaker than a measured false-positive rate and stronger than nothing --- the null is not *grossly* miscalibrated on a family designed to have nothing to read, and the one cell that fires is identified rather than absorbed into a constant floor. Resolving the rate needs a designed absence an order of magnitude larger, which this study does not have.
@@ -53,19 +53,19 @@ The permutation `p` is at its floor for every locus, so the binding quantity is 
 
 ## What the diagnostic does not buy
 
-Probe gain is associated with fine-tuning gain in sample --- family-demeaned Spearman rho = +0.645 (p = 0.0070), incremental F(1,10) = 4.86 (p = 0.052), and p = 0.0114 against a permutation null that keeps the shared-baseline coupling intact. Out of sample it buys nothing detectable:
+Probe gain is associated with fine-tuning gain in sample --- family-demeaned Spearman rho = +0.631 (p = 0.0088), incremental F(1,10) = 4.85 (p = 0.052), and p = 0.0171 against a permutation null that keeps the shared-baseline coupling intact. Out of sample it buys nothing detectable:
 
 | held out | MAE baseline | MAE with probe | difference | paired p | 95% CI |
 |---|--:|--:|--:|--:|--:|
-| one model at a time | 6.20 | 6.75 | +0.55 | 0.55 | [-1.2, +2.3] |
-| one family at a time | 23.27 | 19.67 | -3.61 | 0.05 | [-7.0, -0.2] |
+| one model at a time | 6.20 | 6.71 | +0.51 | 0.59 | [-1.3, +2.3] |
+| one family at a time | 23.27 | 19.92 | -3.36 | 0.07 | [-6.8, +0.1] |
 
 Neither difference is resolved and the per-fold directions disagree, so this is a report of **no demonstrable benefit**, not of harm. An instrument earns its use by demonstrating benefit; on the evidence here this one does not, and should not be used to triage which fine-tuning run to launch.
 
 Per-fold difference in MAE (pp, positive = worse with the probe):
 
-- held out one model: `ivl` +3.24, `q3b` +0.55, `q7b` -2.52, `smol` +0.94
-- held out one family: `chart` +1.80, `counting` -0.99, `glyph` -10.97, `spatial` -4.26
+- held out one model: `ivl` +3.00, `q3b` +0.62, `q7b` -2.49, `smol` +0.90
+- held out one family: `chart` +2.62, `counting` -0.97, `glyph` -10.81, `spatial` -4.26
 
 ## All cells
 
@@ -101,7 +101,7 @@ Per-fold difference in MAE (pp, positive = worse with the probe):
 | Qwen-7B nf4 | spatial | 75 | 50.0 | 60.0 | 61.3 | +1.3 | 61.3 | 0.0570 | 1 | 21/46 | 21/75 | 19 | -- |
 | Qwen-7B nf4 | chart | 116 | 5.0 | 77.6 | 92.2 | +14.7 | 9.5 | 0.0005 | 0.00049 | 93/107 | 93/116 | 72 | **readout** |
 | InternVL3-2B | counting | 75 | 25.0 | 50.7 | 57.3 | +6.7 | 36.0 | 0.0005 | 0.44 | 8/43 | 8/75 | 6 | -- |
-| InternVL3-2B | glyph | 75 | 5.6 | 8.0 | 4.0 | -4.0 | 10.7 | 0.6212 | 0.75 | 0/3 | 0/75 | 0 | -- |
+| InternVL3-2B | glyph | 75 | 5.6 | 8.0 | 5.3 | -2.7 | 10.7 | 0.6212 | 0.75 | 0/3 | 0/75 | 0 | -- |
 | InternVL3-2B | spatial | 75 | 50.0 | 54.7 | 50.7 | -4.0 | 60.0 | 0.4918 | 0.74 | 11/38 | 11/75 | 8 | -- |
 | InternVL3-2B | chart | 116 | 5.0 | 61.2 | 91.4 | +30.2 | 9.5 | 0.0005 | 3.1e-08 | 95/106 | 95/116 | 74 | **readout** |
 | SmolVLM | counting | 75 | 25.0 | 40.0 | 53.3 | +13.3 | 33.3 | 0.0005 | 0.031 | 5/40 | 5/75 | 3 | -- |

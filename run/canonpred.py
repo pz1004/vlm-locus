@@ -3,10 +3,19 @@
 """The canonical probe's per-item predictions on the held-out split.
 
 These feed the paired probe-vs-model test in run/canon.py, which is one of the four conditions
-locus() requires. Until this file existed the predictions were committed with no producer: 17
-runs/canonpred_<tag>.json were in the tree and nothing in the repository wrote them, so a reader
-starting from a clean clone could regenerate the probe, the null and the counterfactual but not
-the comparison against the model -- a verdict condition that could be read and not rederived.
+locus() requires.
+
+This file replaces run/canon_pred.py, which did the same fit and produced byte-identical output.
+That one took its output path as a command-line argument, so the string "canonpred" never
+appeared in it, and it was called by no driver -- an artefact family whose producer no search for
+its name could find. It was reported here as having no producer at all, which was wrong; what it
+had was an unfindable one. The output path is a literal below for exactly that reason, and
+run/verify_protocol.py asserts that every artefact family the analysis reads is named in some
+tracked producer.
+
+What this adds over the file it replaces is pinned BLAS threads, so a reader on another machine
+gets the same predictions, and --check, so the committed files can be shown to be reproducible
+rather than assumed to be.
 
 The fit is run/layers.py's, at the final layer, and must stay that way: same rare-class filter,
 same pair-grouped split at seed 0, same pipeline and hyperparameters. It is not re-derived here.

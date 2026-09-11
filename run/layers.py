@@ -14,7 +14,18 @@ different implications, and no branch in the correction library can tell them ap
 
 Blind states are decoded with the same probe to price the language prior at every depth.
 """
-import json, sys, os
+import os
+# Pinned before numpy loads, for run/nullcal.py's reason. The reduction order inside a fit depends
+# on the thread count and flips the occasional tied prediction, so an unpinned fit gives a reader
+# on different hardware a different number. Measured across this grid it moves exactly one cell --
+# the InternVL degraded-glyph control, by two items of 75, where the probe scores below chance and
+# its predictions are arbitrary. Everywhere the probe carries signal the fit is stable. One cell
+# is still one cell: run/canonpred.py refits the final layer from the same definition and the two
+# are asserted equal, which they cannot be if only one of them is pinned.
+for _v in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS",
+           "VECLIB_MAXIMUM_THREADS", "NUMEXPR_NUM_THREADS"):
+    os.environ.setdefault(_v, "1")
+import json, sys
 import numpy as np
 from sklearn.decomposition import PCA
 from sklearn.linear_model import LogisticRegression
