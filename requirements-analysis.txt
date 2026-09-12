@@ -21,6 +21,13 @@
 #     state files under a different numpy does not reproduce the committed files, and the state
 #     files are the one input a clone does not carry, so nothing else would catch it.
 #
+# One canonical artefact is outside this pin and cannot be brought inside it. run/headread.py
+# applies the released unembedding to the cached states, so it needs torch and runs under
+# requirements.txt; its probe column is a logistic fit like the rest and was therefore fitted
+# under numpy 2.5.2. runs/headread.json feeds out/tables/headread.tex and the \Head* macros. The
+# exclusion is structural rather than an oversight -- an interpreter without torch cannot run the
+# producer -- and what is at risk is the scale measured above: a tied cell, about a point.
+#
 # run/verify_protocol.py check 27 asserts that every third-party import of the analysis path is
 # named here, and reports the running versions against it.
 joblib==1.5.3

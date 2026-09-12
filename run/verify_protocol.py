@@ -718,8 +718,8 @@ chk("every counterfactual mask marks the edited pixels with 255", not wrong,
 # loads the released unembedding, so it needs torch and belongs to the capture environment; a set
 # that demanded $APY for it would demand an interpreter that cannot run it. Nothing invokes it
 # from a driver today, so the contradiction was latent rather than firing. The cost is real and
-# named in requirements-analysis.txt: runs/headread.json is the one analysis artefact produced
-# under the other numpy.
+# named in requirements-analysis.txt: runs/headread.json is the one canonical artefact produced
+# under the other numpy, and it feeds tables/headread.tex rather than sitting unread.
 ANALYSIS = {"canon.py", "canonpred.py", "cffollow.py", "fit_probes.py",
             "layers.py", "lora_matched.py", "nullcal.py", "p0.py", "p3.py", "probe.py",
             "results_md.py", "shamfollow.py", "splits.py", "fix_chart_scoring.py"}
