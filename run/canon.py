@@ -637,6 +637,7 @@ def main(a):
                bands=bands(),
                bidir=bidir(),
                sham=sham(real),
+               occlusion=occlusion(real),
                agreement=agreement(["realchart_v2", "q3b4_real_chart_v2", "q7b_real_chart_v2",
                                     "ivl_real_chart_v2"], "chart"),
                protocol=dict(probe="layers.py final layer, fixed hyperparameters",
@@ -811,40 +812,108 @@ def bidir():
 
 
 SHAM = "runs/sham.json"
+# gen/verify_real_sham.py's measurements, as an artefact rather than as terminal output. They
+# need COCO's annotations to compute and COCO is a 1.8 GB download, so the numbers travel here
+# in a 1 KB file and canon.py stays runnable from a fresh clone with no dataset present.
+SHAMG = "runs/sham_guards.json"
 
 
 def sham(rows):
     """The label-preserving control, beside the real edit it is the counterpart of.
 
-    run/shamfollow.py raises a bar the question does not ask about, by the same amount as that
-    item's real counterfactual, and asks whether the probe's answer moves. It must not: the
-    answer has not changed. Reported next to the real-edit follow rate on the same items and the
-    same probe, because neither number means much alone -- a probe that never moves has shown
-    nothing if it also never follows, which is exactly the cell that fails here.
+    Each family's sham applies that family's own real primitive where the question is not
+    looking -- a bar it does not name, the other axis of reflection, an object of an unrelated
+    category, the same numeral moved inside its box -- and asks whether the probe's answer moves.
+    It must not: the answer has not changed. Reported next to the real-edit follow rate on the
+    same items and the same probe, because neither number means much alone -- a probe that never
+    moves has shown nothing if it also never follows, which is exactly the cell that fails on
+    charts.
 
-    Cells are split on whether the probe beats the model at all, the same derived property the
-    bidirectional control uses, so no model is named to make the grouping.
+    The family is read from runs/sham.json rather than fixed here. This function tested
+    `r["family"] != "chart"` while charts were the only family with a sham, which is a literal
+    that has to be found by hand the moment a second one exists -- the defect class this cycle
+    keeps turning up.
     """
     if not os.path.exists(SHAM):
         return []
     S = json.load(open(SHAM))
     out = []
     for r in rows:
-        d = S.get(r["tag"])
-        if d is None or r["family"] != "chart":
+        d = S.get(r["tag"], {}).get(r["family"])
+        if d is None:
             continue
-        fl = follow(r["tag"]).get("chart", {})
+        fl = follow(r["tag"]).get(r["family"], {})
         ps, ms = d["probe_stable"], d["model_stable"]
-        out.append(dict(tag=r["tag"], label=r["label"], gap=r["gap"], n=ps["den"],
-                        readout=bool(r["readout"]),
+        out.append(dict(tag=r["tag"], label=r["label"], family=r["family"], gap=r["gap"],
+                        n=ps["den"], readout=bool(r["readout"]),
+                        # whether the cell passes the COUNTERFACTUAL condition, which is the
+                        # grouping this control belongs in. Stability under a sham and the
+                        # follow rate are both counterfactual statistics; the full verdict also
+                        # prices the model, and one cell reads its chart perfectly while failing
+                        # the verdict only because the model reads it too. Grouping on the
+                        # verdict would put that cell on the wrong side of its own evidence.
+                        cf_pass=bool(100 * r["probe_joint_ci"][0] >= FOLLOW_MIN),
                         follow_real=fl.get("probe_follow_sup", float("nan")),
+                        # the denominator travels with the rate: on the designed-absence family
+                        # the probe is right before the edit on 3 to 9 items of 75, where a bare
+                        # percentage carries almost no information
+                        follow_num=fl.get("probe_follow_sup_num"),
+                        follow_den=fl.get("probe_follow_sup_den"),
                         probe_moved=ps["den"] - ps["num"], model_moved=ms["den"] - ms["num"],
                         probe_stable=ps["v"], probe_stable_ci=ps["ci"],
                         probe_stable_correct=d["probe_stable_correct"]["v"],
                         probe_stable_correct_num=d["probe_stable_correct"]["num"],
                         probe_stable_correct_den=d["probe_stable_correct"]["den"],
                         probe_stable_correct_ci=d["probe_stable_correct"]["ci"],
-                        model_stable=ms["v"]))
+                        model_stable=ms["v"],
+                        model_stable_num=ms["num"], model_stable_den=ms["den"]))
+    return out
+
+
+def occlusion(rows):
+    """What the counting counterfactual's missing guard costs, priced rather than conceded.
+
+    The manifest check "every counterfactual changes the answer" compares the two recorded
+    labels; it never asks whether the image realises the change. gen/real.py pastes the new
+    instance at a random position with nothing looking at what is already there, so a paste can
+    cover an existing instance of the queried category -- in which case the count does not rise
+    and the recorded answer is wrong. The label-preserving control carries the guard the real
+    edit lacks, which is how this was found; gen/verify_real_sham.py measures it and records the
+    ids, so the cost is computed here without COCO on canon.py's load path.
+
+    Reported for the gated statistic as well as the quoted one. A defect that moves a number the
+    prose quotes but not the number a verdict turns on is a different-sized problem from one that
+    moves both, and saying which needs both computed.
+    """
+    if not os.path.exists(SHAMG):
+        return None
+    ids = set(json.load(open(SHAMG)).get("counting_cf_occlusion", {}).get("full_ids") or [])
+    if not ids:
+        return None
+    out = []
+    for r in rows:
+        if r["family"] != "counting":
+            continue
+        f = f"runs/cffollow_{r['tag']}.json"
+        if not os.path.exists(f):
+            continue
+        g = [x for x in json.load(open(f)) if x["family"] == "counting"]
+        hit = [x for x in g if x["id"] in ids]
+        if not hit:
+            continue
+
+        def stat(rs):
+            sup = [x for x in rs if x.get("a1_in_support", True)]
+            ok = [x for x in sup if x["probe0"] == x["a0"]]
+            fol = (sum(x["probe1"] == x["a1"] for x in ok) / len(ok)) if ok else float("nan")
+            j = sum(x["probe0"] == x["a0"] and x["probe1"] == x["a1"] for x in rs)
+            return fol, wilson(j, len(rs))[0]
+
+        f0, j0 = stat(g)
+        f1, j1 = stat([x for x in g if x["id"] not in ids])
+        out.append(dict(tag=r["tag"], label=r["label"], n=len(g), excluded=len(hit),
+                        follow=f0, follow_ex=f1, joint_lb=j0, joint_lb_ex=j1,
+                        readout=bool(r["readout"])))
     return out
 
 
@@ -1034,6 +1103,21 @@ def emit(synth, real, pred_rows, pred, out):
             f"& {100 * (b['probe'] - b['model']):+.1f}" for b in out["bands"]]
     _tab(f"{TEX}/bands.tex", "@{}lrrrr@{}", "Value band & $n$ & model & probe & gap", body)
 
+    # the label-preserving control, all four families in one table. Stability is reported
+    # unconditionally -- every held-out item that has a sham, no filtering on whether the probe
+    # was right first -- for the reason GATE_CI gives: a conditional denominator makes cells with
+    # different accuracies incomparable, and here the cells being compared differ by design.
+    if out.get("sham"):
+        body = [f"{b['label']} & {FAMNAME.get(b['family'], b['family'])} & {b['n']} & "
+                f"{'--' if b['follow_den'] in (None, 0) else '%d/%d' % (b['follow_num'], b['follow_den'])} & "
+                f"{b['probe_moved']} & {100 * b['probe_stable_ci'][0]:.0f} & "
+                f"{b['model_stable_den'] - b['model_stable_num']}/{b['model_stable_den']}"
+                for b in sorted(out["sham"], key=lambda b: (b["family"] != "chart",
+                                                            b["family"], b["label"]))]
+        _tab(f"{TEX}/sham.tex", "@{}llrrrrr@{}",
+             r"Model & Family & $n$ & follows real & probe moved & stable LB & model moved", body,
+             pre="\\footnotesize\\setlength{\\tabcolsep}{4pt}")
+
     body, _ = decomp(synth)
     bd = budget()
     if bd is not None:
@@ -1097,6 +1181,10 @@ def emit(synth, real, pred_rows, pred, out):
               # the attainable p-floor are generated here rather than typed: the rule is
               # p_null < NULL_ALPHA, and with B draws no p smaller than 1/(B+1) exists.
               "NullAlpha": f"{NULL_ALPHA:g}",
+              # the counterfactual threshold, which the manuscript carried as the literal 50\%
+              # in the two places it states the decision rule -- a second copy of FOLLOW_MIN
+              # sitting beside the table that applies it
+              "FollowGate": f"{FOLLOW_MIN:g}",
               "NullPFloor": f"1/{next(r['nullcal']['nperm'] for r in real if r['nullcal']) + 1}",
               # what a layer search buys on the designed control, over reading the final layer
               "PeakPremium": f"{np.mean([100 * (r['peak'] - r['probe']) for r in gl]):.1f}",
@@ -1265,7 +1353,8 @@ def emit(synth, real, pred_rows, pred, out):
               # the label-preserving control. Split on gap > 0, the same derived property the
               # bidirectional control uses: the cell without a gap is also the cell whose probe
               # moves on a sham, and naming it by model would hide that those are the same fact.
-              **({} if not out.get("sham") else (lambda B, P: {
+              **({} if not [b for b in out.get("sham", []) if b["family"] == "chart"] else
+                 (lambda B, P: {
                   "ShamCells": str(len(B)),
                   "ShamCellsPos": str(len(P)),
                   "ShamN": str(B[0]["n"]),
@@ -1277,7 +1366,80 @@ def emit(synth, real, pred_rows, pred, out):
                   "ShamNegLabel": next(b["label"] for b in B if b["gap"] <= 0),
                   "ShamNegMoved": str(next(b["probe_moved"] for b in B if b["gap"] <= 0)),
                   "ShamNegFollow": f"{100 * next(b['follow_real'] for b in B if b['gap'] <= 0):.0f}",
-              })(out["sham"], [b for b in out["sham"] if b["gap"] > 0])),
+              })([b for b in out["sham"] if b["family"] == "chart"],
+                 [b for b in out["sham"] if b["family"] == "chart" and b["gap"] > 0])),
+              # the three real-image families' shams. Kept apart from the chart macros above
+              # rather than pooled into them: those name a single n and a single follow range,
+              # which stop meaning anything across families with different answer spaces.
+              **({} if not [b for b in out.get("sham", []) if b["family"] != "chart"] else
+                 (lambda B: {
+                  "ShamFamCells": str(len(B)),
+                  "ShamFamFamilies": str(len({b["family"] for b in B})),
+                  "ShamFamNMin": str(min(b["n"] for b in B)),
+                  "ShamFamNMax": str(max(b["n"] for b in B)),
+                  "ShamFamStableMin": f"{100 * min(b['probe_stable'] for b in B):.0f}",
+                  "ShamFamStableMax": f"{100 * max(b['probe_stable'] for b in B):.0f}",
+                  "ShamFamMovedMin": str(min(b["probe_moved"] for b in B)),
+                  "ShamFamMovedMax": str(max(b["probe_moved"] for b in B)),
+                  "ShamFamModelMovedMax": str(max(b["model_moved"] for b in B)),
+                  "ShamFamFollowMax": f"{100 * max(b['follow_real'] for b in B):.0f}",
+              })([b for b in out["sham"] if b["family"] != "chart"])),
+              # the designed absence, where the two readers' stabilities invert. Kept separate
+              # because it is the cell the whole absence claim rests on, and because its sham is
+              # the most demanding of the four -- it moves the very numeral the question names.
+              **({} if not [b for b in out.get("sham", []) if b["family"].startswith("glyph")]
+                 else (lambda B: {
+                  "ShamGlyphCells": str(len(B)),
+                  "ShamGlyphN": str(B[0]["n"]),
+                  "ShamGlyphProbeMin": f"{100 * min(b['probe_moved'] / b['n'] for b in B):.0f}",
+                  "ShamGlyphProbeMax": f"{100 * max(b['probe_moved'] / b['n'] for b in B):.0f}",
+                  "ShamGlyphModelMin": f"{100 * min(b['model_moved'] / b['model_stable_den'] for b in B):.0f}",
+                  "ShamGlyphModelMax": f"{100 * max(b['model_moved'] / b['model_stable_den'] for b in B):.0f}",
+              })([b for b in out["sham"] if b["family"].startswith("glyph")])),
+              **({} if not os.path.exists(SHAMG) else (lambda G: {
+                  # how big the glyph sham actually is, in pixels of a 448-wide photograph
+                  "ShamGlyphPx": str(G["pixels"]["glyph"]["px_median"]),
+                  "ShamGlyphRealPxLo": str(G["pixels"]["glyph"]["real_px_lo"]),
+                  "ShamGlyphRealPxHi": str(G["pixels"]["glyph"]["real_px_hi"]),
+              })(json.load(open(SHAMG)))),
+              # the control's own summary statistic, over every family at once: how far the
+              # probe's prediction moves under an edit that changes no answer, split by whether
+              # the cell is a locus. Nothing here is thresholded -- these are a max and a min.
+              **({} if not [b for b in out.get("sham", []) if b["cf_pass"]]
+                 or not [b for b in out.get("sham", []) if not b["cf_pass"]] else
+                 (lambda L, O: {
+                  "ShamSepPassN": str(len(L)),
+                  "ShamSepFailN": str(len(O)),
+                  "ShamSepPassMax": f"{100 * max(b['probe_moved'] / b['n'] for b in L):.1f}",
+                  "ShamSepFailMin": f"{100 * min(b['probe_moved'] / b['n'] for b in O):.1f}",
+                  "ShamSepFailMax": f"{100 * max(b['probe_moved'] / b['n'] for b in O):.0f}",
+                  "ShamSepRatio": f"{(min(b['probe_moved'] / b['n'] for b in O) / max(max(b['probe_moved'] / b['n'] for b in L), 1e-9)):.1f}",
+              })([b for b in out["sham"] if b["cf_pass"]],
+                 [b for b in out["sham"] if not b["cf_pass"]])),
+              # how big each sham is against the real edit it replaces, and how much of the
+              # family could be built at that size. Measured by gen/verify_real_sham.py from the
+              # written PNGs, not asserted by the builder that wrote them.
+              **({} if not os.path.exists(SHAMG) else (lambda G: {
+                  "ShamPxCountMed": f"{G['pixels']['counting']['median']:.2f}",
+                  "ShamPxGlyphMed": f"{G['pixels']['glyph']['median']:.1f}",
+                  "ShamPxSpatLo": f"{G['pixels']['spatial']['lo']:.2f}",
+                  "ShamPxSpatHi": f"{G['pixels']['spatial']['hi']:.2f}",
+                  "ShamPxSpatMed": f"{G['pixels']['spatial']['median']:.2f}",
+                  "ShamCountBuilt": str(G["pixels"]["counting"]["n"]),
+                  "ShamCountBase": str(G["pixels"]["counting"]["base"]),
+                  # the defect this control turned up in the set it controls
+                  "ShamOcclN": str(G["counting_cf_occlusion"]["n"]),
+                  "ShamOcclFull": str(G["counting_cf_occlusion"]["full"]),
+                  "ShamOcclGeNinety": str(G["counting_cf_occlusion"]["ge90"]),
+                  "ShamOcclGeHalf": str(G["counting_cf_occlusion"]["ge50"]),
+              })(json.load(open(SHAMG)))),
+              **({} if not out.get("occlusion") else (lambda O: {
+                  "ShamOcclHeld": str(max(o["excluded"] for o in O)),
+                  "ShamOcclCells": str(len(O)),
+                  "ShamOcclFollowShift": f"{max(abs(100 * (o['follow_ex'] - o['follow'])) for o in O):.1f}",
+                  "ShamOcclBoundShift": f"{max(abs(100 * (o['joint_lb_ex'] - o['joint_lb'])) for o in O):.1f}",
+                  "ShamOcclBoundMax": f"{100 * max(max(o['joint_lb'], o['joint_lb_ex']) for o in O):.1f}",
+              })(out["occlusion"])),
               "ChartLoci": str(sum(1 for r in rc if r['readout'])),
               "ChartCells": str(len(rc)),
               # where in the value range the gap lives. The prose used to carry these as

@@ -6,12 +6,19 @@
 # they reproduce.
 set -e
 PY=${PY:-.venv/bin/python}
+# Analysis steps run under $APY, NOT $PY, and the separation is the point. The venv exists for
+# torch; the committed analysis artefacts reproduce under the interpreter README.md's
+# reproduction path names, and the two are not interchangeable -- numpy 2.4.6 and 2.5.2 disagree
+# on 3 predictions of 1125 in this grid, one tie landing the other way in each of two cells.
+# Producing a canonical artefact under whichever interpreter happened to have torch installed is
+# how a committed file stops reproducing. run/verify_protocol.py asserts this separation.
+APY=${APY:-python3}
 echo "=== capture states on the de-duplicated dataset ==="
 $PY run/capture.py --data data/cal_3b_v2 --out runs/states_v2.npz 2>&1 | tail -2
 echo "=== G1 presence test ==="
-$PY run/probe.py runs/states_v2.npz 2>&1 | grep -viE 'warn|converg|explained_var'
+$APY run/probe.py runs/states_v2.npz 2>&1 | grep -viE 'warn|converg|explained_var'
 echo "=== freeze probes ==="
-$PY run/fit_probes.py runs/states_v2.npz runs/probes_v2.npy 2>&1 | grep -viE 'warn|converg'
+$APY run/fit_probes.py runs/states_v2.npz runs/probes_v2.npy 2>&1 | grep -viE 'warn|converg'
 $PY run/calib_ids.py runs/probes_v2.npy runs/states_v2_meta.json runs/calib_ids_v2.json
 echo "=== branch grid, both splits ==="
 $PY run/branches.py --data data/cal_3b_v2 --probes runs/probes_v2.npy \

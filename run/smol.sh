@@ -3,6 +3,13 @@
 # SPDX-License-Identifier: GPL-3.0-only
 set -e
 PY=${PY:-.venv/bin/python}
+# Analysis steps run under $APY, NOT $PY, and the separation is the point. The venv exists for
+# torch; the committed analysis artefacts reproduce under the interpreter README.md's
+# reproduction path names, and the two are not interchangeable -- numpy 2.4.6 and 2.5.2 disagree
+# on 3 predictions of 1125 in this grid, one tie landing the other way in each of two cells.
+# Producing a canonical artefact under whichever interpreter happened to have torch installed is
+# how a committed file stops reproducing. run/verify_protocol.py asserts this separation.
+APY=${APY:-python3}
 M=HuggingFaceTB/SmolVLM-Instruct
 echo "=== SmolVLM: difficulty sweep on the shared level-swept set ==="
 $PY run/score.py --model $M --data data/sw4 --out runs/sw4_smol.jsonl --base-only --gen-only
@@ -28,7 +35,7 @@ $PY run/score.py --model $M --data data/cal_smol --out runs/cal_smol_gen.jsonl -
 echo "=== SmolVLM: hidden states ==="
 $PY run/capture.py --model $M --data data/cal_smol --out runs/states_smol.npz
 echo "=== SmolVLM: G1 ==="
-$PY run/probe.py runs/states_smol.npz 2>&1 | grep -viE 'warn|converg'
+$APY run/probe.py runs/states_smol.npz 2>&1 | grep -viE 'warn|converg'
 echo "=== SmolVLM: locus split ==="
 $PY run/locus.py runs/states_smol.npz runs/cal_smol_gen.jsonl runs/probe_g1_smol.json 2>&1 | grep -viE 'warn|converg'
 echo "=== SMOL DONE ==="

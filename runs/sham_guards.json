@@ -1,0 +1,64 @@
+{
+ "pixels": {
+  "counting": {
+   "n": 234,
+   "lo": 1.0011135503165665,
+   "hi": 2.964513193812557,
+   "median": 1.117432723439482,
+   "ge": 234,
+   "px_lo": 2224,
+   "px_hi": 106134,
+   "px_median": 10083,
+   "real_px_lo": 2094,
+   "real_px_hi": 95514,
+   "base": 300
+  },
+  "glyph": {
+   "n": 300,
+   "lo": 2.0,
+   "hi": 5.333333333333333,
+   "median": 2.0,
+   "ge": 300,
+   "px_lo": 16,
+   "px_hi": 16,
+   "px_median": 16,
+   "real_px_lo": 3,
+   "real_px_hi": 8,
+   "base": 300
+  },
+  "spatial": {
+   "n": 300,
+   "lo": 0.8556656557205605,
+   "hi": 1.1061474468265196,
+   "median": 1.0001206542843994,
+   "ge": 174,
+   "px_lo": 75934,
+   "px_hi": 409576,
+   "px_median": 286040,
+   "real_px_lo": 76720,
+   "real_px_hi": 409466,
+   "base": 300
+  }
+ },
+ "counting_cf_occlusion": {
+  "n": 300,
+  "full": 12,
+  "ge90": 22,
+  "ge50": 50,
+  "median": 0.08996937384037605,
+  "full_ids": [
+   "counting_000026",
+   "counting_000085",
+   "counting_000086",
+   "counting_000125",
+   "counting_000127",
+   "counting_000171",
+   "counting_000212",
+   "counting_000258",
+   "counting_000273",
+   "counting_000281",
+   "counting_000289",
+   "counting_000298"
+  ]
+ }
+}

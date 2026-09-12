@@ -9,6 +9,13 @@ set -e
 # exits 0 and the whole run reports DONE having produced nothing
 set -o pipefail
 PY=${PY:-.venv/bin/python}
+# Analysis steps run under $APY, NOT $PY, and the separation is the point. The venv exists for
+# torch; the committed analysis artefacts reproduce under the interpreter README.md's
+# reproduction path names, and the two are not interchangeable -- numpy 2.4.6 and 2.5.2 disagree
+# on 3 predictions of 1125 in this grid, one tie landing the other way in each of two cells.
+# Producing a canonical artefact under whichever interpreter happened to have torch installed is
+# how a committed file stops reproducing. run/verify_protocol.py asserts this separation.
+APY=${APY:-python3}
 M=$1; T=$2; shift 2
 for D in real_3b real_chart; do
   S=runs/states_${T}_${D}.npz
@@ -18,11 +25,11 @@ for D in real_3b real_chart; do
   echo "=== [$T/$D] capture ==="
   $PY run/capture.py --model "$M" --data data/$D --out $S "$@" 2>&1 | tail -1
   echo "=== [$T/$D] G1 ==="
-  $PY run/probe.py $S 2>&1 | grep -viE 'warn|converg|explained_var'
+  $APY run/probe.py $S 2>&1 | grep -viE 'warn|converg|explained_var'
   echo "=== [$T/$D] freeze probes ==="
-  $PY run/fit_probes.py $S runs/probes_${T}_${D}.npy 2>&1 | grep -viE 'warn|converg'
+  $APY run/fit_probes.py $S runs/probes_${T}_${D}.npy 2>&1 | grep -viE 'warn|converg'
   echo "=== [$T/$D] layer sweep ==="
-  $PY run/layers.py $S runs/${T}_${D}_gen.jsonl runs/layers_${T}_${D}.json 2>&1 \
+  $APY run/layers.py $S runs/${T}_${D}_gen.jsonl runs/layers_${T}_${D}.json 2>&1 \
       | grep -viE 'warn|converg|explained_var'
   echo "=== [$T/$D] counterfactual ==="
   $PY run/cfprobe.py --model "$M" --data data/$D --probes runs/probes_${T}_${D}.npy \

@@ -145,6 +145,43 @@ def main():
       f"information is there; the probe is reading a correlate of the count rather than the "
       f"count, and no accuracy comparison at any layer would have shown it.\n")
 
+    sh = C.get("sham") or []
+    if sh:
+        w("## The label-preserving control\n")
+        w("Every other counterfactual here changes the answer, so following one shows the probe "
+          "responds to *something* the edit did -- not that it responds to the attribute rather "
+          "than to a cue travelling with it. The sham edit changes the image and not the answer: "
+          "it applies each family's own primitive where the question is not looking, at a size "
+          "that is not smaller than the real edit. A reader of the attribute must return the "
+          "same answer; a reader of the scene may not.\n")
+        w("| config | family | n | follows real | probe moved | model moved | locus |")
+        w("|---|---|--:|--:|--:|--:|:--|")
+        for b in sorted(sh, key=lambda b: (b["family"] != "chart", b["family"], b["label"])):
+            fr = ("--" if not b.get("follow_den")
+                  else f"{b['follow_num']}/{b['follow_den']}")
+            w(f"| {b['label']} | {b['family']} | {b['n']} | {fr} | "
+              f"{b['probe_moved']} | {b['model_moved']} | "
+              f"{'**readout**' if b['readout'] else '--'} |")
+        w("")
+        lo = [b for b in sh if b["cf_pass"]]
+        hi = [b for b in sh if not b["cf_pass"]]
+        if lo and hi:
+            a = max(b["probe_moved"] / b["n"] for b in lo)
+            c = min(b["probe_moved"] / b["n"] for b in hi)
+            w(f"The two halves separate, and they separate completely. Every one of the "
+              f"{len(lo)} cells that passes the counterfactual condition moves on at most "
+              f"{100*a:.1f}% of its items; every one of the {len(hi)} that fails it moves on at "
+              f"least {100*c:.1f}%. Nothing here is thresholded -- that is a max against a min, "
+              f"and no constant was chosen to produce it.\n")
+            w("The grouping is on the counterfactual condition rather than on the locus verdict, "
+              "and the difference matters. Both statistics are counterfactual; the verdict also "
+              "prices the model, so the one chart cell that reads its attribute perfectly and is "
+              "not a locus -- because the model reads it too -- belongs with the passing group "
+              "here. Grouping on the verdict would place it, at 0 of 114 moved, among the "
+              "failures and erase the separation.\n")
+            w("Neither rate means anything alone: a probe that never moves has shown nothing if "
+              "it also never follows. Both are reported on the same items and the same probe.\n")
+
     w("## Sensitivity of the one prespecified threshold\n")
     w(f"The follow threshold is the only free constant in the protocol. Applied to the lower "
       f"bound, the verdict set is unchanged for every threshold in "

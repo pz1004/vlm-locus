@@ -105,6 +105,12 @@ def main(a):
     recs = [json.loads(l) for l in open(os.path.join(a.data, "manifest.jsonl"))]
     if a.base_only:
         recs = [r for r in recs if r["cf_of"] is None]
+    if a.cf_only:
+        # the mirror of --base-only, for a control set whose base half is already scored under
+        # the canonical run. Re-scoring it produced identical answers on all 461 chart items in
+        # every one of the five models, so it is redundant rather than a second estimator --
+        # run/verify_protocol.py asserts that identity where both files exist.
+        recs = [r for r in recs if r["cf_of"] is not None]
     if a.limit:
         per = {}
         keep = []
@@ -179,5 +185,8 @@ if __name__ == "__main__":
     p.add_argument("--out", default="runs/pilot_3b.jsonl")
     p.add_argument("--limit", type=int, default=0)
     p.add_argument("--base-only", action="store_true")
+    p.add_argument("--cf-only", action="store_true",
+                   help="score only counterfactual records; the base half comes from the "
+                        "canonical <tag>_gen.jsonl")
     p.add_argument("--gen-only", action="store_true", help="generation only; for difficulty calibration")
     main(p.parse_args())

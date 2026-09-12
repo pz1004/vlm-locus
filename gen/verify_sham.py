@@ -56,7 +56,7 @@ def main(a):
     for r in sham:
         A = np.asarray(Image.open(os.path.join(a.root, by[r["cf_of"]]["image"])).convert("RGB"))
         B = np.asarray(Image.open(os.path.join(a.root, r["image"])).convert("RGB"))
-        m = np.asarray(Image.open(os.path.join(a.root, r["cf_mask"])).convert("L")) == 0
+        m = np.asarray(Image.open(os.path.join(a.root, r["cf_mask"])).convert("L")) == 255
         if A.shape != B.shape or not np.array_equal(A[~m], B[~m]):
             bad.append(r["id"])
     chk(not bad, f"{len(sham)-len(bad)}/{len(sham)} exact" + (f"  e.g. {bad[:3]}" if bad else ""))

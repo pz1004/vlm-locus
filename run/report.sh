@@ -5,12 +5,19 @@
 # Analysis only -- no GPU, no model. Everything it reads was produced by stages 1-9.
 set -e
 PY=${PY:-.venv/bin/python}
+# Analysis steps run under $APY, NOT $PY, and the separation is the point. The venv exists for
+# torch; the committed analysis artefacts reproduce under the interpreter README.md's
+# reproduction path names, and the two are not interchangeable -- numpy 2.4.6 and 2.5.2 disagree
+# on 3 predictions of 1125 in this grid, one tie landing the other way in each of two cells.
+# Producing a canonical artefact under whichever interpreter happened to have torch installed is
+# how a committed file stops reproducing. run/verify_protocol.py asserts this separation.
+APY=${APY:-python3}
 Q='warn|explained_var|ConvergenceWarning'
 echo "##### 1. dataset integrity (duplicate-render check)"
 $PY gen/verify.py data/cal_3b 2>&1 | sed -n '/\[9\]/,/^$/p'
 echo
 echo "##### 2. where the answer lives: probe at every layer vs the model"
-$PY run/layers.py 2>&1 | grep -viE "$Q"
+$APY run/layers.py 2>&1 | grep -viE "$Q"
 echo
 echo "##### 3. control: within-arm, where arm identity carries no information"
 $PY run/generalize.py 2>&1 | grep -viE "$Q"
@@ -41,10 +48,10 @@ $PY run/readout.py 2>&1 | grep -viE "$Q|Stochastic"
 $PY run/gate.py 2>&1 | grep -viE "$Q"
 echo
 echo "##### 10. second model: SmolVLM on identical data"
-$PY run/layers.py runs/states_smol_v2.npz runs/smol_v2_gen.jsonl runs/layers_smol_v2.json 2>&1 | grep -viE "$Q"
+$APY run/layers.py runs/states_smol_v2.npz runs/smol_v2_gen.jsonl runs/layers_smol_v2.json 2>&1 | grep -viE "$Q"
 echo
 echo "##### 11. second model, difficulty-matched"
-$PY run/layers.py runs/states_smolm.npz runs/smolm_gen.jsonl runs/layers_smolm.json 2>&1 | grep -viE "$Q"
+$APY run/layers.py runs/states_smolm.npz runs/smolm_gen.jsonl runs/layers_smolm.json 2>&1 | grep -viE "$Q"
 $PY -c "import json,sys; sys.path.insert(0,'run'); import cfprobe; cfprobe.report(json.load(open('runs/cfprobe_smolm.json')))"
 echo
 echo "##### 12. measured branch costs"

@@ -11,6 +11,7 @@ outputs only -- no path outside the repository, so they work from a fresh clone.
 from __future__ import annotations
 import json, math, os, re, subprocess, sys
 import numpy as np
+from PIL import Image
 from scipy.stats import binomtest, ttest_rel
 
 os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -496,26 +497,119 @@ chk("the source citation in the docs covers exactly the comment block it names",
 # same items, with the sham edit the same size as the real one it is paired with.
 sh = C.get("sham") or []
 if sh:
-    pos = [b for b in sh if b["gap"] > 0]
-    neg = [b for b in sh if b["gap"] <= 0]
-    chk("the sham control is scored on the same held-out items as the real edit",
-        len({b["n"] for b in sh}) == 1
-        and all(b["n"] == sh[0]["n"] for b in sh), f"n={sh[0]['n']} in all {len(sh)} cells")
+    ch = [b for b in sh if b["family"] == "chart"]
+    pos = [b for b in ch if b["gap"] > 0]
+    neg = [b for b in ch if b["gap"] <= 0]
+    # one held-out set PER FAMILY, not one across all of them. This assertion read
+    # `len({b["n"] for b in sh}) == 1` while chart was the only family with a sham, so it would
+    # have failed the moment a second family arrived -- correctly, but for the wrong reason: the
+    # families have different answer spaces and different drop rates, so a single n was never
+    # the property. What has to hold is that within a family every model scored the same items.
+    byfam = {}
+    for b in sh:
+        byfam.setdefault(b["family"], set()).add(b["n"])
+    chk("within each family the sham control is scored on one held-out set",
+        all(len(v) == 1 for v in byfam.values()),
+        ", ".join(f"{f} n={sorted(v)[0]}" for f, v in sorted(byfam.items())))
+    # ...and those items are the cell's own held-out set, not some other split's
+    bad = []
+    for b in sh:
+        cp = f"runs/canonpred_{b['tag']}.json"
+        if os.path.exists(cp):
+            held = json.load(open(cp)).get(b["family"], {}).get("ids") or []
+            if held and b["n"] > len(held):
+                bad.append(f"{b['tag']}/{b['family']} {b['n']}>{len(held)}")
+    chk("every sham cell is a subset of that cell's canonical held-out items", not bad,
+        f"{len(sh)} cells" + (f", over-sized: {bad[:3]}" if bad else ""))
     chk("cells with a gap follow the real edit and do not move on the sham",
         all(b["follow_real"] > 0.5 and b["probe_moved"] / b["n"] < 0.05 for b in pos),
-        f"{len(pos)} cells: follow "
+        f"{len(pos)} chart cells: follow "
         f"{100*min(b['follow_real'] for b in pos):.0f}-{100*max(b['follow_real'] for b in pos):.0f}%, "
-        f"moved at most {max(b['probe_moved'] for b in pos)}/{sh[0]['n']}")
+        f"moved at most {max(b['probe_moved'] for b in pos)}/{pos[0]['n']}")
     chk("the cell that moves on the sham is the cell that does not follow the real edit",
-        bool(neg) and max(sh, key=lambda b: b["probe_moved"]) is
+        bool(neg) and max(ch, key=lambda b: b["probe_moved"]) is
         max(neg, key=lambda b: b["probe_moved"])
-        and min(sh, key=lambda b: b["follow_real"]) in neg,
+        and min(ch, key=lambda b: b["follow_real"]) in neg,
         f"{neg[0]['label'] if neg else '-'}: moved {neg[0]['probe_moved'] if neg else 0}, "
         f"follows {100*neg[0]['follow_real'] if neg else 0:.0f}%")
-    # and the images themselves hold: same answer, exact pixel guard, queried bar untouched
-    rs = subprocess.run([PY, "gen/verify_sham.py"], capture_output=True, text=True)
-    chk("the sham images pass their own guards", rs.returncode == 0 and "PASS" in rs.stdout,
-        rs.stdout.strip().split("\n")[-1] if rs.stdout else "did not run")
+    # and the images themselves hold: same answer, exact pixel guard, queried attribute untouched
+    for g, root in (("gen/verify_sham.py", "data/real_chart_sham"),
+                    ("gen/verify_real_sham.py", "data/real_3b_sham")):
+        if not os.path.isdir(root):
+            continue
+        rs = subprocess.run([PY, g], capture_output=True, text=True)
+        chk(f"the sham images pass their own guards ({os.path.basename(root)})",
+            rs.returncode == 0 and "PASS" in rs.stdout,
+            rs.stdout.strip().split("\n")[-1] if rs.stdout else "did not run")
+    # The control's own result, and the reason it is worth running on families that are not loci:
+    # sham stability separates the verdict set on its own, with no threshold chosen to make it do
+    # so. This is a max against a min -- if the two groups ever overlap, the claim in the
+    # manuscript is false and this fails rather than narrowing.
+    # grouped on the COUNTERFACTUAL condition, not on the full verdict. Both statistics here are
+    # counterfactual; the verdict also prices the model, and one chart cell reads its attribute
+    # perfectly while failing the verdict only because the model reads it too. Grouping on the
+    # verdict puts that cell among the failures at 0 of 114 moved and destroys a real separation.
+    L = [b for b in sh if b["cf_pass"]]
+    O = [b for b in sh if not b["cf_pass"]]
+    if L and O:
+        lo, hi = (max(b["probe_moved"] / b["n"] for b in L),
+                  min(b["probe_moved"] / b["n"] for b in O))
+        chk("sham stability separates the cells that pass the counterfactual gate from those that do not",
+            lo < hi, f"{len(L)} passing move at most {100*lo:.1f}%, "
+            f"{len(O)} failing at least {100*hi:.1f}%")
+    # and on the designed absence the two readers' stabilities invert: the probe, which has
+    # nothing to read, moves more than the model whose state it is reading
+    gy = [b for b in sh if b["family"].startswith("glyph")]
+    if gy:
+        inv = [b for b in gy if b["probe_moved"] / b["n"]
+               <= b["model_moved"] / max(b["model_stable_den"], 1)]
+        chk("on the designed absence the probe is the less stable of the two readers",
+            not inv, f"{len(gy)} cells, probe "
+            f"{100*min(b['probe_moved']/b['n'] for b in gy):.0f}-"
+            f"{100*max(b['probe_moved']/b['n'] for b in gy):.0f}% against model "
+            f"{100*min(b['model_moved']/b['model_stable_den'] for b in gy):.0f}-"
+            f"{100*max(b['model_moved']/b['model_stable_den'] for b in gy):.0f}%"
+            + (f"; not inverted in {[b['label'] for b in inv]}" if inv else ""))
+    # run/shamfollow.py refits the probe itself rather than loading a serialised one, and says it
+    # does so "exactly as run/canonpred.py does". That is a second copy of a fitting procedure,
+    # which is this cycle's dominant defect class, so the claim is measured: its pre-edit
+    # prediction must equal canonpred's on every item the two share.
+    S = json.load(open("runs/sham.json")) if os.path.exists("runs/sham.json") else {}
+    same, diff = 0, []
+    for tag, fams in S.items():
+        cp = f"runs/canonpred_{tag}.json"
+        if not os.path.exists(cp):
+            continue
+        CP = json.load(open(cp))
+        for fam, r in fams.items():
+            if fam not in CP:
+                continue
+            ref = dict(zip(CP[fam]["ids"], CP[fam]["pred"]))
+            for x in r["rows"]:
+                if x["id"] in ref:
+                    same += 1
+                    if str(ref[x["id"]]) != x["probe0"]:
+                        diff.append(f"{tag}/{fam}/{x['id']}")
+    chk("the sham control's probe is the canonical probe, item for item", not diff,
+        f"{same} predictions compared" + (f", differing: {diff[:3]}" if diff else ""))
+    # the cross-check that justified scoring only the sham half of the real-image stage has to
+    # still have an input, or the justification quietly stops being tested. run/shamfollow.py
+    # exits on disagreement; what is asserted here is that the comparison is not empty.
+    rescored = 0
+    for b in sh:
+        g = f"runs/{b['tag']}_sham_gen.jsonl"
+        if os.path.exists(g):
+            rescored += sum(1 for l in open(g) if not json.loads(l)["id"].endswith("_sham"))
+    chk("the base half is re-scored somewhere, so the agreement check has an input",
+        rescored > 0, f"{rescored} re-scored base generations across {len(sh)} cells")
+    # the size rule, from the measurement rather than from the builder's claim about itself
+    if os.path.exists("runs/sham_guards.json"):
+        G = json.load(open("runs/sham_guards.json"))["pixels"]
+        gated = {f: v for f, v in G.items() if f != "spatial"}
+        chk("where the sham's size is chosen, it is never the smaller edit",
+            all(v["ge"] == v["n"] for v in gated.values()),
+            ", ".join(f"{f} {v['ge']}/{v['n']} (median {v['median']:.2f}x)"
+                      for f, v in sorted(gated.items())))
 
 # 23 -- the prediction join's family filter is load-bearing. canon.prediction() now refuses to
 # pair a probe and an adaptation measured on different held-out sets, which is enforcement enough
@@ -549,7 +643,64 @@ chk("every adaptation row scores the probe's own held-out items",
 chk("...and the family filter that establishes it is doing work",
     len(unfilt) > 0, f"without it {len(unfilt)} of {checked} cells would read as a mismatch")
 
-# 24 -- the check numbering itself. Two blocks were both numbered 12b for several commits, and
+# 24 -- the mask convention, measured from the pixels rather than read from a comment. A
+# counterfactual's mask says which pixels were allowed to differ, and gen/real.py's
+# paste_instance and gen/chart_real.py's raise_bar both write 255 there, which is what
+# gen/verify_real.py reads. gen/build_chart_sham.py wrote the INVERSE for two days behind the
+# comment "0 = edited, as the other families" -- self-consistent with its own verifier, so
+# nothing failed, and the comment asserting conformity is what made it invisible. A second
+# builder then copied the split, writing one polarity for counting and the other for glyph.
+# Reading the polarity off the images is the only form of this check that could have caught it.
+# One record per (dataset, family) is enough and is the point: the property is a convention a
+# builder either follows or inverts for everything it writes, not a per-file risk of corruption.
+mp = []
+for d in sorted(_glob.glob("data/*/manifest.jsonl")):
+    root = os.path.dirname(d)
+    recs = [json.loads(l) for l in open(d)]
+    by = {x["id"]: x for x in recs}
+    seen = set()
+    for r in recs:
+        if not r.get("cf_of") or r["family"] in seen or r["cf_of"] not in by:
+            continue
+        m = r.get("cf_mask") or r["image"].replace(".png", "_mask.png")
+        if not os.path.exists(os.path.join(root, m)):
+            continue
+        A = np.asarray(Image.open(os.path.join(root, by[r["cf_of"]]["image"])).convert("RGB"))
+        B = np.asarray(Image.open(os.path.join(root, r["image"])).convert("RGB"))
+        M = np.asarray(Image.open(os.path.join(root, m)).convert("L"))
+        if A.shape != B.shape or M.shape != A.shape[:2]:
+            continue
+        diff = (A != B).any(2)
+        seen.add(r["family"])
+        mp.append((f"{os.path.basename(root)}/{r['family']}",
+                   int(diff[M == 255].sum()), int(diff[M == 0].sum())))
+wrong = [n for n, at255, at0 in mp if at0 > at255]
+chk("every counterfactual mask marks the edited pixels with 255", not wrong,
+    f"{len(mp)} (dataset, family) masks measured" + (f", inverted: {wrong}" if wrong else ""))
+
+# 25 -- the analysis interpreter. The repository has two: a venv carrying torch for the capture
+# and scoring passes, and the interpreter README.md's reproduction path names for everything that
+# only reads artefacts. They are not interchangeable. The committed canonpred files reproduce
+# under the second and not under the first -- numpy 2.4.6 against 2.5.2 flips one tied prediction
+# in q3b4_real_3b/counting and two in ivl_real_3b/glyph, 3 of 1125, moving two cells by 1.3 pp.
+# Neither cell is near a threshold, so nothing in the manuscript turns on it; what does turn on it
+# is whether a re-run reproduces the committed files, and a stage script that fits a probe under
+# whichever interpreter happens to have torch is how it stops. So the separation is structural:
+# analysis producers are invoked through $APY, capture and scoring through $PY.
+ANALYSIS = {"canon.py", "canonpred.py", "cffollow.py", "fit_probes.py", "headread.py",
+            "layers.py", "lora_matched.py", "nullcal.py", "p0.py", "p3.py", "probe.py",
+            "results_md.py", "shamfollow.py", "splits.py", "fix_chart_scoring.py"}
+wrongpy = []
+for f in subprocess.run(["git", "ls-files", "*.sh"], capture_output=True, text=True).stdout.split():
+    for ln in open(f):
+        m = re.search(r"\$(\w+)\s+run/([a-z_0-9]+\.py)", ln)
+        if m and m.group(2) in ANALYSIS and m.group(1) != "APY":
+            wrongpy.append(f"{f}:{m.group(2)} under ${m.group(1)}")
+chk("analysis producers run under the analysis interpreter, not the GPU venv", not wrongpy,
+    f"{len(ANALYSIS)} analysis scripts"
+    + (f", mis-invoked: {wrongpy[:4]}" if wrongpy else ""))
+
+# 26 -- the check numbering itself. Two blocks were both numbered 12b for several commits, and
 # 12c never existed, because the numbers were prose that nothing read -- while run/canon.py
 # cross-references one of them by number. A header is "# N -- ", and they must be 1..N, once each,
 # in order.

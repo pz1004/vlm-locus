@@ -86,8 +86,11 @@ def main(a):
         A[new_top:top, x0:x1 + 1] = np.array(colour, np.uint8)
         sid = f"{r['id']}_sham"
         Image.fromarray(A).save(os.path.join(a.out, "images", f"{sid}.png"))
-        m = np.full(A.shape[:2], 255, np.uint8)
-        m[new_top:top, x0:x1 + 1] = 0                        # 0 = edited, as the other families
+        # 255 marks the pixels allowed to differ, which is what gen/chart_real.py's raise_bar
+        # and gen/real.py's paste_instance both write, and what gen/verify_real.py reads. This
+        # file wrote the inverse for two days behind a comment claiming it matched them.
+        m = np.zeros(A.shape[:2], np.uint8)
+        m[new_top:top, x0:x1 + 1] = 255
         Image.fromarray(m).save(os.path.join(a.out, "images", f"{sid}_mask.png"))
         shutil.copyfile(os.path.join(a.src, r["image"]),
                         os.path.join(a.out, "images", os.path.basename(r["image"])))

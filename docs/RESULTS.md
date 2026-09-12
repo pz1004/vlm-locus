@@ -43,6 +43,39 @@ That 1-of-5 needs its arithmetic stated rather than a label attached to it. A co
 
 All **7 of 7** counting cells decode above their own null, and **0** survive the counterfactual. Follow rates run 10--53%. The information is there; the probe is reading a correlate of the count rather than the count, and no accuracy comparison at any layer would have shown it.
 
+## The label-preserving control
+
+Every other counterfactual here changes the answer, so following one shows the probe responds to *something* the edit did -- not that it responds to the attribute rather than to a cue travelling with it. The sham edit changes the image and not the answer: it applies each family's own primitive where the question is not looking, at a size that is not smaller than the real edit. A reader of the attribute must return the same answer; a reader of the scene may not.
+
+| config | family | n | follows real | probe moved | model moved | locus |
+|---|---|--:|--:|--:|--:|:--|
+| InternVL3-2B | chart | 114 | 95/102 | 2 | 12 | **readout** |
+| Qwen-3B bf16 | chart | 114 | 95/103 | 0 | 3 | -- |
+| Qwen-3B nf4 | chart | 114 | 95/104 | 1 | 5 | **readout** |
+| Qwen-7B nf4 | chart | 114 | 93/103 | 2 | 23 | **readout** |
+| SmolVLM | chart | 114 | 11/55 | 18 | 15 | -- |
+| InternVL3-2B | counting | 54 | 8/29 | 4 | 11 | -- |
+| Qwen-3B bf16 | counting | 54 | 9/33 | 8 | 6 | -- |
+| Qwen-3B nf4 | counting | 54 | 11/30 | 8 | 5 | -- |
+| Qwen-7B nf4 | counting | 54 | 11/37 | 9 | 11 | -- |
+| SmolVLM | counting | 54 | 5/33 | 6 | 16 | -- |
+| InternVL3-2B | glyph | 75 | 0/3 | 19 | 11 | -- |
+| Qwen-3B bf16 | glyph | 75 | 0/5 | 21 | 3 | -- |
+| Qwen-3B nf4 | glyph | 75 | 0/3 | 21 | 10 | -- |
+| Qwen-7B nf4 | glyph | 75 | 1/5 | 29 | 12 | -- |
+| SmolVLM | glyph | 75 | 0/9 | 23 | 13 | -- |
+| InternVL3-2B | spatial | 75 | 11/38 | 19 | 12 | -- |
+| Qwen-3B bf16 | spatial | 75 | 17/45 | 16 | 9 | -- |
+| Qwen-3B nf4 | spatial | 75 | 15/46 | 10 | 14 | -- |
+| Qwen-7B nf4 | spatial | 75 | 21/46 | 13 | 15 | -- |
+| SmolVLM | spatial | 75 | 6/41 | 14 | 22 | -- |
+
+The two halves separate, and they separate completely. Every one of the 4 cells that passes the counterfactual condition moves on at most 1.8% of its items; every one of the 16 that fails it moves on at least 7.4%. Nothing here is thresholded -- that is a max against a min, and no constant was chosen to produce it.
+
+The grouping is on the counterfactual condition rather than on the locus verdict, and the difference matters. Both statistics are counterfactual; the verdict also prices the model, so the one chart cell that reads its attribute perfectly and is not a locus -- because the model reads it too -- belongs with the passing group here. Grouping on the verdict would place it, at 0 of 114 moved, among the failures and erase the separation.
+
+Neither rate means anything alone: a probe that never moves has shown nothing if it also never follows. Both are reported on the same items and the same probe.
+
 ## Sensitivity of the one prespecified threshold
 
 The follow threshold is the only free constant in the protocol. Applied to the lower bound, the verdict set is unchanged for every threshold in **[30, 63]**. Outside that range it changes one cell at a time: above 63, `smolm/spatial` falls first; below 30, `3b/counting` is admitted. The range does not reach zero, so "any low threshold would do" is not available as a defence.
