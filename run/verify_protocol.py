@@ -31,8 +31,16 @@ sys.path.insert(0, os.path.join(os.getcwd(), "run"))
 from canon import GATE_CI, locus, g1_at
 import canon
 
-subprocess.run([PY, "run/canon.py"], capture_output=True)
-subprocess.run([PY, "run/results_md.py"], capture_output=True)
+# The generators run first and everything below reads what they wrote, so a generator that exits
+# must be reported as itself. canon.py can exit deliberately -- prediction() refuses to pair a
+# probe and an adaptation scored on different item sets -- and discarding its output turned that
+# into a JSONDecodeError on a file it never wrote, which names neither the cause nor the script.
+for _s in ("run/canon.py", "run/results_md.py"):
+    _r = subprocess.run([PY, _s], capture_output=True, text=True)
+    if _r.returncode:
+        msg = (_r.stderr or _r.stdout or "").strip().split("\n")
+        sys.exit(f"{_s} exited {_r.returncode}, so there is nothing to verify:\n  "
+                 + "\n  ".join(msg[-3:]))
 C = json.load(open(os.environ.get("VLM_LOCUS_JSON", "out/canon.json")))
 rows = C["synthetic"] + C["real"]
 TEX = os.environ.get("VLM_LOCUS_TEX", "out/tables")
@@ -509,7 +517,39 @@ if sh:
     chk("the sham images pass their own guards", rs.returncode == 0 and "PASS" in rs.stdout,
         rs.stdout.strip().split("\n")[-1] if rs.stdout else "did not run")
 
-# 23 -- the check numbering itself. Two blocks were both numbered 12b for several commits, and
+# 23 -- the prediction join's family filter is load-bearing. canon.prediction() now refuses to
+# pair a probe and an adaptation measured on different held-out sets, which is enforcement enough
+# on its own: it exits, and this harness runs canon.py first. What is NOT self-evident, and what
+# this checks, is the filter inside that comparison. A tag's per-item file spans every family its
+# dataset holds, so comparing the whole file against one family's ids reports a mismatch on the
+# twelve multi-family cells and agreement on the four single-family ones -- a guard that looks
+# like it is working, fires constantly, and means nothing. Asserting that the unfiltered form
+# really would disagree is what keeps the filter from being "cleaned up" later.
+M = json.load(open("runs/p3_lora_matched.json"))
+cidx = {(r["model"], r["family"]): r for r in C["real"]}
+filt, unfilt, checked = [], [], 0
+for m in M:
+    c = cidx.get((m["model"], m["family"]))
+    cp = f"runs/canonpred_{c['tag']}.json" if c else None
+    if not c or not cp or not os.path.exists(cp):
+        continue
+    f = f"runs/lora_items_{m['tag']}-ep{m['epoch']}.json"
+    if not os.path.exists(f):
+        continue
+    checked += 1
+    allids = set(json.load(open(f)))
+    want = set(json.load(open(cp))[m["family"]]["ids"])
+    if canon.lora_items(m, m["family"]) != want:
+        filt.append(f"{m['model']}/{m['family']}")
+    if allids != want:
+        unfilt.append(f"{m['model']}/{m['family']}")
+chk("every adaptation row scores the probe's own held-out items",
+    not filt and checked == len(M), f"{checked}/{len(M)} cells"
+    + (f", differing: {filt}" if filt else ""))
+chk("...and the family filter that establishes it is doing work",
+    len(unfilt) > 0, f"without it {len(unfilt)} of {checked} cells would read as a mismatch")
+
+# 24 -- the check numbering itself. Two blocks were both numbered 12b for several commits, and
 # 12c never existed, because the numbers were prose that nothing read -- while run/canon.py
 # cross-references one of them by number. A header is "# N -- ", and they must be 1..N, once each,
 # in order.

@@ -381,14 +381,52 @@ def cells(spec):
     return rows
 
 
+def lora_items(m, fam):
+    """The ids the adaptation run was evaluated on, for one family of one tag.
+
+    A tag's per-item file spans every family that dataset holds -- real_3b carries counting,
+    glyph and spatial together -- so the family filter is not optional. Comparing the whole file
+    against one family's held-out set says "differ" on twelve of sixteen cells and means nothing.
+    """
+    f = f"runs/lora_items_{m['tag']}-ep{m['epoch']}.json"
+    if not os.path.exists(f):
+        raise SystemExit(f"prediction(): {f} is missing, so the adaptation row for "
+                         f"{m['model']}/{fam} cannot be shown to score the probe's items")
+    return {k for k in json.load(open(f)) if k.rsplit("_", 1)[0] == fam}
+
+
 def prediction(real):
-    """Probe gain vs fine-tuning gain, plus the free predictors it has to beat."""
+    """Probe gain vs fine-tuning gain, plus the free predictors it has to beat.
+
+    The join is on (model, family), and that key does not say which items either side scored.
+    Probe gain comes from the canonical row and adaptation gain from a separate run, so a pairing
+    can look valid while comparing a probe measured on one held-out set against an adaptation
+    measured on another -- which is exactly what would have happened had the chart cells moved to
+    the 932-item bidirectional set while the adaptation runs stayed on the 466-item one. Counts
+    would still have matched on the other twelve cells, so `n` is not the check.
+
+    The item sets are compared instead, and a mismatch exits rather than being reported: a
+    shrunken or crossed table is worse than no table, the same reason run/p0.py's
+    split-correspondence assertion exits.
+    """
     M = {(r["model"], r["family"]): r for r in json.load(open("runs/p3_lora_matched.json"))}
     idx = {(r["model"], r["family"]): r for r in real if r["model"] in {"q3b", "q7b", "ivl", "smol"}}
     rows = []
     for k, m in M.items():
         c = idx.get(k)
         if c is None: continue
+        cp = f"runs/canonpred_{c['tag']}.json"
+        if not os.path.exists(cp):
+            raise SystemExit(f"prediction(): {cp} is missing; run run/canonpred.py")
+        want = set(json.load(open(cp))[k[1]]["ids"])
+        got = lora_items(m, k[1])
+        if got != want:
+            raise SystemExit(
+                f"prediction(): {k[0]}/{k[1]} pairs a probe measured on {len(want)} items with an "
+                f"adaptation measured on {len(got)}, overlapping {len(got & want)}. "
+                f"The join key (model, family) does not identify the item set; "
+                f"{m['tag']} and {c['tag']} are not the same held-out split.")
+        # n is the same on both sides now, which is what makes taking it from either side safe
         rows.append(dict(model=k[0], family=k[1], n=m["n"], base=c["model_acc"],
                          probe=c["probe"], lora=m["lora"], chance=c["chance"]))
     fam = [r["family"] for r in rows]
