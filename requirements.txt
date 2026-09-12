@@ -1,4 +1,14 @@
-# Pinned to the versions every reported number was produced under (Python 3.12.12).
+# The capture and scoring environment (Python 3.12.12): the passes that load a model --
+# run/capture.py, run/score.py, run/cfprobe.py, run/cfcapture.py, run/lora.py, run/assert_head.py
+# and run/headread.py, the last of which needs the unembedding but no GPU.
+#
+# It is NOT the environment any reported number is emitted under. That is
+# requirements-analysis.txt, and the two disagree on numpy, scipy and matplotlib. This header
+# used to read "pinned to the versions every reported number was produced under", which was wrong
+# in the way that is hardest to see: the file is correct about the environment it describes and
+# wrong about which environment that is. scikit-learn and pillow happen to match across both, so
+# the two agreed on everything until a tied prediction arrived that they could not agree on.
+#
 # torch is CUDA 12.8; install it from the PyTorch index for your platform first:
 #   pip install torch==2.11.0 --index-url https://download.pytorch.org/whl/cu128
 torch==2.11.0

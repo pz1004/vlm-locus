@@ -45,7 +45,7 @@ Every number and figure comes from the frozen artefacts in `runs/`. **No GPU, no
 and no dataset are needed for this path.**
 
 ```bash
-pip install numpy scipy scikit-learn matplotlib
+pip install -r requirements-analysis.txt
 python3 run/canon.py        # -> out/canon.json, out/tables/*.tex
 python3 run/results_md.py   # -> docs/RESULTS.md
 python3 run/figs.py         # -> out/figs/*.pdf, *.png
@@ -54,6 +54,16 @@ python3 run/figs.py         # -> out/figs/*.pdf, *.png
 `run/canon.py` is the single source of every reported number; nothing is transcribed by hand, and
 both it and `run/results_md.py` are byte-stable for a given input, so **regenerating and diffing
 is itself a check** that the committed outputs match the artefacts.
+
+Two environments are in play and the repository keeps them apart. This is the analysis one, and
+it is the interpreter every committed number is emitted under; `requirements.txt` is the capture
+and scoring environment, needs torch, and is used only by the re-running path below. What the
+difference costs is measured rather than assumed: `out/tables/*.tex` and `docs/RESULTS.md` come
+out **byte-identical** under both, so this path does not actually depend on the pin. Re-deriving
+`runs/*.json` from the captured states does, because numpy 2.4.6 and 2.5.2 flip three tied
+logistic-regression predictions of 1125 across this grid. `run/verify_protocol.py` check 27
+asserts the pin covers what the analysis path imports, and reports whether the interpreter
+running it is the pinned one.
 
 Output locations default to `out/` and are overridable with `VLM_LOCUS_JSON`, `VLM_LOCUS_TEX`,
 `VLM_LOCUS_FIGS` and `VLM_LOCUS_DOCS`.
@@ -90,7 +100,7 @@ full dependency set:
 
 ```bash
 pip install torch==2.11.0 --index-url https://download.pytorch.org/whl/cu128
-pip install -r requirements.txt
+pip install -r requirements.txt      # the capture environment, not the analysis one
 python3 gen/generate.py        # synthetic families, rendered from specs
 python3 gen/build_real.py      # real families (needs COCO val2017 + ChartQA)
 python3 gen/verify_real.py     # the per-family pixel-identity guards

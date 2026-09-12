@@ -9,7 +9,8 @@ outputs only -- no path outside the repository, so they work from a fresh clone.
     python3 run/verify_protocol.py
 """
 from __future__ import annotations
-import json, math, os, re, subprocess, sys
+import ast, json, math, os, re, subprocess, sys
+from importlib.metadata import PackageNotFoundError, packages_distributions, version
 import numpy as np
 from PIL import Image
 from scipy.stats import binomtest, ttest_rel
@@ -22,6 +23,26 @@ ck = []
 
 def chk(name, ok, note=""):
     ck.append((name, ok)); print(f"{'PASS' if ok else 'FAIL'}  {name}" + (f"   {note}" if note else ""))
+
+
+# The analysis environment, read once. requirements-analysis.txt pins the interpreter every
+# committed number was emitted under; check 27 asserts the pin covers what the analysis path
+# imports, and check 18 uses this to say why a reproduction failure is probably not the artefacts.
+PIN = "requirements-analysis.txt"
+PINS = {}
+for _ln in open(PIN):
+    _ln = _ln.split("#")[0].strip()
+    if "==" in _ln:
+        _d, _v = _ln.split("==")
+        PINS[_d.strip().lower()] = _v.strip()
+ENVDRIFT = []
+for _d, _v in sorted(PINS.items()):
+    try:
+        _have = version(_d)
+    except PackageNotFoundError:
+        _have = "absent"
+    if _have != _v:
+        ENVDRIFT.append(f"{_d} {_have} != {_v}")
 
 
 sys.path.insert(0, os.path.join(os.getcwd(), "run"))
@@ -407,9 +428,15 @@ chk("canonpred and layers.py agree on every cell that clears its own null",
     + (", ".join(f"{n} by {k} item(s)" for n, k, _ in dis) if dis else "none"))
 # and the producer reproduces what is committed, which is what makes the verdict rederivable
 rc = subprocess.run([PY, "run/canonpred.py", "--check"], capture_output=True, text=True)
+# A failure here reads as "the artefacts are wrong" and is far more often "this is the other
+# interpreter": the committed files were emitted under requirements-analysis.txt, and numpy 2.5.2
+# against 2.4.6 flips three tied predictions of 1125 across this grid. Say so in the note rather
+# than leaving a reader to find it in the data.
 chk("the committed canonpred files are reproduced by their producer",
     rc.returncode == 0 and "all reproduce" in rc.stdout,
-    rc.stdout.strip().split("\n")[-1] if rc.stdout else "no output")
+    (rc.stdout.strip().split("\n")[-1] if rc.stdout else "no output")
+    + (f"; note this is not the pinned analysis environment ({', '.join(ENVDRIFT)})"
+       if ENVDRIFT else ""))
 
 # 19 -- every artefact family the analysis reads is named, literally, in some tracked producer.
 # runs/canonpred_*.json had a producer, run/canon_pred.py, that built its output path from argv
@@ -687,7 +714,13 @@ chk("every counterfactual mask marks the edited pixels with 255", not wrong,
 # is whether a re-run reproduces the committed files, and a stage script that fits a probe under
 # whichever interpreter happens to have torch is how it stops. So the separation is structural:
 # analysis producers are invoked through $APY, capture and scoring through $PY.
-ANALYSIS = {"canon.py", "canonpred.py", "cffollow.py", "fit_probes.py", "headread.py",
+# run/headread.py is deliberately NOT in this set although it fits probes like the rest. It
+# loads the released unembedding, so it needs torch and belongs to the capture environment; a set
+# that demanded $APY for it would demand an interpreter that cannot run it. Nothing invokes it
+# from a driver today, so the contradiction was latent rather than firing. The cost is real and
+# named in requirements-analysis.txt: runs/headread.json is the one analysis artefact produced
+# under the other numpy.
+ANALYSIS = {"canon.py", "canonpred.py", "cffollow.py", "fit_probes.py",
             "layers.py", "lora_matched.py", "nullcal.py", "p0.py", "p3.py", "probe.py",
             "results_md.py", "shamfollow.py", "splits.py", "fix_chart_scoring.py"}
 wrongpy = []
@@ -709,6 +742,57 @@ chk("the check numbers are unique, gapless and in order",
     nums == list(range(1, len(nums) + 1)),
     f"{len(nums)} headers, 1..{max(nums) if nums else 0}"
     + ("" if nums == sorted(set(nums)) else f", out of order or repeated: {nums}"))
+
+# 27 -- the analysis environment, pinned. Check 25 keeps analysis producers off the GPU venv,
+# which is the half that was going wrong silently; it does not make the committed artefacts
+# re-derivable, because nothing said which numpy "the analysis interpreter" meant.
+# requirements-analysis.txt says it now, and requirements.txt no longer claims to.
+#
+# The assertion here is the portable half: every third-party module the analysis path imports
+# must be named in the pin, so a dependency added later cannot arrive unpinned -- which is the
+# drift a version list actually suffers. The running versions are reported and not gated,
+# deliberately: out/tables/*.tex and docs/RESULTS.md are byte-identical under both interpreters
+# in this repository, so a check that failed a clean clone over a difference that moves no
+# reported number would be enforcing something the repository has measured to be false. What a
+# mismatch does mean is that verify_provenance.py's "tables match a fresh run" is the check now
+# carrying the claim, so the detail line says so instead of passing silently.
+LOCAL = {f[:-3] for f in os.listdir("run") if f.endswith(".py")}
+ENTRY = ANALYSIS | {"figs.py", "manifest.py", "verify_provenance.py",
+                    os.path.basename(__file__)}
+seen, imports = set(), {}
+
+
+def _walk(name):
+    """Third-party imports reachable from an entry point, following local modules."""
+    if name in seen or not os.path.exists(f"run/{name}"):
+        return
+    seen.add(name)
+    for n in ast.walk(ast.parse(open(f"run/{name}").read())):
+        if isinstance(n, ast.Import):
+            ms = [a.name.split(".")[0] for a in n.names]
+        elif isinstance(n, ast.ImportFrom) and n.level == 0 and n.module:
+            ms = [n.module.split(".")[0]]
+        else:
+            continue
+        for m in ms:
+            if m in LOCAL:
+                _walk(m + ".py")
+            elif m not in sys.stdlib_module_names and m != "__future__":
+                imports.setdefault(m, set()).add(name)
+
+
+for _e in sorted(ENTRY):
+    _walk(_e)
+# the module -> distribution mapping is measured, not a hardcoded PIL/sklearn dict that would be
+# one more copy of something the installation already knows
+dist = packages_distributions()
+unpinned = sorted(f"{m} (run/{sorted(imports[m])[0]})" for m in imports
+                  if not any(d.lower() in PINS for d in dist.get(m, [m])))
+chk("every third-party import of the analysis path is pinned", not unpinned,
+    f"{len(imports)} packages over {len(seen)} files"
+    + (f", unpinned: {unpinned}" if unpinned else "")
+    + (f"; this interpreter differs ({', '.join(ENVDRIFT)}), so verify_provenance.py is what "
+       f"establishes the tables still match" if ENVDRIFT else "; this interpreter matches the pin"))
 
 print(f"\n{sum(1 for _, o in ck if o)}/{len(ck)} checks pass")
 sys.exit(0 if all(o for _, o in ck) else 1)
